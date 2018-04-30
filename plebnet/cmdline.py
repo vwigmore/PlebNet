@@ -11,7 +11,7 @@ from subprocess import CalledProcessError
 import cloudomate
 import electrum
 from cloudomate.cmdline import providers as cloudomate_providers
-from cloudomate.util.config import UserOptions
+from cloudomate.util.settings import Settings as UserOptions
 from cloudomate.wallet import Wallet
 from electrum import Wallet as ElectrumWallet
 from electrum import WalletStorage
@@ -124,9 +124,9 @@ def check(args):
             return False
     # TEMP TO SEE EXITNODE PERFORMANCE
 
-
-
+    print("test: %s" % config.get('chosen_provider'))
     if not config.get('chosen_provider'):
+        print("test: %s" % config.get('chosen_provider'))
         print ("Choosing new provider")
         update_choice(config, dna)
         config.save()
@@ -187,10 +187,13 @@ def update_offer(config, dna):
 
 
 def calculate_price(provider, option):
-    vpsoption = options(cloudomate_providers[provider])[option]
-    gateway = cloudomate_providers[provider].gateway
+    print('provider: %s option: %s' % (provider, option))
+    # vpsoptions = options(cloudomate_providers['vps'][provider])
+    vpsoption = options(cloudomate_providers['vps'][provider])[option]
+    print('chosen_option: %s' % str(vpsoption))
+    gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(vpsoption.price, vpsoption.currency)) + cloudomate.wallet.get_network_fee()
+        cloudomate.wallet.get_price(vpsoption.price, 'USD')) + cloudomate.wallet.get_network_fee()
     return btc_price
 
 
@@ -214,10 +217,12 @@ def place_offer(chosen_est_price, config):
 
 def update_choice(config, dna):
     all_providers = dna.vps
+    print ("test_update choice: %s" % all_providers)
     excluded_providers = config.get('excluded_providers')
     available_providers = list(set(all_providers.keys()) - set(excluded_providers))
     providers = {k: all_providers[k] for k in all_providers if k in available_providers}
     print("Providers: %s" % providers)
+    print('provider_values: %s' % providers.values())
     if providers >= 1 and sum(providers.values()) > 0:
         providers = DNA.normalize_excluded(providers)
         choice = (provider, option, price) = pick_provider(providers)
@@ -227,7 +232,8 @@ def update_choice(config, dna):
 
 def pick_provider(providers):
     provider = DNA.choose_provider(providers)
-    gateway = cloudomate_providers[provider].gateway
+    print("pick: %s" % provider)
+    gateway = cloudomate_providers['vps'][provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
         cloudomate.wallet.get_price(price, currency)) + cloudomate.wallet.get_network_fee()
@@ -240,13 +246,15 @@ def pick_option(provider):
     :param provider: 
     :return: (option, price, currency)
     """
-    vpsoptions = options(cloudomate_providers[provider])
+    vpsoptions = options(cloudomate_providers['vps'][provider])
     cheapestoption = 0
     for item in range(len(vpsoptions)):
         if vpsoptions[item].price < vpsoptions[cheapestoption].price:
             cheapestoption = item
 
-    return cheapestoption, vpsoptions[cheapestoption].price, vpsoptions[cheapestoption].currency
+    print("test_vpsoptions: %s" % str(vpsoptions[cheapestoption]))
+
+    return cheapestoption, vpsoptions[cheapestoption].price, 'USD'  # vpsoptions[cheapestoption].currency
 
 
 def purchase_choice(config):

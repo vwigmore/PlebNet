@@ -4,6 +4,7 @@ import os
 import random
 
 from appdirs import user_config_dir
+from cloudomate.cmdline import providers as cloudomate_providers
 
 
 class DNA:
@@ -20,7 +21,7 @@ class DNA:
         testdict = {'Self': '',
                     'parent': '',
                     'transaction_hash': '',
-                    'VPS': {'ccihosting': 0.5, 'linevast': 0.5, 'pulseservers': 0.5, 'rockhoster': 0.5}}
+                    'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
         return testdict
 
     def read_dictionary(self):

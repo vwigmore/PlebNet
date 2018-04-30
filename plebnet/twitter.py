@@ -2,7 +2,7 @@ import os
 from ConfigParser import ConfigParser
 
 from appdirs import user_config_dir
-from cloudomate.util.config import UserOptions
+from cloudomate.util.settings import Settings as UserOptions
 from twython import Twython
 
 

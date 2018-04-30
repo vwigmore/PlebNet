@@ -6,7 +6,7 @@ import unicodedata
 
 from appdirs import user_config_dir
 from cloudomate import wallet as wallet_util
-from cloudomate.util.config import UserOptions, os
+from cloudomate.util.settings import Settings as UserOptions, os
 from faker.factory import Factory
 
 
@@ -33,7 +33,7 @@ def setrootpw(provider, password):
 
 
 def options(provider):
-    return provider.options()
+    return provider.get_options()
 
 
 def get_network_fee():
