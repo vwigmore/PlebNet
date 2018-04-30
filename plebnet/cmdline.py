@@ -64,7 +64,7 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary()
     dna.write_dictionary()
-    twitter.tweet_arrival()
+    #twitter.tweet_arrival()
     create_wallet()
 
 
@@ -137,7 +137,10 @@ def check(args):
         config.save()
 
     if config.get('chosen_provider'):
+        print("market")
         (provider, option, _) = config.get('chosen_provider')
+        print('balance: %s' % marketapi.get_btc_balance() )
+        test_mail()
         if marketapi.get_btc_balance() >= calculate_price(provider, option):
             print("Purchase server")
             transaction_hash, provider = purchase_choice(config)
@@ -151,7 +154,7 @@ def check(args):
                 evolve(provider, dna, False)
         config.save()
         return
-
+    print("instal?")
     install_available_servers(config, dna)
     config.save()
 
@@ -322,6 +325,12 @@ def install_available_servers(config, dna):
             config.save()
 
 
+def test_mail():
+    user_options = UserOptions()
+    user_options.read_settings()
+    send_mail("Hello world.", user_options.get('User', 'firstname') + ' ' + user_options.get('User', 'lastname'))
+
+
 def send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash):
     mail_message = 'IP: %s\n' % ip
     mail_message += 'Root password: %s\n' % rootpw
@@ -352,19 +361,19 @@ def install_server(ip, rootpw):
 
 
 def send_mail(mail_message, name):
-    sender = name + '@pleb.net'
-    receivers = ['plebnet@heijligers.me']
-
-    mail = """From: %s <%s>
-To: Jaap <plebnet@heijligers.me>
+    sender = 'authentic8989+' + name + '@gmail.com'
+    receivers = ['authentic8989+' + name + '@gmail.com']
+    mail = """From:""" + name + """<""" + sender + """>
+To: """ + name + """ <authentic8989+""" + name + """@gmail.com'>
 Subject: New child spawned
 
-""" % (name, sender)
+"""
     mail += mail_message
 
     try:
         print("Sending mail: %s" + mail)
-        smtp = smtplib.SMTP('mail.heijligers.me')
+        smtp = smtplib.SMTP('gmail-smtp-in.l.google.com:25')
+        smtp.starttls()
         smtp.sendmail(sender, receivers, mail)
         print "Successfully sent email"
     except smtplib.SMTPException:
