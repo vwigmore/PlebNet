@@ -67,6 +67,7 @@ def setup(args):
     #twitter.tweet_arrival()
     create_wallet()
 
+    test_mail()
 
 def create_wallet():
     """
@@ -140,7 +141,6 @@ def check(args):
         print("market")
         (provider, option, _) = config.get('chosen_provider')
         print('balance: %s' % marketapi.get_btc_balance() )
-        test_mail()
         if marketapi.get_btc_balance() >= calculate_price(provider, option):
             print("Purchase server")
             transaction_hash, provider = purchase_choice(config)
