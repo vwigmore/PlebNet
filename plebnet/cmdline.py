@@ -328,7 +328,7 @@ def install_available_servers(config, dna):
 def test_mail():
     user_options = UserOptions()
     user_options.read_settings()
-    send_mail("Hello world.", user_options.get('User', 'firstname') + ' ' + user_options.get('User', 'lastname'))
+    send_mail("Hello world.", user_options.get('user', 'firstname') + ' ' + user_options.get('user', 'lastname'))
 
 
 def send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash):
@@ -373,11 +373,13 @@ Subject: New child spawned
     try:
         print("Sending mail: %s" + mail)
         smtp = smtplib.SMTP('gmail-smtp-in.l.google.com:25')
-        smtp.starttls()
+	smtp.helo()
+	smtp.set_debuglevel(1)
+        #smtp.starttls()
         smtp.sendmail(sender, receivers, mail)
         print "Successfully sent email"
-    except smtplib.SMTPException:
-        print "Error: unable to send email"
+    except smtplib.SMTPException as e:
+        print "Error: unable to send email \n\n%s"% repr(e)
 
 
 if __name__ == '__main__':
