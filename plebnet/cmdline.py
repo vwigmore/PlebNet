@@ -67,7 +67,7 @@ def setup(args):
     #twitter.tweet_arrival()
     create_wallet()
 
-    test_mail()
+    #test_mail()
 
 def create_wallet():
     """
@@ -176,6 +176,8 @@ def start_tribler():
     env['PYTHONPATH'] = TRIBLER_HOME
     try:
         subprocess.call(['twistd', 'plebnet', '-p', '8085', '--exitnode'], cwd=TRIBLER_HOME, env=env)
+        print('market: ' + str(marketapi.is_market_running()))
+
         return True
     except CalledProcessError:
         return False
@@ -267,14 +269,29 @@ def purchase_choice(config):
     :param config: config
     :return: success
     """
+
     (provider, option, _) = config.get('chosen_provider')
-    transaction_hash = cloudomatecontroller.purchase(cloudomate_providers[provider], option, wallet=Wallet())
+    # cloudomate.cmdline._purchase_vps(provider, option, )
+    user_options = UserOptions()
+    user_options.read_settings()
+
+
+    provider_instance = cloudomate_providers['vps'][provider](user_options)
+    wallet = Wallet()
+    c = cloudomate_providers['vps'][provider]
+
+    configurations = c.get_options()
+    option = configurations[option]
+    print('option: ' + str(option))
+    transaction_hash = provider_instance.purchase(wallet, option)
+
+    # transaction_hash = cloudomatecontroller.purchase(cloudomate_providers['vps'][provider], option, wallet=Wallet())
     if transaction_hash:
         config.get('bought').append((provider, transaction_hash))
         config.set('chosen_provider', None)
     else:
         print("Insufficient funds")
-        return
+        return None, provider
     if provider not in config.get('excluded_providers'):
         config.get('excluded_providers').append(provider)
     return transaction_hash, provider

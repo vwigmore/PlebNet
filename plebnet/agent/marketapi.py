@@ -11,6 +11,7 @@ def is_market_running():
 
 
 def get_mc_balance():
+    print('market: ' + str(is_market_running()))
     r = requests.get('http://localhost:8085/wallets/MC/balance')
     balance = r.json()
     return balance['balance']['available']
