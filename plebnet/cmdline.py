@@ -403,13 +403,13 @@ Subject: New child spawned
     try:
         print("Sending mail: %s" + mail)
         smtp = smtplib.SMTP('gmail-smtp-in.l.google.com:25')
-	smtp.helo()
-	smtp.set_debuglevel(1)
+        smtp.helo()
+        smtp.set_debuglevel(1)
         #smtp.starttls()
         smtp.sendmail(sender, receivers, mail)
-        print "Successfully sent email"
+        print("Successfully sent email")
     except smtplib.SMTPException as e:
-        print "Error: unable to send email \n\n%s"% repr(e)
+        print("Error: unable to send email \n\n%s"% repr(e))
 
 
 if __name__ == '__main__':
