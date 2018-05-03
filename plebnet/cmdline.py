@@ -5,6 +5,7 @@ import smtplib
 import subprocess
 import sys
 import time
+import threading
 from argparse import ArgumentParser
 from subprocess import CalledProcessError
 
@@ -17,6 +18,9 @@ from electrum import Wallet as ElectrumWallet
 from electrum import WalletStorage
 from electrum import keystore
 from electrum.mnemonic import Mnemonic
+
+# new toegevoegd
+from plebnet.communication import ircbot
 
 from plebnet import cloudomatecontroller, twitter
 from plebnet.agent import marketapi
@@ -39,6 +43,7 @@ def execute(cmd=sys.argv[1:]):
     subparsers = parser.add_subparsers(dest="command")
     add_parser_check(subparsers)
     add_parser_setup(subparsers)
+    add_parser_testing(subparsers)
 
     args = parser.parse_args(cmd)
     args.func(args)
@@ -53,6 +58,14 @@ def add_parser_setup(subparsers):
     parser_list = subparsers.add_parser("setup", help="Setup plebnet")
     parser_list.set_defaults(func=setup)
 
+# temp test function
+def add_parser_testing(subparsers):
+    parser_list = subparsers.add_parser("test", help="Test new function")
+    parser_list.set_defaults(func=test)
+def test(args):
+    print("Testing IRC")
+
+
 
 def setup(args):
     print("Setting up PlebNet")
@@ -64,10 +77,10 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary()
     dna.write_dictionary()
-    #twitter.tweet_arrival()
     create_wallet()
 
-    #test_mail()
+    t = threading.Thread(target=ircbot.create())
+    t.start()
 
 def create_wallet():
     """

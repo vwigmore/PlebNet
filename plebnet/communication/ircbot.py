@@ -5,8 +5,8 @@ import socket
 
 import logger
 
-class IRCBot(object):
-    def __init__(self, irc_setup):
+class create(object):
+    def __init__(self):
         # dit moet ingeladen worden
         self.server = "irc.undernet.org"
         self.channel = "#plebnet123"
@@ -14,13 +14,13 @@ class IRCBot(object):
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
         self.sentUser = False
         self.sentNick = False
-        self.irc_setup = irc_setup
+        self.run()
 
         # reload(sys)
         # sys.setdefaultencoding("utf8")
 
     def status(self):
-        return self.irc_setup.get("irc", "status")
+        return irc_setup.get("irc", "status")
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
