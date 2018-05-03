@@ -62,10 +62,9 @@ def add_parser_setup(subparsers):
 def add_parser_testing(subparsers):
     parser_list = subparsers.add_parser("test", help="Test new function")
     parser_list.set_defaults(func=test)
+
 def test(args):
     print("Testing IRC")
-
-
 
 def setup(args):
     print("Setting up PlebNet")
@@ -79,6 +78,7 @@ def setup(args):
     dna.write_dictionary()
     create_wallet()
 
+    print("setting up IRC connection")
     t = threading.Thread(target=ircbot.create())
     t.start()
 
