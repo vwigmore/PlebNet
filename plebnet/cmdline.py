@@ -283,7 +283,7 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
     print('option: ' + str(option))
-    transaction_hash = provider_instance.purchase(wallet, option)
+    transaction_hash, _ = provider_instance.purchase(wallet, option)
 
     # transaction_hash = cloudomatecontroller.purchase(cloudomate_providers['vps'][provider], option, wallet=Wallet())
     if transaction_hash:
@@ -315,7 +315,7 @@ def install_available_servers(config, dna):
         print("Checking whether %s is activated" % provider)
 
         try:
-            ip = cloudomatecontroller.get_ip(cloudomate_providers[provider])
+            ip = cloudomatecontroller.get_ip(cloudomate_providers['vps'][provider])
         except BaseException as e:
             print(e)
             print("%s not ready yet" % provider)
@@ -325,9 +325,9 @@ def install_available_servers(config, dna):
         if is_valid_ip(ip):
             user_options = UserOptions()
             user_options.read_settings()
-            rootpw = user_options.get('rootpw')
-            cloudomate_providers[provider].br = cloudomate_providers[provider]._create_browser()
-            cloudomatecontroller.setrootpw(cloudomate_providers[provider], rootpw)
+            rootpw = user_options.get('root_password')
+            cloudomate_providers['vps'][provider].br = cloudomate_providers['vps'][provider]._create_browser()
+            cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
             parentname = '{0}-{1}'.format(user_options.get('firstname'), user_options.get('lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
             # Save config before entering possibly long lasting process
