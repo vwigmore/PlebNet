@@ -3,7 +3,7 @@ import random
 import socket
 # import sys
 
-import logger
+from plebnet.utilities import logger
 
 class create(object):
     def __init__(self):
