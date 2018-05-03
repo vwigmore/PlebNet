@@ -66,9 +66,10 @@ else
 fi
 
 # Update pip to avoid locale errors in certain configurations
-echo "upgrading pip"
-LC_ALL=en_US.UTF-8 pip install --upgrade pip
-echo "done upgrading pip"
+#echo "upgrading pip"
+#LC_ALL=en_US.UTF-8 pip install --upgrade pip
+#echo "done upgrading pip"
+echo "not upgrading pip"
 
 pip install pyaes psutil
 
@@ -84,4 +85,4 @@ cd /root
 plebnet setup >> plebnet.log 2>&1
 
 # cron plebnet check
-echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+# echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet

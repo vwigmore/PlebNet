@@ -146,14 +146,14 @@ def check(args):
             transaction_hash, provider = purchase_choice(config)
             if transaction_hash:
                 config.get('transactions').append(transaction_hash)
-                # evolve yourself positively if you are successfull
+                # evolve yourself positively if you are successful
                 own_provider = get_own_provider(dna)
                 evolve(own_provider, dna, True)
             else:
-                # evolve provider negatively if not succesfull
+                # evolve provider negatively if not successful
                 evolve(provider, dna, False)
         config.save()
-        return
+        # return
     print("instal?")
     install_available_servers(config, dna)
     config.save()
@@ -271,10 +271,8 @@ def purchase_choice(config):
     """
 
     (provider, option, _) = config.get('chosen_provider')
-    # cloudomate.cmdline._purchase_vps(provider, option, )
     user_options = UserOptions()
     user_options.read_settings()
-
 
     provider_instance = cloudomate_providers['vps'][provider](user_options)
     wallet = Wallet()
@@ -285,7 +283,6 @@ def purchase_choice(config):
     print('option: ' + str(option))
     transaction_hash, _ = provider_instance.purchase(wallet, option)
 
-    # transaction_hash = cloudomatecontroller.purchase(cloudomate_providers['vps'][provider], option, wallet=Wallet())
     if transaction_hash:
         config.get('bought').append((provider, transaction_hash))
         config.set('chosen_provider', None)
@@ -310,31 +307,32 @@ def evolve(provider, dna, success):
 
 def install_available_servers(config, dna):
     bought = config.get('bought')
-
+    print("instal: %s" % bought)
     for provider, transaction_hash in bought:
         print("Checking whether %s is activated" % provider)
 
-        try:
-            ip = cloudomatecontroller.get_ip(cloudomate_providers['vps'][provider])
-        except BaseException as e:
-            print(e)
-            print("%s not ready yet" % provider)
-            return
+        # try:
+        ip = cloudomatecontroller.get_ip(cloudomate_providers['vps'][provider])
+        # except BaseException as e:
+        #    print(e)
+        #    print("%s not ready yet" % provider)
+        #    return
 
         print("Installling child on %s " % provider)
+        print('ip: %s' % ip)
         if is_valid_ip(ip):
             user_options = UserOptions()
             user_options.read_settings()
-            rootpw = user_options.get('root_password')
+            rootpw = user_options.get('server', 'root_password')
             cloudomate_providers['vps'][provider].br = cloudomate_providers['vps'][provider]._create_browser()
-            cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
-            parentname = '{0}-{1}'.format(user_options.get('firstname'), user_options.get('lastname'))
+            # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
+            parentname = '{0}-{1}'.format(user_options.get('user', 'firstname'), user_options.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
             # Save config before entering possibly long lasting process
             config.save()
             success = install_server(ip, rootpw)
-            send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
-            # Reload config in case install takes a long time
+            # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
+            # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
             if [provider, transaction_hash] in bought:
@@ -366,7 +364,9 @@ def is_valid_ip(ip):
 
 def install_server(ip, rootpw):
     file_path = os.path.dirname(os.path.realpath(__file__))
-    script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
+    print('path: %s' % file_path)
+    script_path = os.path.join(file_path, '../scripts/create-child.sh')
+    print('tot_path: %s' % script_path)
     command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
     print("Running %s" % command)
     success = subprocess.call(command, shell=True)
