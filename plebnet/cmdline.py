@@ -79,8 +79,10 @@ def setup(args):
     create_wallet()
 
     print("setting up IRC connection")
-    t = threading.Thread(target=ircbot.create())
+    t = threading.Thread(name='daemon', target=ircbot.create())
     t.start()
+    print("set up IRC connection")
+
 
 def create_wallet():
     """
