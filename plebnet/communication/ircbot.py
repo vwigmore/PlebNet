@@ -5,6 +5,7 @@ import socket
 
 from plebnet.utilities import logger
 
+
 class create(object):
     def __init__(self):
         # dit moet ingeladen worden
@@ -60,3 +61,6 @@ class create(object):
             st = "QUIT :I have to go for now!\n"
             self.irc.send(st)
             # sys.exit()
+
+
+bot = create()
