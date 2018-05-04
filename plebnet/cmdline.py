@@ -94,7 +94,7 @@ def init_irc():
     # script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
     # command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
     # print("Running %s" % command)
-    success = subprocess.call('/root/PlebNet/plebnet/communication/initIRC.sh', shell=True)
+    success = subprocess.call('/root/PlebNet/plebnet/communication/initIRC.sh start', shell=True)
     if success:
         print("Installation successful")
     else:
