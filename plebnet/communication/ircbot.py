@@ -18,6 +18,7 @@ class create(object):
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
         self.sentUser = False
         self.sentNick = False
+        print("start running")
         self.run()
 
         # reload(sys)
