@@ -33,6 +33,7 @@ class Create(object):
         logger.log("start running an IRC connection")
         self.run()
 
+    def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.irc.connect((self.server, self.port))
 
