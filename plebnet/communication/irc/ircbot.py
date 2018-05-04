@@ -19,17 +19,17 @@ class Create(object):
         # load required settings once
         irc_settings = setup_settings.Init()
         self.server = irc_settings.get_irc_server()
-        self.timeout = irc_settings.get_timeout()
-
-        # dit moet ingeladen worden
-        self.channel = "#plebnet123"
+        self.timeout = irc_settings.get_irc_timeout()
+        self.channel = irc_settings.get_irc_channel()
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
         self.sentUser = False
         self.sentNick = False
-        logger.log("start running an IRC connection")
         self.irc = None
         self.inittime = time.time()
         self.heartbeat = time.time()
+
+        # start running the IRC server
+        logger.log("start running an IRC connection")
         self.run()
 
     def run(self):
