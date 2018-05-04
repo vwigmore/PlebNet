@@ -1,23 +1,26 @@
 import logging
 
 
-class Logger(object):
-    def __init__(self, name="logger", file="/root/Documents/logs"):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.INFO)
+def log(msg, method=None, name="logger", file="/root/Documents/logs"):
+    # create a logger
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-        self.handler = logging.FileHandler(file)
-        self.handler.setLevel(logging.INFO)
+    # create formatter and handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler = logging.FileHandler(file)
 
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.handler.setFormatter(formatter)
+    # combine
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-        self.logger.addHandler(self.handler)
+    # prepare the output
+    tex = fill(method, 10) + " : " + msg
 
-    def log(self, file, method, msg):
-        tex = fill(file, 10) + " : " + fill(method, 10) + " : " + msg
-        print(tex)
-        self.logger.info(tex)
+    # output the log details
+    print(tex)
+    logger.info(tex)
 
 
 def fill(tex, l):
