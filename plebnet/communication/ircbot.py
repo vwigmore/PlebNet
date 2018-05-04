@@ -32,7 +32,7 @@ class create(object):
 
         try:
             while 1:
-                logger.log("IRC", "info", "new round")
+                print("new round")
                 text = self.irc.recv(2048)
                 if len(text) == 0:
                     continue
