@@ -20,7 +20,7 @@ from electrum import keystore
 from electrum.mnemonic import Mnemonic
 
 # new toegevoegd
-# from plebnet.communication import ircbot
+from plebnet.communication import ircbot2
 
 from plebnet import cloudomatecontroller, twitter
 from plebnet.agent import marketapi
@@ -67,6 +67,7 @@ def add_parser_testing(subparsers):
 
 def test(args):
     print("Testing IRC")
+    ircbot2.start()
 
 
 def setup(args):
