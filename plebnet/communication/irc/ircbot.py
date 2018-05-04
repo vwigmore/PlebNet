@@ -36,7 +36,8 @@ class Create(object):
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.irc.connect((self.server, self.port))
+        # self.irc.connect((self.server, self.port))
+        self.irc.connect(("irc.undernet.org", 6667))
 
         try:
             while 1:
@@ -44,9 +45,9 @@ class Create(object):
                 timer = time.time()
                 elapsed_time = timer - self.heartbeat
 
-                if elapsed_time < self.timeout:
+                if elapsed_time > self.timeout:
                     self.heartbeat = timer
-                    timestr = time.strftime("%H:%M:%S", time.gmtime(self.inittime-timer))
+                    timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
                     logger.log("Still running an IRC connection: alive for " + timestr)
                     self.send("Still running an IRC connection: alive for " + timestr)
 
