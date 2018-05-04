@@ -54,6 +54,7 @@ class Create(object):
                 text = self.irc.recv(2048)
                 if len(text) == 0:
                     continue
+                logger.log("Received an IRC message: " + text)
 
                 if text.find("PING") != -1:
                     st = "PONG " + text.split()[1] + "\n"
