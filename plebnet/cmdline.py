@@ -58,13 +58,16 @@ def add_parser_setup(subparsers):
     parser_list = subparsers.add_parser("setup", help="Setup plebnet")
     parser_list.set_defaults(func=setup)
 
-# temp test function
+
 def add_parser_testing(subparsers):
+    # temp test function
     parser_list = subparsers.add_parser("test", help="Test new function")
     parser_list.set_defaults(func=test)
 
+
 def test(args):
     print("Testing IRC")
+
 
 def setup(args):
     print("Setting up PlebNet")
@@ -80,7 +83,8 @@ def setup(args):
 
     init_irc()
 
-def init_irc(ip, rootpw):
+
+def init_irc():
     # t = threading.Thread(name='daemon', target=ircbot.create())
     # t.start()
 
