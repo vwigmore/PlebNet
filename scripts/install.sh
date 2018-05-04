@@ -17,8 +17,8 @@ apt-get update
 
 
 # Install dependencies
-sudo apt-get install -y python-pip
-sudo apt-get install -y \
+apt-get install -y python-pip
+apt-get install -y \
     python-crypto \
     python-pyasn1 \
     python-twisted \
@@ -47,16 +47,16 @@ sudo apt-get install -y \
 if [ $(lsb_release -cs) == "trusty" ]
 then
     echo "Trusty detected"
-    sudo apt-get install -y build-essential libssl-dev libffi-dev python-dev software-properties-common
+    apt-get install -y build-essential libssl-dev libffi-dev python-dev software-properties-common
     pip install cryptography
     pip install pynacl
     pip install pysocks
     pip install keyrings.alt
     pip install libnacl
-    sudo add-apt-repository -y ppa:chris-lea/libsodium;
-    sudo echo "deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
-    sudo echo "deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
-    sudo apt-get update && sudo apt-get install -y libsodium-dev;
+    add-apt-repository -y ppa:chris-lea/libsodium;
+    echo "deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
+    echo "deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
+    apt-get update && apt-get install -y libsodium-dev;
 else
     apt-get install -y python-cryptography \
 	python-nacl \
@@ -73,8 +73,10 @@ echo "done upgrading pip"
 pip install pyaes psutil
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b master https://github.com/rjwvandenberg/PlebNet
-pip install --upgrade ./PlebNet
+[ ! -d "PlebNet" ] && git clone -b plebnet https://github.com/vwigmore/PlebNet
+[ ! -d "cloudomate" ] && git clone -b update https://github.com/vwigmore/cloudomate
+python -m pip install --upgrade ./cloudomate
+python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
 pip install ./tribler/electrum
@@ -83,5 +85,5 @@ pip install ./tribler/electrum
 cd /root
 plebnet setup >> plebnet.log 2>&1
 
-# cron plebnet check
+cron plebnet check
 echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet

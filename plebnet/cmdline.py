@@ -11,7 +11,7 @@ from subprocess import CalledProcessError
 import cloudomate
 import electrum
 from cloudomate.cmdline import providers as cloudomate_providers
-from cloudomate.util.config import UserOptions
+from cloudomate.util.settings import Settings as UserOptions
 from cloudomate.wallet import Wallet
 from electrum import Wallet as ElectrumWallet
 from electrum import WalletStorage
@@ -27,6 +27,7 @@ from plebnet.config import PlebNetConfig
 WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 TRIBLER_HOME = os.path.expanduser("~/PlebNet/tribler")
 PLEBNET_CONFIG = os.path.expanduser("~/.plebnet.cfg")
+PLEBNET_HOME = os.path.expanduser("~/PlebNet")
 TIME_IN_HOUR = 60.0 * 60.0
 TIME_IN_DAY = TIME_IN_HOUR * 24.0
 
@@ -64,9 +65,10 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary()
     dna.write_dictionary()
-    twitter.tweet_arrival()
+    #twitter.tweet_arrival()
     create_wallet()
 
+    #test_mail()
 
 def create_wallet():
     """
@@ -124,9 +126,9 @@ def check(args):
             return False
     # TEMP TO SEE EXITNODE PERFORMANCE
 
-
-
+    print("test: %s" % config.get('chosen_provider'))
     if not config.get('chosen_provider'):
+        print("test: %s" % config.get('chosen_provider'))
         print ("Choosing new provider")
         update_choice(config, dna)
         config.save()
@@ -137,21 +139,23 @@ def check(args):
         config.save()
 
     if config.get('chosen_provider'):
+        print("market")
         (provider, option, _) = config.get('chosen_provider')
+        print('balance: %s' % marketapi.get_btc_balance() )
         if marketapi.get_btc_balance() >= calculate_price(provider, option):
             print("Purchase server")
             transaction_hash, provider = purchase_choice(config)
             if transaction_hash:
                 config.get('transactions').append(transaction_hash)
-                # evolve yourself positively if you are successfull
+                # evolve yourself positively if you are successful
                 own_provider = get_own_provider(dna)
                 evolve(own_provider, dna, True)
             else:
-                # evolve provider negatively if not succesfull
+                # evolve provider negatively if not successful
                 evolve(provider, dna, False)
         config.save()
-        return
-
+        # return
+    print("instal?")
     install_available_servers(config, dna)
     config.save()
 
@@ -173,6 +177,8 @@ def start_tribler():
     env['PYTHONPATH'] = TRIBLER_HOME
     try:
         subprocess.call(['twistd', 'plebnet', '-p', '8085', '--exitnode'], cwd=TRIBLER_HOME, env=env)
+        print('market: ' + str(marketapi.is_market_running()))
+
         return True
     except CalledProcessError:
         return False
@@ -187,10 +193,13 @@ def update_offer(config, dna):
 
 
 def calculate_price(provider, option):
-    vpsoption = options(cloudomate_providers[provider])[option]
-    gateway = cloudomate_providers[provider].gateway
+    print('provider: %s option: %s' % (provider, option))
+    # vpsoptions = options(cloudomate_providers['vps'][provider])
+    vpsoption = options(cloudomate_providers['vps'][provider])[option]
+    print('chosen_option: %s' % str(vpsoption))
+    gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(vpsoption.price, vpsoption.currency)) + cloudomate.wallet.get_network_fee()
+        cloudomate.wallet.get_price(vpsoption.price, 'USD')) + cloudomate.wallet.get_network_fee()
     return btc_price
 
 
@@ -214,10 +223,12 @@ def place_offer(chosen_est_price, config):
 
 def update_choice(config, dna):
     all_providers = dna.vps
+    print ("test_update choice: %s" % all_providers)
     excluded_providers = config.get('excluded_providers')
     available_providers = list(set(all_providers.keys()) - set(excluded_providers))
     providers = {k: all_providers[k] for k in all_providers if k in available_providers}
     print("Providers: %s" % providers)
+    print('provider_values: %s' % providers.values())
     if providers >= 1 and sum(providers.values()) > 0:
         providers = DNA.normalize_excluded(providers)
         choice = (provider, option, price) = pick_provider(providers)
@@ -227,7 +238,8 @@ def update_choice(config, dna):
 
 def pick_provider(providers):
     provider = DNA.choose_provider(providers)
-    gateway = cloudomate_providers[provider].gateway
+    print("pick: %s" % provider)
+    gateway = cloudomate_providers['vps'][provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
         cloudomate.wallet.get_price(price, currency)) + cloudomate.wallet.get_network_fee()
@@ -240,13 +252,15 @@ def pick_option(provider):
     :param provider: 
     :return: (option, price, currency)
     """
-    vpsoptions = options(cloudomate_providers[provider])
+    vpsoptions = options(cloudomate_providers['vps'][provider])
     cheapestoption = 0
     for item in range(len(vpsoptions)):
         if vpsoptions[item].price < vpsoptions[cheapestoption].price:
             cheapestoption = item
 
-    return cheapestoption, vpsoptions[cheapestoption].price, vpsoptions[cheapestoption].currency
+    print("test_vpsoptions: %s" % str(vpsoptions[cheapestoption]))
+
+    return cheapestoption, vpsoptions[cheapestoption].price, 'USD'  # vpsoptions[cheapestoption].currency
 
 
 def purchase_choice(config):
@@ -256,14 +270,26 @@ def purchase_choice(config):
     :param config: config
     :return: success
     """
+
     (provider, option, _) = config.get('chosen_provider')
-    transaction_hash = cloudomatecontroller.purchase(cloudomate_providers[provider], option, wallet=Wallet())
+    user_options = UserOptions()
+    user_options.read_settings()
+
+    provider_instance = cloudomate_providers['vps'][provider](user_options)
+    wallet = Wallet()
+    c = cloudomate_providers['vps'][provider]
+
+    configurations = c.get_options()
+    option = configurations[option]
+    print('option: ' + str(option))
+    transaction_hash, _ = provider_instance.purchase(wallet, option)
+
     if transaction_hash:
         config.get('bought').append((provider, transaction_hash))
         config.set('chosen_provider', None)
     else:
         print("Insufficient funds")
-        return
+        return None, provider
     if provider not in config.get('excluded_providers'):
         config.get('excluded_providers').append(provider)
     return transaction_hash, provider
@@ -282,36 +308,43 @@ def evolve(provider, dna, success):
 
 def install_available_servers(config, dna):
     bought = config.get('bought')
-
+    print("instal: %s" % bought)
     for provider, transaction_hash in bought:
         print("Checking whether %s is activated" % provider)
 
-        try:
-            ip = cloudomatecontroller.get_ip(cloudomate_providers[provider])
-        except BaseException as e:
-            print(e)
-            print("%s not ready yet" % provider)
-            return
+        # try:
+        ip = cloudomatecontroller.get_ip(cloudomate_providers['vps'][provider])
+        # except BaseException as e:
+        #    print(e)
+        #    print("%s not ready yet" % provider)
+        #    return
 
         print("Installling child on %s " % provider)
+        print('ip: %s' % ip)
         if is_valid_ip(ip):
             user_options = UserOptions()
             user_options.read_settings()
-            rootpw = user_options.get('rootpw')
-            cloudomate_providers[provider].br = cloudomate_providers[provider]._create_browser()
-            cloudomatecontroller.setrootpw(cloudomate_providers[provider], rootpw)
-            parentname = '{0}-{1}'.format(user_options.get('firstname'), user_options.get('lastname'))
+            rootpw = user_options.get('server', 'root_password')
+            cloudomate_providers['vps'][provider].br = cloudomate_providers['vps'][provider]._create_browser()
+            # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
+            parentname = '{0}-{1}'.format(user_options.get('user', 'firstname'), user_options.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
             # Save config before entering possibly long lasting process
             config.save()
             success = install_server(ip, rootpw)
-            send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
-            # Reload config in case install takes a long time
+            # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
+            # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
             if [provider, transaction_hash] in bought:
                 bought.remove([provider, transaction_hash])
             config.save()
+
+
+def test_mail():
+    user_options = UserOptions()
+    user_options.read_settings()
+    send_mail("Hello world.", user_options.get('user', 'firstname') + ' ' + user_options.get('user', 'lastname'))
 
 
 def send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash):
@@ -331,11 +364,11 @@ def is_valid_ip(ip):
 
 
 def install_server(ip, rootpw):
-    file_path = os.path.dirname(os.path.realpath(__file__))
-    script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
-    command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
+    script_path = os.path.join(PLEBNET_HOME, "/scripts/create-child.sh")
+    print('tot_path: %s' % script_path)
+    command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
     print("Running %s" % command)
-    success = subprocess.call(command, shell=True)
+    success = subprocess.call(command, shell=True, cwd=PLEBNET_HOME)
     if success:
         print("Installation successful")
     else:
@@ -344,23 +377,25 @@ def install_server(ip, rootpw):
 
 
 def send_mail(mail_message, name):
-    sender = name + '@pleb.net'
-    receivers = ['plebnet@heijligers.me']
-
-    mail = """From: %s <%s>
-To: Jaap <plebnet@heijligers.me>
+    sender = 'authentic8989+' + name + '@gmail.com'
+    receivers = ['authentic8989+' + name + '@gmail.com']
+    mail = """From:""" + name + """<""" + sender + """>
+To: """ + name + """ <authentic8989+""" + name + """@gmail.com'>
 Subject: New child spawned
 
-""" % (name, sender)
+"""
     mail += mail_message
 
     try:
         print("Sending mail: %s" + mail)
-        smtp = smtplib.SMTP('mail.heijligers.me')
+        smtp = smtplib.SMTP('gmail-smtp-in.l.google.com:25')
+	smtp.helo()
+	smtp.set_debuglevel(1)
+        #smtp.starttls()
         smtp.sendmail(sender, receivers, mail)
         print "Successfully sent email"
-    except smtplib.SMTPException:
-        print "Error: unable to send email"
+    except smtplib.SMTPException as e:
+        print "Error: unable to send email \n\n%s"% repr(e)
 
 
 if __name__ == '__main__':

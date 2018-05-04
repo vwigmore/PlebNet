@@ -4,14 +4,16 @@ import codecs
 import random
 import unicodedata
 
+from cloudomate.hoster.vps.clientarea import ClientArea
+from cloudomate.cmdline import ssh
 from appdirs import user_config_dir
 from cloudomate import wallet as wallet_util
-from cloudomate.util.config import UserOptions, os
+from cloudomate.util.settings import Settings as userOptions, os
 from faker.factory import Factory
 
 
 def _user_settings():
-    settings = UserOptions()
+    settings = userOptions()
     settings.read_settings()
     return settings
 
@@ -22,18 +24,21 @@ def status(provider):
 
 
 def get_ip(provider):
-    settings = _user_settings()
-    return provider.get_ip(settings)
+    print('get ip: %s' % provider)
+
+    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), _user_settings())
+    print('ca: %s' % client_area.get_services())
+    return client_area.get_ip()
 
 
 def setrootpw(provider, password):
     settings = _user_settings()
-    settings.put('rootpw', password)
-    return provider.set_rootpw(settings)
+    settings.put('server', 'root_password', password)
+    # return provider.set_rootpw(settings)
 
 
 def options(provider):
-    return provider.options()
+    return provider.get_options()
 
 
 def get_network_fee():
@@ -42,9 +47,10 @@ def get_network_fee():
 
 def purchase(provider, vps_option, wallet):
     settings = _user_settings()
-    option = options(provider)[vps_option]
+    # option = options(provider)[vps_option]
+    print('provider_to_purchase: ' + str(provider.get_metadata()))
     try:
-        transaction_hash = provider.purchase(settings, option, wallet)
+        transaction_hash = provider.purchase(provider, wallet, vps_option)
         print("Transaction hash of purchase: {0}".format(transaction_hash))
         return transaction_hash
     except SystemExit, e:
@@ -54,7 +60,7 @@ def purchase(provider, vps_option, wallet):
 
 
 def generate_config():
-    config = UserOptions()
+    config = userOptions()
     filename = os.path.join(user_config_dir(), 'cloudomate.cfg')
     if os.path.exists(filename):
         print("cloudomate.cfg already present at %s" % filename)
@@ -81,31 +87,31 @@ def _remove_unicode(cp):
 
 
 def _generate_user(cp, fake):
-    cp.add_section('User')
+    cp.add_section('user')
     firstname = fake.first_name()
     lastname = fake.last_name()
     full_name = firstname + '_' + lastname
     full_name = full_name.replace(' ', '_')
-    cp.set('User', 'email', full_name + '@heijligers.me')
-    cp.set('User', 'firstname', firstname)
-    cp.set('User', 'lastname', lastname)
-    cp.set('User', 'companyname', fake.company())
-    cp.set('User', 'phonenumber', fake.numerify('##########'))
-    cp.set('User', 'password', fake.password(length=10, special_chars=False))
+    cp.set('user', 'email', 'authentic8989+' + full_name + '@gmail.com')
+    cp.set('user', 'firstname', firstname)
+    cp.set('user', 'lastname', lastname)
+    cp.set('user', 'companyname', fake.company())
+    cp.set('user', 'phonenumber', fake.numerify('##########'))
+    cp.set('user', 'password', fake.password(length=10, special_chars=False))
 
 
 def _generate_address(cp, fake):
-    cp.add_section('Address')
-    cp.set('Address', 'address', fake.street_address())
-    cp.set('Address', 'city', fake.city())
-    cp.set('Address', 'state', fake.state())
-    cp.set('Address', 'countrycode', fake.country_code())
-    cp.set('Address', 'zipcode', fake.postcode())
+    cp.add_section('address')
+    cp.set('address', 'address', fake.street_address())
+    cp.set('address', 'city', fake.city())
+    cp.set('address', 'state', fake.state())
+    cp.set('address', 'countrycode', fake.country_code())
+    cp.set('address', 'zipcode', fake.postcode())
 
 
 def _generate_server(cp, fake):
-    cp.add_section('Server')
-    cp.set('Server', 'rootpw', fake.password(length=10, special_chars=False))
-    cp.set('Server', 'ns1', 'ns1')
-    cp.set('Server', 'ns2', 'ns2')
-    cp.set('Server', 'hostname', fake.word())
+    cp.add_section('server')
+    cp.set('server', 'root_password', fake.password(length=10, special_chars=False))
+    cp.set('server', 'ns1', 'ns1')
+    cp.set('server', 'ns2', 'ns2')
+    cp.set('server', 'hostname', fake.word())
