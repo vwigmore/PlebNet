@@ -19,7 +19,7 @@ class Init(object):
 
     def get_irc_nick(self): return self.settings.get("irc", "nick")
 
-    def get_irc_timeout(self): return self.settings.get("irc", "timeout")
+    def get_irc_timeout(self): return int(self.settings.get("irc", "timeout"))
 
     # the getters for the vps section
 

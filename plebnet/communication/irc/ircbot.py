@@ -3,6 +3,7 @@
 import platform
 import random
 import socket
+import time
 import sys
 
 # as the file is loaded separately, the imports have to be fixed
@@ -15,8 +16,11 @@ class Create(object):
     def __init__(self):
         logger.log("preparing an IRC connection")
 
+        # load required settings once
         irc_settings = setup_settings.Init()
         self.server = irc_settings.get_irc_server()
+        self.timeout = irc_settings.get_timeout()
+
         # dit moet ingeladen worden
         self.channel = "#plebnet123"
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
@@ -24,6 +28,8 @@ class Create(object):
         self.sentNick = False
         logger.log("start running an IRC connection")
         self.irc = None
+        self.inittime = time.time()
+        self.heartbeat = time.time()
         self.run()
 
     def run(self):
@@ -32,7 +38,16 @@ class Create(object):
 
         try:
             while 1:
-                logger.log("Still running an IRC connection")
+                # handle heartbeat
+                timer = time.time()
+                elapsed_time = self.heartbeat - timer
+
+                if elapsed_time < self.timeout:
+                    self.heartbeat = timer
+                    timestr = time.strftime("%H:%M:%S", time.gmtime(self.inittime-timer))
+                    logger.log("Still running an IRC connection: alive for " + timestr)
+                    self.send("Still running an IRC connection: alive for " + timestr)
+
                 text = self.irc.recv(2048)
                 if len(text) == 0:
                     continue
@@ -59,11 +74,14 @@ class Create(object):
 
                 if text.find("statusupdate") != -1:
                     self.status()
-
         except KeyboardInterrupt:
             st = "QUIT :I have to go for now!\n"
             self.irc.send(st)
             # sys.exit()
+        except:
+            logger.log("An error occurred at the IRC")
+            st = "QUIT :I have to go for now!\n"
+            self.irc.send(st)
 
     def send(self, msg):
         logger.log("Sending an IRC message: " + msg)
