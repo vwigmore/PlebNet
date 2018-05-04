@@ -5,13 +5,9 @@ import random
 import socket
 # import sys
 
-from plebnet.utilities import logger
-
-
 class create(object):
     def __init__(self):
         print("creating an IRC connection")
-        logger.log("IRC", "info", "creating an IRC connection")
 
         # dit moet ingeladen worden
         self.server = "irc.undernet.org"
@@ -27,7 +23,8 @@ class create(object):
         # sys.setdefaultencoding("utf8")
 
     def status(self):
-        return irc_setup.get("irc", "status")
+        return "whoehoe"
+        # return irc_setup.get("irc", "status")
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
