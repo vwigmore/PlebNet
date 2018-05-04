@@ -19,7 +19,7 @@ class Create(object):
         irc_settings = setup_settings.Init()
 
         # self.server = "irc.undernet.org"
-        self.server = irc_settings.get_irc_server
+        self.server = irc_settings.get_irc_server()
         self.channel = "#plebnet123"
 
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
