@@ -42,13 +42,13 @@ class create(object):
                     st = "PONG " + text.split()[1] + "\n"
                     self.irc.send(st)
 
-                if self.sentUser == False:
+                if not self.sentUser:
                     st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
                     self.irc.send(st)
                     self.sentUser = True
                     continue
 
-                if self.sentUser and self.sentNick == False:
+                if self.sentUser and not self.sentNick:
                     st = "NICK " + self.botnick + "\n"
                     self.irc.send(st)
                     self.sentNick = True

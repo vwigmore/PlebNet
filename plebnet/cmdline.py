@@ -21,6 +21,7 @@ from electrum.mnemonic import Mnemonic
 
 # new toegevoegd
 from plebnet.communication import ircbot2
+from plebnet.utilities import logger
 
 from plebnet import cloudomatecontroller, twitter
 from plebnet.agent import marketapi
@@ -90,6 +91,7 @@ def init_irc():
     # t.start()
 
     print("setting up IRC connection")
+    logger.log("cmdline","init_irc","setting up")
     # file_path = os.path.dirname(os.path.realpath(__file__))
     # script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
     # command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
