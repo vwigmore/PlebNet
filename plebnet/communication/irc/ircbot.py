@@ -3,7 +3,10 @@
 import platform
 import random
 import socket
-# import sys
+import sys
+
+sys.path.append('/root/PlebNet')
+from plebnet.utilities import logger
 
 class create(object):
     def __init__(self):
@@ -33,6 +36,7 @@ class create(object):
         try:
             while 1:
                 print("new round")
+                logger.log("ircbot", "run", "New Round")
                 text = self.irc.recv(2048)
                 if len(text) == 0:
                     continue
