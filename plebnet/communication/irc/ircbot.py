@@ -21,6 +21,7 @@ class Create(object):
         self.server = irc_settings.get_irc_server()
         self.timeout = irc_settings.get_irc_timeout()
         self.channel = irc_settings.get_irc_channel()
+        self.port = irc_settings.get_irc_port()
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
         self.sentUser = False
         self.sentNick = False
@@ -32,15 +33,14 @@ class Create(object):
         logger.log("start running an IRC connection")
         self.run()
 
-    def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.irc.connect((self.server, 6667))
+        self.irc.connect((self.server, self.port))
 
         try:
             while 1:
                 # handle heartbeat
                 timer = time.time()
-                elapsed_time = self.heartbeat - timer
+                elapsed_time = time - self.heartbeat
 
                 if elapsed_time < self.timeout:
                     self.heartbeat = timer

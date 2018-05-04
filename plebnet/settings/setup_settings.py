@@ -15,7 +15,7 @@ class Init(object):
 
     def get_irc_server(self): return self.settings.get("irc", "server")
 
-    def get_irc_port(self): return self.settings.get("irc", "port")
+    def get_irc_port(self): return int(self.settings.get("irc", "port"))
 
     def get_irc_nick(self): return self.settings.get("irc", "nick")
 

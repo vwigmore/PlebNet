@@ -6,14 +6,15 @@ def log(msg, method="", name="logger", file="/root/Documents/logs"):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
-    # create formatter and handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler = logging.FileHandler(file)
+    if not logger.handlers:
+        # create formatter and handler
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.FileHandler(file)
 
-    # combine
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+        # combine
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     # prepare the output
     tex = fill(method, 10) + " : " + msg
