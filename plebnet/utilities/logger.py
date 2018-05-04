@@ -6,6 +6,6 @@ def log(type, subtype, msg):
 
 def fill(tex, l):
     st = tex
-    while len(str) < l:
+    while len(tex) < l:
         st = st + " "
     return st
