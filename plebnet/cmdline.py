@@ -20,7 +20,7 @@ from electrum import keystore
 from electrum.mnemonic import Mnemonic
 
 # new toegevoegd
-from plebnet.communication import ircbot
+# from plebnet.communication import ircbot
 
 from plebnet import cloudomatecontroller, twitter
 from plebnet.agent import marketapi
