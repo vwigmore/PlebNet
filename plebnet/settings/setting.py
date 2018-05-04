@@ -9,7 +9,7 @@ class Settings(object):
 
 	def load(self, filename=None):
 		if not filename:
-			filename = self._default_filename
+			filename = self.filename
 
 		if not os.path.exists(filename):
 			print("Config file: '%s' not found" % filename)
