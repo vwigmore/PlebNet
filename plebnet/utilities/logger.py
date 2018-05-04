@@ -4,7 +4,7 @@ import logging
 class Logger(object):
     def __init__(self, name="logger", file="/root/Documents/logs"):
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.info)
+        self.logger.setLevel(logging.INFO)
 
         self.handler = logging.FileHandler(file)
         self.handler.setLevel(logging.INFO)
