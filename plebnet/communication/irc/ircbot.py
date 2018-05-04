@@ -5,15 +5,19 @@ import random
 import socket
 import sys
 
+# as the file is loaded separately, the imports have to be fixed
 sys.path.append('/root/PlebNet')
 from plebnet.utilities import logger
+from plebnet.settings import setup_settings
 
-class create(object):
+class Create(object):
     def __init__(self):
         print("creating an IRC connection")
 
         # dit moet ingeladen worden
-        self.server = "irc.undernet.org"
+        irc_setting = SetupSettings()
+        # self.server = "irc.undernet.org"
+        self.server = irc_settings.get_irc_server
         self.channel = "#plebnet123"
 
         self.botnick = "plebbot" + str(random.randint(1000, 10000))
@@ -26,8 +30,7 @@ class create(object):
         # sys.setdefaultencoding("utf8")
 
     def status(self):
-        return "whoehoe"
-        # return irc_setup.get("irc", "status")
+        return irc_setup.get("irc", "status")
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,4 +74,4 @@ class create(object):
             # sys.exit()
 
 
-bot = create()
+bot = Create()
