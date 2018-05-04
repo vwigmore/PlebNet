@@ -75,8 +75,8 @@ pip install pyaes psutil
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b plebnet https://github.com/vwigmore/PlebNet
 [ ! -d "cloudomate" ] && git clone -b update https://github.com/vwigmore/cloudomate
-pip install --upgrade ./cloudomate
-pip install --upgrade ./PlebNet
+python -m pip install --upgrade ./cloudomate
+python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
 pip install ./tribler/electrum
@@ -85,5 +85,5 @@ pip install ./tribler/electrum
 cd /root
 plebnet setup >> plebnet.log 2>&1
 
-# cron plebnet check
-# echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+cron plebnet check
+echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
