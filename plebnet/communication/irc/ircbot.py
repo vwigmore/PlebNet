@@ -31,7 +31,7 @@ class Create(object):
         self.heartbeat = time.time()
 
         # start running the IRC server
-        logger.log("start running an IRC connection")
+        logger.log("start running an IRC connection on " + self.server + " " + self.channel)
         self.run()
 
     def run(self):
