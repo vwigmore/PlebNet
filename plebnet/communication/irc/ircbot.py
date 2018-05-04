@@ -42,7 +42,7 @@ class Create(object):
             while 1:
                 # handle heartbeat
                 timer = time.time()
-                elapsed_time = time - self.heartbeat
+                elapsed_time = timer - self.heartbeat
 
                 if elapsed_time < self.timeout:
                     self.heartbeat = timer
