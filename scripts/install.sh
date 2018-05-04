@@ -66,10 +66,9 @@ else
 fi
 
 # Update pip to avoid locale errors in certain configurations
-#echo "upgrading pip"
-#LC_ALL=en_US.UTF-8 pip install --upgrade pip
-#echo "done upgrading pip"
-echo "not upgrading pip"
+echo "upgrading pip"
+LC_ALL=en_US.UTF-8 pip install --upgrade pip
+echo "done upgrading pip"
 
 pip install pyaes psutil
 
