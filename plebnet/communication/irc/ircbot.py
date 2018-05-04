@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import platform
+import traceback
 import random
 import socket
 import time
@@ -81,6 +82,7 @@ class Create(object):
             # sys.exit()
         except:
             logger.log("An error occurred at the IRC")
+            logger.log(traceback.format_exc())
             st = "QUIT :I have to go for now!\n"
             self.irc.send(st)
 
