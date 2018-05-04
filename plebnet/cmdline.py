@@ -92,7 +92,7 @@ def init_irc():
 
     print("setting up IRC connection")
     logger.log("cmdline", "init_irc", "setting up")
-    success = subprocess.call('chmod x+ /root/PlebNet/plebnet/communication/ircbot.py', shell=True)
+    success = subprocess.call('chmod +x /root/PlebNet/plebnet/communication/ircbot.py', shell=True)
     success = subprocess.call('/root/PlebNet/plebnet/communication/initIRC.sh start', shell=True)
     if success:
         print("Installation successful")
