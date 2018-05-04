@@ -8,6 +8,9 @@ from plebnet.utilities import logger
 
 class create(object):
     def __init__(self):
+        print("creating an IRC connection")
+        logger.log("IRC", "info", "creating an IRC connection")
+
         # dit moet ingeladen worden
         self.server = "irc.undernet.org"
         self.channel = "#plebnet123"
@@ -29,6 +32,7 @@ class create(object):
 
         try:
             while 1:
+                logger.log("IRC", "info", "new round")
                 text = self.irc.recv(2048)
                 if len(text) == 0:
                     continue
