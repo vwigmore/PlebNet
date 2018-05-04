@@ -91,11 +91,8 @@ def init_irc():
     # t.start()
 
     print("setting up IRC connection")
-    logger.log("cmdline","init_irc","setting up")
-    # file_path = os.path.dirname(os.path.realpath(__file__))
-    # script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
-    # command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
-    # print("Running %s" % command)
+    logger.log("cmdline", "init_irc", "setting up")
+    success = subprocess.call('chmod x+ /root/PlebNet/plebnet/communication/ircbot.py', shell=True)
     success = subprocess.call('/root/PlebNet/plebnet/communication/initIRC.sh start', shell=True)
     if success:
         print("Installation successful")
