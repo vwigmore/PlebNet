@@ -10,12 +10,14 @@ sys.path.append('/root/PlebNet')
 from plebnet.utilities import logger
 from plebnet.settings import setup_settings
 
+
 class Create(object):
     def __init__(self):
         print("creating an IRC connection")
 
         # dit moet ingeladen worden
-        irc_setting = SetupSettings()
+        irc_settings = setup_settings.Init()
+
         # self.server = "irc.undernet.org"
         self.server = irc_settings.get_irc_server
         self.channel = "#plebnet123"
@@ -24,13 +26,14 @@ class Create(object):
         self.sentUser = False
         self.sentNick = False
         print("start running")
+        self.irc = None
         self.run()
 
         # reload(sys)
         # sys.setdefaultencoding("utf8")
 
     def status(self):
-        return irc_setup.get("irc", "status")
+        return setup_settings.Init().get_irc_host()
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

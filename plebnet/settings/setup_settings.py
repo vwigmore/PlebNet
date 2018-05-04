@@ -1,12 +1,12 @@
 from plebnet.settings import setting
 
 
-class SetupSettings(object):
+class Init(object):
 
     def __init__(self):
         self.filename = "configuration/setup.cfg"
         self.settings = setting.Settings(self.filename)
-        self.load()
+        self.settings.load()
 
     # the getters for the irc section
 
