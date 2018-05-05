@@ -95,11 +95,10 @@ class Create(object):
             st = "PONG %s\n" % words[1]
             self.irc.send(st)
 
-        # 375 and 422 means ready to join a channel
-        elif line.find("255 " + self.nick) != -1 or line.find("376 " + self.nick) != -1:
-            time.sleep(30)
+        # 376 and 422 means ready to join a channel
+        elif line.find("376 " + self.nick) != -1 or line.find("422 " + self.nick) != -1:
             st = "JOIN " + self.channel + "\r\n"
-            self.irc.send(st)
+            self.send(st)
 
         elif line.find("statusupdate") != -1:
             self.status()
