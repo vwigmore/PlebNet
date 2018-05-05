@@ -98,7 +98,7 @@ class Create(object):
 
         if words[0] == "PING":
             st = "PONG %s\n" % words[1]
-            self.send(st)
+            self.irc.send(st)
 
         elif not self.sentNick:
             # time.sleep(30)
