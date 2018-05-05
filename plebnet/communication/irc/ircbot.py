@@ -28,8 +28,6 @@ class Create(object):
         self.ident = "plebber"
         self.gecos = "Plebbot version 1.0"
 
-        self.sentUser = False
-        self.sentNick = False
         self.irc = None
         self.init_time = time.time()
         self.last_beat = time.time()
@@ -77,13 +75,13 @@ class Create(object):
     def heartbeat(self):
         timer = time.time()
         elapsed_time = timer - self.last_beat
+        print(elapsed_time)
 
-        if elapsed_time > self.timeout and self.sentUser and self.sentNick:
-        # if elapsed_time > self.timeout:
+        if elapsed_time > self.timeout:
             self.last_beat = timer
             time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
-            logger.log("IRC is still running: alive for " + time_str)
-            self.send_msg("IRC is still running: alive for %s\r\n" % time_str)
+            logger.log("IRC is still running - alive for " + time_str)
+            self.send_msg("IRC is still running - alive for %s\r\n" % time_str)
 
     def handle_line(self, line):
         # logger.log("Received IRC message: " + line)
@@ -91,8 +89,9 @@ class Create(object):
         line = str.rstrip(line)
         words = str.split(line)
 
+        # playing ping-pong with a key (words[1])
         if words[0] == "PING":
-            st = "PONG %s\n" % words[1]
+            st = "PONG %s\r\n" % words[1]
             self.irc.send(st)
 
         # 376 and 422 means ready to join a channel
