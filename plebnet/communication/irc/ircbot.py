@@ -44,7 +44,7 @@ class Create(object):
 
             # init the contact
             # self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-            # self.send("USER %s %s %s : This is a funny plebber\n" % (self.nick, self.nick,  self.nick))
+            self.send("USER %s %s %s : This is a funny plebber\n" % (self.nick, self.nick,  self.nick))
             # time.sleep(30)
             # self.send("NICK %s\n" % self.nick)
             # time.sleep(30)
@@ -58,6 +58,9 @@ class Create(object):
                 buffer = buffer + self.irc.recv(2048)
                 lines = str.split(buffer, "\n")
                 buffer = lines.pop()
+
+                for line in lines:
+                    logger.log("Received IRC message: " + line)
 
                 for line in lines:
                     self.handle_line(line)
@@ -76,15 +79,15 @@ class Create(object):
         timer = time.time()
         elapsed_time = timer - self.last_beat
 
-        # if elapsed_time > self.timeout and self.sentUser and self.sentNick:
-        if elapsed_time > self.timeout:
+        if elapsed_time > self.timeout and self.sentUser and self.sentNick:
+        # if elapsed_time > self.timeout:
             self.last_beat = timer
             time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
             logger.log("IRC is still running: alive for " + time_str)
             self.send("IRC is still running: alive for %s\n" % time_str)
 
     def handle_line(self, line):
-        logger.log("Received IRC message: " + line)
+        # logger.log("Received IRC message: " + line)
 
         line = str.rstrip(line)
         words = str.split(line)
@@ -100,14 +103,12 @@ class Create(object):
             self.sentNick = True
 
         if not self.sentUser:
-            time.sleep(30)
             st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
             # st = "USER %s %s %s %s\n" % (self.nick, self.nick, self.nick, self.nick)
             self.send(st)
             self.sentUser = True
 
         if line.find("255 " + self.nick) != -1:
-            time.sleep(30)
             st = "JOIN " + self.channel + "\n"
             self.send(st)
 
