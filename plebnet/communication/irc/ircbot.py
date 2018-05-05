@@ -78,7 +78,7 @@ class Create(object):
         # if elapsed_time > self.timeout and self.sentUser and self.sentNick:
         if elapsed_time > self.timeout:
             self.last_beat = timer
-            time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
+            time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
             logger.log("IRC is still running: alive for " + time_str)
             self.send("IRC is still running: alive for %s\n" % time_str)
 
