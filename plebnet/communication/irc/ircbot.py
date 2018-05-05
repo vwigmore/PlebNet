@@ -24,8 +24,8 @@ class Create(object):
         self.channel = irc_settings.get_irc_channel()
         self.port = irc_settings.get_irc_port()
         self.nick = "plebbot" + str(random.randint(1000, 10000))
-        # self.sentUser = False
-        # self.sentNick = False
+        self.sentUser = False
+        self.sentNick = False
         self.irc = None
         self.init_time = time.time()
         self.last_beat = time.time()
@@ -44,12 +44,12 @@ class Create(object):
 
             # init the contact
             # self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-            self.send("USER %s %s %s : This is a funny plebber\n" % (self.nick, self.nick,  self.nick))
-            time.sleep(30)
-            self.send("NICK %s\n" % self.nick)
-            time.sleep(30)
-            self.send("JOIN " + self.channel + "\n")
-            time.sleep(10)
+            # self.send("USER %s %s %s : This is a funny plebber\n" % (self.nick, self.nick,  self.nick))
+            # time.sleep(30)
+            # self.send("NICK %s\n" % self.nick)
+            # time.sleep(30)
+            # self.send("JOIN " + self.channel + "\n")
+            # time.sleep(10)
 
             while 1:
 
@@ -93,20 +93,20 @@ class Create(object):
             st = "PONG %s\n" % words[1]
             self.send(st)
 
-        # if not self.sentUser:
-        #     # st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
-        #     st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
-        #     self.send(st)
-        #     self.sentUser = True
-        #
-        # if self.sentUser and not self.sentNick:
-        #     st = "NICK %s\n" % self.botnick
-        #     self.send(st)
-        #     self.sentNick = True
-        #
-        # if text.find("255 " + self.botnick) != -1:
-        #     st = "JOIN " + self.channel + "\n"
-        #     self.send(st)
+        if self.sentUser and not self.sentNick:
+            st = "NICK %s\n" % self.botnick
+            self.send(st)
+            self.sentNick = True
+
+        if not self.sentUser:
+            st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
+            # st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
+            self.send(st)
+            self.sentUser = True
+
+        if text.find("255 " + self.botnick) != -1:
+            st = "JOIN " + self.channel + "\n"
+            self.send(st)
 
         if line.find("statusupdate") != -1:
             self.status()
