@@ -45,7 +45,7 @@ class Create(object):
             # init the contact
             self.send("USER %s %s %s %s\n" % (self.nick, self.nick, self.nick, self.nick))
             self.send("NICK %s\n" % self.nick)
-            time.sleep(10)
+            time.sleep(30)
 
             self.send("JOIN " + self.channel + "\n")
             time.sleep(10)
