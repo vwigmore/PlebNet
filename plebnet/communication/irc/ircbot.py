@@ -45,7 +45,7 @@ class Create(object):
                 timer = time.time()
                 elapsed_time = timer - self.heartbeat
 
-                if elapsed_time > self.timeout:
+                if elapsed_time > self.timeout and self.sentUser and self.sentNick:
                     self.heartbeat = timer
                     timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
                     logger.log("Still running an IRC connection: alive for " + timestr)
