@@ -43,11 +43,12 @@ class Create(object):
             buffer = ""
 
             # init the contact
-            self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-            self.send("NICK %s\r\n" % self.nick)
+            # self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
+            self.send("USER %s %s %s : This is a funny plebber\n" % (self.nick, self.nick,  self.nick))
             time.sleep(30)
-
-            self.send("JOIN " + self.channel + "\r\n")
+            self.send("NICK %s\n" % self.nick)
+            time.sleep(30)
+            self.send("JOIN " + self.channel + "\n")
             time.sleep(10)
 
             while 1:
