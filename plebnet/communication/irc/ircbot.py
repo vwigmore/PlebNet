@@ -48,11 +48,11 @@ class Create(object):
 
             # init the contact
             # self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-            # self.irc.send("NICK %s\r\n" % self.nick)
-            # self.irc.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
+            self.irc.send("NICK %s\r\n" % self.nick)
+            self.irc.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
             # time.sleep(30)
             # time.sleep(30)
-            # self.irc.send("JOIN " + self.channel + "\n")
+            self.irc.send("JOIN " + self.channel + "\n")
             # time.sleep(10)
 
             while 1:
@@ -100,25 +100,25 @@ class Create(object):
             st = "PONG %s\n" % words[1]
             self.irc.send(st)
 
-        elif not self.sentNick:
-            # time.sleep(30)
-            st = "NICK %s\r\n" % self.nick
-            logger.log("Sending an IRC message: " + st)
-            self.irc.send(st)
-            self.sentNick = True
-
-        elif not self.sentUser:
-            # st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
-            st = "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.gecos)
-            logger.log("Sending an IRC message: " + st)
-            self.irc.send(st)
-            self.sentUser = True
-
-        elif line.find("255 " + self.nick) != -1:
-            time.sleep(30)
-            st = "JOIN " + self.channel + "\r\n"
-            logger.log("Sending an IRC message: " + st)
-            self.irc.send(st)
+        # elif not self.sentNick:
+        #     # time.sleep(30)
+        #     st = "NICK %s\r\n" % self.nick
+        #     logger.log("Sending an IRC message: " + st)
+        #     self.irc.send(st)
+        #     self.sentNick = True
+        #
+        # elif not self.sentUser:
+        #     # st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
+        #     st = "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.gecos)
+        #     logger.log("Sending an IRC message: " + st)
+        #     self.irc.send(st)
+        #     self.sentUser = True
+        #
+        # elif line.find("255 " + self.nick) != -1:
+        #     time.sleep(30)
+        #     st = "JOIN " + self.channel + "\r\n"
+        #     logger.log("Sending an IRC message: " + st)
+        #     self.irc.send(st)
 
         elif line.find("statusupdate") != -1:
             self.status()
