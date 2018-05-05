@@ -75,7 +75,6 @@ class Create(object):
     def heartbeat(self):
         timer = time.time()
         elapsed_time = timer - self.last_beat
-        print(elapsed_time)
 
         if elapsed_time > self.timeout:
             self.last_beat = timer
