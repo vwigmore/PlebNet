@@ -49,7 +49,7 @@ class Create(object):
                     self.heartbeat = timer
                     timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
                     logger.log("Still running an IRC connection: alive for " + timestr)
-                    self.send("Still running an IRC connection: alive for " + timestr)
+                    self.send("Still running an IRC connection: alive for %s\n" % timestr)
 
                 text = self.irc.recv(2048)
                 if len(text) == 0:
@@ -57,17 +57,18 @@ class Create(object):
                 logger.log("Received an IRC message: " + text)
 
                 if text.find("PING") != -1:
-                    st = "PONG " + text.split()[1] + "\n"
+                    st = "PONG %s\n" % text.split()[1]
                     self.send(st)
 
                 if not self.sentUser:
-                    st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
+                    # st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
+                    st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
                     self.send(st)
                     self.sentUser = True
                     continue
 
                 if self.sentUser and not self.sentNick:
-                    st = "NICK " + self.botnick + "\n"
+                    st = "NICK %s\n" % self.botnick
                     self.send(st)
                     self.sentNick = True
                     continue
@@ -90,7 +91,7 @@ class Create(object):
 
     def send(self, msg):
         logger.log("Sending an IRC message: " + msg)
-        self.irc.send("PRIVMSG " + self.channel + " :" + msg)
+        self.irc.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
     # the reply functions
     def status(self):
