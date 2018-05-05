@@ -40,45 +40,24 @@ class Create(object):
         self.irc.connect(("irc.undernet.org", 6667))
 
         try:
+            buffer = ""
+
+            # init the contact
+            self.send("USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick))
+            self.send("NICK %s\n" % self.botnick)
+            self.send("JOIN " + self.channel + "\n")
+
             while 1:
-                # handle heartbeat
-                timer = time.time()
-                elapsed_time = timer - self.heartbeat
 
-                if elapsed_time > self.timeout and self.sentUser and self.sentNick:
-                    self.heartbeat = timer
-                    timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
-                    logger.log("Still running an IRC connection: alive for " + timestr)
-                    self.send("Still running an IRC connection: alive for %s\n" % timestr)
+                self.heartbeat()
 
-                text = self.irc.recv(2048)
-                if len(text) == 0:
-                    continue
-                logger.log("Received an IRC message: " + text)
+                buffer = buffer + self.irc.recv(2048)
+                lines = str.split(readbuffer, "\n")
+                buffer = lines.pop()
 
-                if text.find("PING") != -1:
-                    st = "PONG %s\n" % text.split()[1]
-                    self.send(st)
+                for line in lines:
+                    self.handle_line(line)
 
-                if not self.sentUser:
-                    # st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
-                    st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
-                    self.send(st)
-                    self.sentUser = True
-                    continue
-
-                if self.sentUser and not self.sentNick:
-                    st = "NICK %s\n" % self.botnick
-                    self.send(st)
-                    self.sentNick = True
-                    continue
-
-                if text.find("255 " + self.botnick) != -1:
-                    st = "JOIN " + self.channel + "\n"
-                    self.send(st)
-
-                if text.find("statusupdate") != -1:
-                    self.status()
         except KeyboardInterrupt:
             st = "QUIT :I have to go for now!\n"
             self.irc.send(st)
@@ -88,6 +67,44 @@ class Create(object):
             logger.log(traceback.format_exc())
             st = "QUIT :I have to go for now!\n"
             self.irc.send(st)
+
+    def heartbeat(self):
+        timer = time.time()
+        elapsed_time = timer - self.heartbeat
+
+        if elapsed_time > self.timeout and self.sentUser and self.sentNick:
+            self.heartbeat = timer
+            timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
+            logger.log("Still running an IRC connection: alive for " + timestr)
+            self.send("Still running an IRC connection: alive for %s\n" % timestr)
+
+    def handle_line(self, line):
+        logger.log("Received IRC message: " + line)
+
+        line = str.rstrip(line)
+        words = str.split(line)
+
+        if words[0] == "PING":
+            st = "PONG %s\n" % words[1]
+            self.send(st)
+
+        # if not self.sentUser:
+        #     # st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
+        #     st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
+        #     self.send(st)
+        #     self.sentUser = True
+        #
+        # if self.sentUser and not self.sentNick:
+        #     st = "NICK %s\n" % self.botnick
+        #     self.send(st)
+        #     self.sentNick = True
+        #
+        # if text.find("255 " + self.botnick) != -1:
+        #     st = "JOIN " + self.channel + "\n"
+        #     self.send(st)
+
+        if line.find("statusupdate") != -1:
+            self.status()
 
     def send(self, msg):
         logger.log("Sending an IRC message: " + msg)
