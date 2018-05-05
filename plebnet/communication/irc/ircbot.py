@@ -90,11 +90,11 @@ class Create(object):
 
     def send(self, msg):
         logger.log("Sending an IRC message: " + msg)
-        self.irc.send(msg)
+        self.irc.send("PRIVMSG " + self.channel + " :" + msg)
 
     # the reply functions
     def status(self):
-        self.send("PRIVMSG " + self.channel + " :" + "ik werk prima \n")
+        self.send("ik werk prima \n")
 
 
 bot = Create()
