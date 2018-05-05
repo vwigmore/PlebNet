@@ -23,12 +23,12 @@ class Create(object):
         self.timeout = irc_settings.get_irc_timeout()
         self.channel = irc_settings.get_irc_channel()
         self.port = irc_settings.get_irc_port()
-        self.botnick = "plebbot" + str(random.randint(1000, 10000))
-        self.sentUser = False
-        self.sentNick = False
+        self.nick = "plebbot" + str(random.randint(1000, 10000))
+        # self.sentUser = False
+        # self.sentNick = False
         self.irc = None
-        self.inittime = time.time()
-        self.heartbeat = time.time()
+        self.init_time = time.time()
+        self.last_beat = time.time()
 
         # start running the IRC server
         logger.log("start running an IRC connection on " + self.server + " " + self.channel)
@@ -43,16 +43,19 @@ class Create(object):
             buffer = ""
 
             # init the contact
-            self.send("USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick))
-            self.send("NICK %s\n" % self.botnick)
+            self.send("USER %s %s %s %s\n" % (self.nick, self.nick, self.nick, self.nick))
+            self.send("NICK %s\n" % self.nick)
+            time.sleep(10)
+
             self.send("JOIN " + self.channel + "\n")
+            time.sleep(10)
 
             while 1:
 
                 self.heartbeat()
 
                 buffer = buffer + self.irc.recv(2048)
-                lines = str.split(readbuffer, "\n")
+                lines = str.split(buffer, "\n")
                 buffer = lines.pop()
 
                 for line in lines:
@@ -70,13 +73,14 @@ class Create(object):
 
     def heartbeat(self):
         timer = time.time()
-        elapsed_time = timer - self.heartbeat
+        elapsed_time = timer - self.last_beat
 
-        if elapsed_time > self.timeout and self.sentUser and self.sentNick:
-            self.heartbeat = timer
-            timestr = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
-            logger.log("Still running an IRC connection: alive for " + timestr)
-            self.send("Still running an IRC connection: alive for %s\n" % timestr)
+        # if elapsed_time > self.timeout and self.sentUser and self.sentNick:
+        if elapsed_time > self.timeout:
+            self.last_beat = timer
+            time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.inittime))
+            logger.log("IRC is still running: alive for " + time_str)
+            self.send("IRC is still running: alive for %s\n" % time_str)
 
     def handle_line(self, line):
         logger.log("Received IRC message: " + line)
