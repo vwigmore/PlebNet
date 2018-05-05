@@ -48,11 +48,11 @@ class Create(object):
 
             # init the contact
             # self.send("USER %s %s %s %s\r\n" % (self.nick, self.nick, self.nick, self.nick))
-            self.irc.send("NICK %s\r\n" % self.nick)
-            self.irc.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
+            # self.irc.send("NICK %s\r\n" % self.nick)
+            # self.irc.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
             # time.sleep(30)
             # time.sleep(30)
-            self.irc.send("JOIN " + self.channel + "\n")
+            # self.irc.send("JOIN " + self.channel + "\n")
             # time.sleep(10)
 
             while 1:
@@ -60,7 +60,7 @@ class Create(object):
                 self.heartbeat()
 
                 buffer = buffer + self.irc.recv(2048)
-                lines = str.split(buffer, "\n")
+                lines = str.split(buffer, "\r\n")
                 buffer = lines.pop()
 
                 for line in lines:
@@ -70,13 +70,13 @@ class Create(object):
                     self.handle_line(line)
 
         except KeyboardInterrupt:
-            st = "QUIT :I have to go for now!\n"
+            st = "QUIT :I have to go for now!\r\n"
             self.irc.send(st)
             # sys.exit()
         except:
             logger.log("An error occurred at the IRC")
             logger.log(traceback.format_exc())
-            st = "QUIT :I have to go for now!\n"
+            st = "QUIT :I have to go for now!\r\n"
             self.irc.send(st)
 
     def heartbeat(self):
@@ -88,7 +88,7 @@ class Create(object):
             self.last_beat = timer
             time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
             logger.log("IRC is still running: alive for " + time_str)
-            self.send("IRC is still running: alive for %s\n" % time_str)
+            self.send("IRC is still running: alive for %s\r\n" % time_str)
 
     def handle_line(self, line):
         # logger.log("Received IRC message: " + line)
@@ -100,21 +100,24 @@ class Create(object):
             st = "PONG %s\n" % words[1]
             self.send(st)
 
-        # if self.sentUser and not self.sentNick:
-        #     time.sleep(30)
-        #     st = "NICK %s\n" % self.nick
-        #     self.send(st)
-        #     self.sentNick = True
-        #
-        # if not self.sentUser:
-        #     st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
-        #     # st = "USER %s %s %s %s\n" % (self.nick, self.nick, self.nick, self.nick)
-        #     self.send(st)
-        #     self.sentUser = True
+        if self.sentUser and not self.sentNick:
+            # time.sleep(30)
+            st = "NICK %s\r\n" % self.nick
+            logger.log("Sending an IRC message: " + st)
+            self.irc.send(st)
+            self.sentNick = True
 
-        # if line.find("255 " + self.nick) != -1:
-        #     st = "JOIN " + self.channel + "\n"
-        #     self.send(st)
+        if not self.sentUser:
+            # st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
+            st = "USER %s %s %s :%s\r\n" % (self.nick, self.nick, self.nick, self.nick)
+            logger.log("Sending an IRC message: " + st)
+            self.irc.send(st)
+            self.sentUser = True
+
+        if line.find("255 " + self.nick) != -1:
+            st = "JOIN " + self.channel + "\r\n"
+            logger.log("Sending an IRC message: " + st)
+            self.irc.send(st)
 
         if line.find("statusupdate") != -1:
             self.status()
@@ -125,7 +128,7 @@ class Create(object):
 
     # the reply functions
     def status(self):
-        self.send("ik werk prima \n")
+        self.send("ik werk prima \r\n")
 
 
 bot = Create()
