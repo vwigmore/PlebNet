@@ -94,17 +94,17 @@ class Create(object):
             self.send(st)
 
         if self.sentUser and not self.sentNick:
-            st = "NICK %s\n" % self.botnick
+            st = "NICK %s\n" % self.nick
             self.send(st)
             self.sentNick = True
 
         if not self.sentUser:
-            st = "USER " + self.botnick + " " + self.botnick + " " + self.botnick + " : This is a fun bot \n"
-            # st = "USER %s %s %s %s\n" % (self.botnick, self.botnick, self.botnick, self.botnick)
+            st = "USER " + self.nick + " " + self.nick + " " + self.nick + " : This is a fun bot \n"
+            # st = "USER %s %s %s %s\n" % (self.nick, self.nick, self.nick, self.nick)
             self.send(st)
             self.sentUser = True
 
-        if text.find("255 " + self.botnick) != -1:
+        if line.find("255 " + self.nick) != -1:
             st = "JOIN " + self.channel + "\n"
             self.send(st)
 
