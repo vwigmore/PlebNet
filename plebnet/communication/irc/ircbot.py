@@ -115,6 +115,7 @@ class Create(object):
             self.sentUser = True
 
         elif line.find("255 " + self.nick) != -1:
+            time.sleep(30)
             st = "JOIN " + self.channel + "\r\n"
             logger.log("Sending an IRC message: " + st)
             self.irc.send(st)
