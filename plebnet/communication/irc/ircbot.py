@@ -34,6 +34,7 @@ class Create(object):
 
         # prep reply functions
         command = "!"
+        self.replies = {}
         self.replies[":" + command + "init"] = self.msg_init
 
         # start running the IRC server
