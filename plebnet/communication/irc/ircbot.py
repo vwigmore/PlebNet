@@ -115,12 +115,12 @@ class Create(object):
 
     # the sender methods
     def send(self, msg):
-        logger.log("Sending an IRC message: %s" % msg)
-        self.irc.send(msg)
+        logger.log("Sending IRC message : %s" % msg)
+        self.irc.send("%s\r\n" % msg)
 
     def send_msg(self, msg):
         # self.send("PRIVMSG %s :%s" % (self.channel,  msg))
-        self.send("PRIVMSG %s :%s\r\n" % (self.channel,  msg))
+        self.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
     # the reply functions
     def msg_alive(self):
