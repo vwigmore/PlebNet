@@ -99,9 +99,12 @@ class Create(object):
             self.send(st)
 
         # handle incoming messages
-        elif words[2] == "!alive": self.msg_alive()
+        elif words[1] == "!alive": self.msg_alive()
         elif words[2] == "!host":  self.msg_host()
-        elif words[2] == "!joke":  self.msg_joke()
+        elif words[3] == "!joke":  self.msg_joke()
+        elif words[1] == ":!alive": self.msg_joke()
+        elif words[2] == ":!host":  self.msg_alive()
+        elif words[3] == ":!joke":  self.msg_host()
 
         elif line.find("joke") != -1:
             self.msg_joke()
