@@ -26,7 +26,7 @@ class Create(object):
 
         self.nick = "plebbot" + str(random.randint(1000, 10000))
         self.ident = "plebber"
-        self.gecos = "Plebbot version 1.0"
+        self.gecos = "Plebbot version 2.14"
 
         self.irc = None
         self.init_time = time.time()
@@ -48,8 +48,9 @@ class Create(object):
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.irc.connect((self.server, self.port))
-        self.irc.connect(("irc.undernet.org", 6667))
+        # TODO: fix this
+        self.irc.connect((self.server, self.port))
+        # self.irc.connect(("irc.undernet.org", 6667))
 
         try:
             buffer = ""
@@ -57,8 +58,6 @@ class Create(object):
             # init the contact
             self.send("NICK %s" % self.nick)
             self.send("USER %s %s %s : %s" % (self.nick, self.nick,  self.nick, self.gecos))
-            # self.send("NICK %s\r\n" % self.nick)
-            # self.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
 
             while 1:
 
@@ -76,14 +75,11 @@ class Create(object):
 
         except KeyboardInterrupt:
             st = "QUIT :I have to go for now!"
-            # st = "QUIT :I have to go for now!\r\n"
             self.irc.send(st)
-            # sys.exit()
         except:
             logger.log("An error occurred at the IRC")
             logger.log(traceback.format_exc())
             st = "QUIT :I have to go for now!"
-            # st = "QUIT :I have to go for now!\r\n"
             self.send(st)
 
     def heartbeat(self):
@@ -95,10 +91,8 @@ class Create(object):
             time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
             logger.log("IRC is still running - alive for " + time_str)
             self.send_msg("IRC is still running - alive for %s" % time_str)
-            # self.send_msg("IRC is still running - alive for %s\r\n" % time_str)
 
     def handle_line(self, line):
-        # logger.log("Received IRC message: " + line)
 
         line = str.rstrip(line)
         words = str.split(line)
@@ -107,33 +101,23 @@ class Create(object):
         # TODO: reply to private pings: <user> PRIVMSG <botnick> :_PING 12345667_
         if words[0] == "PING":
             st = "PONG %s" % words[1]
-            # st = "PONG %s\r\n" % words[1]
             self.send(st)
 
         # server status 376 and 422 means ready to join a channel
         elif line.find("376 " + self.nick) != -1 or line.find("422 " + self.nick) != -1:
             st = "JOIN " + self.channel
-            # st = "JOIN " + self.channel + "\r\n"
             self.send(st)
 
         # handle incoming messages
-        # TODO: omzetten naar een key-value map? maakt toevoegen van opties overzichtelijker
-        # <server> PRIVMSG <target> <message>
-        # elif len(words) < 4: return
-        # elif words[3] == ":!alive": self.msg_alive()
-        # elif words[3] == ":!host":  self.msg_host()
-        # elif words[3] == ":!joke":  self.msg_joke()
-
         elif len(words) > 3 and words[3] in self.responses:
             self.responses[words[3]]()
 
     # the sender methods
     def send(self, msg):
-        logger.log("Sending IRC message : %s" % msg)
+        logger.log("Sending  IRC message: %s" % msg)
         self.irc.send("%s\r\n" % msg)
 
     def send_msg(self, msg):
-        # self.send("PRIVMSG %s :%s" % (self.channel,  msg))
         self.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
     # the responses (don't forget to add them to the self.responses in the init method)
