@@ -44,7 +44,7 @@ class Create(object):
         self.run()
 
     def add_response(self, command, response):
-        self.replies[":!" + command] = response
+        self.responses[":!" + command] = response
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -124,8 +124,8 @@ class Create(object):
         # elif words[3] == ":!host":  self.msg_host()
         # elif words[3] == ":!joke":  self.msg_joke()
 
-        elif len(words) > 3 and words[3] in self.replies:
-            self.replies[words[3]]()
+        elif len(words) > 3 and words[3] in self.responses:
+            self.responses[words[3]]()
 
     # the sender methods
     def send(self, msg):
