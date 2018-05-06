@@ -34,10 +34,10 @@ class Create(object):
 
         # prep reply functions
         self.responses = {}
-        self.add_response("alive", self.alive)
-        self.add_response("host", self.host)
-        self.add_response("init", self.init)
-        self.add_response("joke", self.joke)
+        self.add_response("alive", self.msg_alive)
+        self.add_response("host", self.msg_host)
+        self.add_response("init", self.msg_init)
+        self.add_response("joke", self.msg_joke)
 
         # start running the IRC server
         logger.log("start running an IRC connection on " + self.server + " " + self.channel)
@@ -136,7 +136,7 @@ class Create(object):
         # self.send("PRIVMSG %s :%s" % (self.channel,  msg))
         self.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
-    # the reply functions
+    # the responses (don't forget to add them to the self.responses in the init method)
     def msg_alive(self):
         time_str = time.strftime("%H:%M:%S", time.gmtime(time.time() - self.init_time))
         self.send_msg("I am alive, for %s" % time_str)
