@@ -32,6 +32,10 @@ class Create(object):
         self.init_time = time.time()
         self.last_beat = time.time()
 
+        # prep reply functions
+        command = "!"
+        self.replies[":" + command + "init"] = self.msg_init
+
         # start running the IRC server
         logger.log("start running an IRC connection on " + self.server + " " + self.channel)
         self.run()
@@ -114,6 +118,9 @@ class Create(object):
         elif words[3] == ":!host":  self.msg_host()
         elif words[3] == ":!joke":  self.msg_joke()
 
+        if words[3] in self.replies:
+            self.replies[words[3]]()
+
     # the sender methods
     def send(self, msg):
         logger.log("Sending IRC message : %s" % msg)
@@ -129,10 +136,10 @@ class Create(object):
         self.send_msg("I am alive, for %s" % time_str)
 
     def msg_host(self):
-        settings = setup_settings.Init()
-        host = settings.get_vps_host()
-        self.send_msg("My host is : %s" % host)
         self.send_msg("My host is : %s" % setup_settings.Init().get_vps_host())
+
+    def msg_init(self):
+        self.send_msg("My host is : %s" % setup_settings.Init().get_vps_life())
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
