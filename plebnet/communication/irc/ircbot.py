@@ -99,9 +99,9 @@ class Create(object):
             self.send(st)
 
         # handle incoming messages
-        if words[2] == "@alive": self.msg_alive()
-        if words[2] == "@host":  self.msg_host()
-        if words[2] == "@joke":  self.msg_joke()
+        elif words[2] == "@alive": self.msg_alive()
+        elif words[2] == "@host":  self.msg_host()
+        elif words[2] == "@joke":  self.msg_joke()
 
         # elif line.find("statusupdate") != -1:
         #     self.status()
