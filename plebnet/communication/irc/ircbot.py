@@ -45,8 +45,10 @@ class Create(object):
             buffer = ""
 
             # init the contact
-            self.send("NICK %s\r\n" % self.nick)
-            self.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
+            self.send("NICK %s" % self.nick)
+            self.send("USER %s %s %s : %s" % (self.nick, self.nick,  self.nick, self.gecos))
+            # self.send("NICK %s\r\n" % self.nick)
+            # self.send("USER %s %s %s : %s\r\n" % (self.nick, self.nick,  self.nick, self.gecos))
 
             while 1:
 
@@ -63,13 +65,15 @@ class Create(object):
                     self.handle_line(line)
 
         except KeyboardInterrupt:
-            st = "QUIT :I have to go for now!\r\n"
+            st = "QUIT :I have to go for now!"
+            # st = "QUIT :I have to go for now!\r\n"
             self.irc.send(st)
             # sys.exit()
         except:
             logger.log("An error occurred at the IRC")
             logger.log(traceback.format_exc())
-            st = "QUIT :I have to go for now!\r\n"
+            st = "QUIT :I have to go for now!"
+            # st = "QUIT :I have to go for now!\r\n"
             self.send(st)
 
     def heartbeat(self):
@@ -80,7 +84,8 @@ class Create(object):
             self.last_beat = timer
             time_str = time.strftime("%H:%M:%S", time.gmtime(timer - self.init_time))
             logger.log("IRC is still running - alive for " + time_str)
-            self.send_msg("IRC is still running - alive for %s\r\n" % time_str)
+            self.send_msg("IRC is still running - alive for %s" % time_str)
+            # self.send_msg("IRC is still running - alive for %s\r\n" % time_str)
 
     def handle_line(self, line):
         # logger.log("Received IRC message: " + line)
@@ -90,12 +95,14 @@ class Create(object):
 
         # playing ping-pong with a key (words[1])
         if words[0] == "PING":
-            st = "PONG %s\r\n" % words[1]
+            st = "PONG %s" % words[1]
+            # st = "PONG %s\r\n" % words[1]
             self.send(st)
 
         # server status 376 and 422 means ready to join a channel
         elif line.find("376 " + self.nick) != -1 or line.find("422 " + self.nick) != -1:
-            st = "JOIN " + self.channel + "\r\n"
+            st = "JOIN " + self.channel
+            # st = "JOIN " + self.channel + "\r\n"
             self.send(st)
 
         # handle incoming messages
@@ -112,7 +119,8 @@ class Create(object):
         self.irc.send(msg)
 
     def send_msg(self, msg):
-        self.send("PRIVMSG %s :%s" % (self.channel,  msg))
+        # self.send("PRIVMSG %s :%s" % (self.channel,  msg))
+        self.send("PRIVMSG %s :%s\r\n" % (self.channel,  msg))
 
     # the reply functions
     def msg_alive(self):
