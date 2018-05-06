@@ -103,17 +103,14 @@ class Create(object):
         # <server> PRIVMSG <target> <message>
         elif len(words) < 4: return
 
-        i = 0
-        for word in words:
-            logger.log("word %s is %s" % (i,word))
-            i = i + 1
+        # i = 0
+        # for word in words:
+        #     logger.log("word %s is %s" % (i,word))
+        #     i = i + 1
 
-        # elif words[1] == "!alive": self.msg_alive()
-        # elif words[2] == "!host":  self.msg_host()
-        # elif words[3] == "!joke":  self.msg_joke()
-        # elif words[1] == ":!alive": self.msg_joke()
-        # elif words[2] == ":!host":  self.msg_alive()
-        # elif words[3] == ":!joke":  self.msg_host()
+        elif words[3] == ":!alive": self.msg_joke()
+        elif words[3] == ":!host":  self.msg_alive()
+        elif words[3] == ":!joke":  self.msg_host()
         #
         # elif line.find("joke") != -1:
         #     self.msg_joke()
