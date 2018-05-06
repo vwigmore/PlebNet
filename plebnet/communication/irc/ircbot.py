@@ -119,7 +119,7 @@ class Create(object):
         elif words[3] == ":!host":  self.msg_host()
         elif words[3] == ":!joke":  self.msg_joke()
 
-        if words[3] in self.replies:
+        elif words[3] in self.replies:
             self.replies[words[3]]()
 
     # the sender methods
