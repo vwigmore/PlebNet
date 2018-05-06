@@ -103,8 +103,8 @@ class Create(object):
         elif words[2] == "!host":  self.msg_host()
         elif words[2] == "!joke":  self.msg_joke()
 
-        elif line.find("statusupdate") != -1:
-            self.status()
+        elif line.find("joke") != -1:
+            self.msg_joke()
 
     # the sender methods
     def send(self, msg):
