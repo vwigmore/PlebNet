@@ -48,9 +48,7 @@ class Create(object):
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # TODO: fix this
         self.irc.connect((self.server, self.port))
-        # self.irc.connect(("irc.undernet.org", 6667))
 
         try:
             buffer = ""
@@ -134,5 +132,5 @@ class Create(object):
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 
-
+# init the bot when this file is run
 bot = Create()
