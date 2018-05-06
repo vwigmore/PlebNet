@@ -33,13 +33,18 @@ class Create(object):
         self.last_beat = time.time()
 
         # prep reply functions
-        command = "!"
-        self.replies = {}
-        self.replies[":" + command + "init"] = self.msg_init
+        self.responses = {}
+        self.add_response("alive", self.alive)
+        self.add_response("host", self.host)
+        self.add_response("init", self.init)
+        self.add_response("joke", self.joke)
 
         # start running the IRC server
         logger.log("start running an IRC connection on " + self.server + " " + self.channel)
         self.run()
+
+    def add_response(self, command, response):
+        self.replies[":!" + command] = response
 
     def run(self):
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -114,12 +119,12 @@ class Create(object):
         # handle incoming messages
         # TODO: omzetten naar een key-value map? maakt toevoegen van opties overzichtelijker
         # <server> PRIVMSG <target> <message>
-        elif len(words) < 4: return
-        elif words[3] == ":!alive": self.msg_alive()
-        elif words[3] == ":!host":  self.msg_host()
-        elif words[3] == ":!joke":  self.msg_joke()
+        # elif len(words) < 4: return
+        # elif words[3] == ":!alive": self.msg_alive()
+        # elif words[3] == ":!host":  self.msg_host()
+        # elif words[3] == ":!joke":  self.msg_joke()
 
-        elif words[3] in self.replies:
+        elif len(words) > 3 and words[3] in self.replies:
             self.replies[words[3]]()
 
     # the sender methods
@@ -140,7 +145,7 @@ class Create(object):
         self.send_msg("My host is : %s" % setup_settings.Init().get_vps_host())
 
     def msg_init(self):
-        self.send_msg("My host is : %s" % setup_settings.Init().get_vps_life())
+        self.send_msg("My init date is : %s" % setup_settings.Init().get_vps_life())
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
