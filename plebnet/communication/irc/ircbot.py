@@ -98,7 +98,12 @@ class Create(object):
             st = "JOIN " + self.channel + "\r\n"
             self.send(st)
 
+
+
         # handle incoming messages
+        # TODO: omzetten naar een key-value map? maakt toevoegen van opties overzichtelijker
+        # <server> PRIVMSG <target> <message>
+        elif len(words) < 4: return
         elif words[1] == "!alive": self.msg_alive()
         elif words[2] == "!host":  self.msg_host()
         elif words[3] == "!joke":  self.msg_joke()
