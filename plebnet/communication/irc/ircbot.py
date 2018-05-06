@@ -102,18 +102,9 @@ class Create(object):
         # TODO: omzetten naar een key-value map? maakt toevoegen van opties overzichtelijker
         # <server> PRIVMSG <target> <message>
         elif len(words) < 4: return
-
-        # i = 0
-        # for word in words:
-        #     logger.log("word %s is %s" % (i,word))
-        #     i = i + 1
-
-        elif words[3] == ":!alive": self.msg_joke()
-        elif words[3] == ":!host":  self.msg_alive()
-        elif words[3] == ":!joke":  self.msg_host()
-        #
-        # elif line.find("joke") != -1:
-        #     self.msg_joke()
+        elif words[3] == ":!alive": self.msg_alive()
+        elif words[3] == ":!host":  self.msg_host()
+        elif words[3] == ":!joke":  self.msg_joke()
 
     # the sender methods
     def send(self, msg):
@@ -129,7 +120,8 @@ class Create(object):
         self.send_msg("I am alive, for %s" % time_str)
 
     def msg_host(self):
-        self.send_msg("My host is : " + setup_settings.Init().get_vps_host)
+        settings = setup_settings.Init()
+        self.send_msg("My host is : %s" % settings.get_vps_host)
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
