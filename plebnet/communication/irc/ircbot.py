@@ -94,6 +94,7 @@ class Create(object):
         words = str.split(line)
 
         # playing ping-pong with a key (words[1])
+        # TODO: reply to private pings: <user> PRIVMSG <botnick> :_PING 12345667_
         if words[0] == "PING":
             st = "PONG %s" % words[1]
             # st = "PONG %s\r\n" % words[1]
@@ -129,7 +130,9 @@ class Create(object):
 
     def msg_host(self):
         settings = setup_settings.Init()
-        self.send_msg("My host is : %s" % settings.get_vps_host)
+        host = settings.get_vps_host()
+        self.send_msg("My host is : %s" % host)
+        self.send_msg("My host is : %s" % setup_settings.Init().get_vps_host())
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
