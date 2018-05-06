@@ -91,16 +91,22 @@ class Create(object):
         # playing ping-pong with a key (words[1])
         if words[0] == "PING":
             st = "PONG %s\r\n" % words[1]
-            self.irc.send(st)
+            self.send(st)
 
-        # 376 and 422 means ready to join a channel
+        # server status 376 and 422 means ready to join a channel
         elif line.find("376 " + self.nick) != -1 or line.find("422 " + self.nick) != -1:
             st = "JOIN " + self.channel + "\r\n"
             self.send(st)
 
-        elif line.find("statusupdate") != -1:
-            self.status()
+        # handle incoming messages
+        if words[2] == "@alive": self.msg_alive()
+        if words[2] == "@host":  self.msg_host()
+        if words[2] == "@joke":  self.msg_joke()
 
+        # elif line.find("statusupdate") != -1:
+        #     self.status()
+
+    # the sender methods
     def send(self, msg):
         logger.log("Sending an IRC message: %s" % msg)
         self.irc.send(msg)
@@ -109,8 +115,15 @@ class Create(object):
         self.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
     # the reply functions
-    def status(self):
-        self.send_msg("ik werk prima \r\n")
+    def msg_alive(self):
+        time_str = time.strftime("%H:%M:%S", time.gmtime(time.time() - self.init_time))
+        self.send_msg("I am alive, for %s" % time_str)
+
+    def msg_host(self):
+        self.send_msg("My host is : " + setup_settings.Init().get_vps_host)
+
+    def msg_joke(self):
+        self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 
 
 bot = Create()
