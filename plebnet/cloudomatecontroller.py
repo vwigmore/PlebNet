@@ -4,6 +4,8 @@ import codecs
 import random
 import unicodedata
 
+from cloudomate.hoster.vps.clientarea import ClientArea
+from cloudomate.cmdline import ssh
 from appdirs import user_config_dir
 from cloudomate import wallet as wallet_util
 from cloudomate.util.settings import Settings as userOptions, os
@@ -22,14 +24,17 @@ def status(provider):
 
 
 def get_ip(provider):
-    settings = _user_settings()
-    return provider.get_ip(settings)
+    print('get ip: %s' % provider)
+
+    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), _user_settings())
+    print('ca: %s' % client_area.get_services())
+    return client_area.get_ip()
 
 
 def setrootpw(provider, password):
     settings = _user_settings()
-    settings.put('root_password', password)
-    return provider.set_rootpw(settings)
+    settings.put('server', 'root_password', password)
+    # return provider.set_rootpw(settings)
 
 
 def options(provider):

@@ -5,7 +5,6 @@ import smtplib
 import subprocess
 import sys
 import time
-import threading
 from argparse import ArgumentParser
 from subprocess import CalledProcessError
 
@@ -20,15 +19,16 @@ from electrum import keystore
 from electrum.mnemonic import Mnemonic
 
 from plebnet import cloudomatecontroller, twitter
-from plebnet.utilities import logger
 from plebnet.agent import marketapi
 from plebnet.agent.dna import DNA
 from plebnet.cloudomatecontroller import options
 from plebnet.config import PlebNetConfig
+from plebnet.utilities import logger
 
 WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 TRIBLER_HOME = os.path.expanduser("~/PlebNet/tribler")
 PLEBNET_CONFIG = os.path.expanduser("~/.plebnet.cfg")
+PLEBNET_HOME = os.path.expanduser("~/PlebNet")
 TIME_IN_HOUR = 60.0 * 60.0
 TIME_IN_DAY = TIME_IN_HOUR * 24.0
 
@@ -42,7 +42,6 @@ def execute(cmd=sys.argv[1:]):
     add_parser_check(subparsers)
     add_parser_setup(subparsers)
     add_parser_stopirc(subparsers)
-    add_parser_testing(subparsers)
 
     args = parser.parse_args(cmd)
     args.func(args)
@@ -63,26 +62,6 @@ def add_parser_stopirc(subparsers):
     parser_list.set_defaults(func=stop_irc)
 
 
-def add_parser_testing(subparsers):
-    # temp test function
-    parser_list = subparsers.add_parser("test", help="Test new function")
-    parser_list.set_defaults(func=test)
-
-
-def test(args):
-    logger.log("Testing IRC")
-
-
-def stop_irc(args):
-    logger.log("stopping the irc", "stop_irc")
-
-    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh stop', shell=True)
-    if success:
-        print("Stopping successful")
-    else:
-        print("Stopping unsuccesful")
-    return success
-
 def setup(args):
     print("Setting up PlebNet")
     cloudomatecontroller.generate_config()
@@ -93,6 +72,7 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary()
     dna.write_dictionary()
+    #twitter.tweet_arrival()
     create_wallet()
 
     init_irc()
@@ -110,6 +90,17 @@ def init_irc():
         print("Installation successful")
     else:
         print("Installation unsuccesful")
+    return success
+
+
+def stop_irc(args):
+    logger.log("stopping the irc", "stop_irc")
+
+    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh stop', shell=True)
+    if success:
+        print("Stopping successful")
+    else:
+        print("Stopping unsuccesful")
     return success
 
 
@@ -190,14 +181,14 @@ def check(args):
             transaction_hash, provider = purchase_choice(config)
             if transaction_hash:
                 config.get('transactions').append(transaction_hash)
-                # evolve yourself positively if you are successfull
+                # evolve yourself positively if you are successful
                 own_provider = get_own_provider(dna)
                 evolve(own_provider, dna, True)
             else:
-                # evolve provider negatively if not succesfull
+                # evolve provider negatively if not successful
                 evolve(provider, dna, False)
         config.save()
-        return
+        # return
     print("instal?")
     install_available_servers(config, dna)
     config.save()
@@ -315,10 +306,8 @@ def purchase_choice(config):
     """
 
     (provider, option, _) = config.get('chosen_provider')
-    # cloudomate.cmdline._purchase_vps(provider, option, )
     user_options = UserOptions()
     user_options.read_settings()
-
 
     provider_instance = cloudomate_providers['vps'][provider](user_options)
     wallet = Wallet()
@@ -327,9 +316,8 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
     print('option: ' + str(option))
-    transaction_hash = provider_instance.purchase(wallet, option)
+    transaction_hash, _ = provider_instance.purchase(wallet, option)
 
-    # transaction_hash = cloudomatecontroller.purchase(cloudomate_providers['vps'][provider], option, wallet=Wallet())
     if transaction_hash:
         config.get('bought').append((provider, transaction_hash))
         config.set('chosen_provider', None)
@@ -354,31 +342,32 @@ def evolve(provider, dna, success):
 
 def install_available_servers(config, dna):
     bought = config.get('bought')
-
+    print("instal: %s" % bought)
     for provider, transaction_hash in bought:
         print("Checking whether %s is activated" % provider)
 
-        try:
-            ip = cloudomatecontroller.get_ip(cloudomate_providers[provider])
-        except BaseException as e:
-            print(e)
-            print("%s not ready yet" % provider)
-            return
+        # try:
+        ip = cloudomatecontroller.get_ip(cloudomate_providers['vps'][provider])
+        # except BaseException as e:
+        #    print(e)
+        #    print("%s not ready yet" % provider)
+        #    return
 
         print("Installling child on %s " % provider)
+        print('ip: %s' % ip)
         if is_valid_ip(ip):
             user_options = UserOptions()
             user_options.read_settings()
-            rootpw = user_options.get('rootpw')
-            cloudomate_providers[provider].br = cloudomate_providers[provider]._create_browser()
-            cloudomatecontroller.setrootpw(cloudomate_providers[provider], rootpw)
-            parentname = '{0}-{1}'.format(user_options.get('firstname'), user_options.get('lastname'))
+            rootpw = user_options.get('server', 'root_password')
+            cloudomate_providers['vps'][provider].br = cloudomate_providers['vps'][provider]._create_browser()
+            # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
+            parentname = '{0}-{1}'.format(user_options.get('user', 'firstname'), user_options.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
             # Save config before entering possibly long lasting process
             config.save()
             success = install_server(ip, rootpw)
-            send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
-            # Reload config in case install takes a long time
+            # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
+            # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
             if [provider, transaction_hash] in bought:
@@ -409,11 +398,11 @@ def is_valid_ip(ip):
 
 
 def install_server(ip, rootpw):
-    file_path = os.path.dirname(os.path.realpath(__file__))
-    script_path = os.path.join(file_path, '/root/PlebNet/scripts/create-child.sh')
-    command = '%s %s %s' % (script_path, ip.strip(), rootpw.strip())
+    script_path = os.path.join(PLEBNET_HOME, "/scripts/create-child.sh")
+    print('tot_path: %s' % script_path)
+    command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
     print("Running %s" % command)
-    success = subprocess.call(command, shell=True)
+    success = subprocess.call(command, shell=True, cwd=PLEBNET_HOME)
     if success:
         print("Installation successful")
     else:
