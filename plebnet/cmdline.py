@@ -23,6 +23,7 @@ from plebnet.agent import marketapi
 from plebnet.agent.dna import DNA
 from plebnet.cloudomatecontroller import options
 from plebnet.config import PlebNetConfig
+from plebnet.utilities import logger
 
 WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 TRIBLER_HOME = os.path.expanduser("~/PlebNet/tribler")
@@ -40,6 +41,7 @@ def execute(cmd=sys.argv[1:]):
     subparsers = parser.add_subparsers(dest="command")
     add_parser_check(subparsers)
     add_parser_setup(subparsers)
+    add_parser_stopirc(subparsers)
 
     args = parser.parse_args(cmd)
     args.func(args)
@@ -55,6 +57,11 @@ def add_parser_setup(subparsers):
     parser_list.set_defaults(func=setup)
 
 
+def add_parser_stopirc(subparsers):
+    parser_list = subparsers.add_parser("stopirc", help="Stop the running IRC bot")
+    parser_list.set_defaults(func=stop_irc)
+
+
 def setup(args):
     print("Setting up PlebNet")
     cloudomatecontroller.generate_config()
@@ -68,7 +75,34 @@ def setup(args):
     #twitter.tweet_arrival()
     create_wallet()
 
-    #test_mail()
+    init_irc()
+
+
+def init_irc():
+    logger.log("setting up the irc", "init_irc")
+
+    # ensure the proper rights
+    subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/ircbot.py', shell=True)
+    subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/initIRC.sh', shell=True)
+    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh start', shell=True)
+
+    if success:
+        print("Installation successful")
+    else:
+        print("Installation unsuccesful")
+    return success
+
+
+def stop_irc(args):
+    logger.log("stopping the irc", "stop_irc")
+
+    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh stop', shell=True)
+    if success:
+        print("Stopping successful")
+    else:
+        print("Stopping unsuccesful")
+    return success
+
 
 def create_wallet():
     """
@@ -389,13 +423,13 @@ Subject: New child spawned
     try:
         print("Sending mail: %s" + mail)
         smtp = smtplib.SMTP('gmail-smtp-in.l.google.com:25')
-	smtp.helo()
-	smtp.set_debuglevel(1)
+        smtp.helo()
+        smtp.set_debuglevel(1)
         #smtp.starttls()
         smtp.sendmail(sender, receivers, mail)
-        print "Successfully sent email"
+        print("Successfully sent email")
     except smtplib.SMTPException as e:
-        print "Error: unable to send email \n\n%s"% repr(e)
+        print("Error: unable to send email \n\n%s"% repr(e))
 
 
 if __name__ == '__main__':
