@@ -1,11 +1,12 @@
+import os
+
 from plebnet.settings import setting
 
 
 class Init(object):
 
     def __init__(self):
-        # remove hardcoded path
-        self.filename = "/root/PlebNet/plebnet/settings/configuration/setup.cfg"
+        self.filename = os.path.join(os.path.expanduser("~/PlebNet"), "plebnet/settings/configuration/setup.cfg")
         self.settings = setting.Settings(self.filename)
         self.settings.load()
 
