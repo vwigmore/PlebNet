@@ -18,11 +18,11 @@ from electrum import WalletStorage
 from electrum import keystore
 from electrum.mnemonic import Mnemonic
 
-from plebnet import cloudomatecontroller, twitter
-from plebnet.agent import marketapi
+from plebnet.agent.config import PlebNetConfig
 from plebnet.agent.dna import DNA
-from plebnet.cloudomatecontroller import options
-from plebnet.config import PlebNetConfig
+from plebnet.controllers import cloudomatecontroller,marketapi
+# TODO: deze ook weghalen: eigen implementatie van config gebruiken?
+from plebnet.controllers.cloudomatecontroller import options
 from plebnet.utilities import logger
 
 WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
@@ -72,7 +72,6 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary()
     dna.write_dictionary()
-    #twitter.tweet_arrival()
     create_wallet()
 
     init_irc()
