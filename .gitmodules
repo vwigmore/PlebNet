@@ -1,3 +1,0 @@
-[submodule "tribler"]
-	path = tribler
-	url = git://github.com/vwigmore/tribler
