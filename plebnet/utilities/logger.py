@@ -1,6 +1,7 @@
 import logging
 
 
+
 def log(msg, method="", name="logger", file="/root/Documents/logs"):
     # create a logger
     logger = logging.getLogger(name)

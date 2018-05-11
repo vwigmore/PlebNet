@@ -8,7 +8,7 @@ import time
 import sys
 
 # as the file is loaded separately, the imports have to be fixed
-sys.path.append('/root/PlebNet')
+sys.path.append('./PlebNet')
 from plebnet.utilities import logger
 from plebnet.settings import setup_settings
 

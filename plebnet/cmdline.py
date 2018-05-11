@@ -81,25 +81,36 @@ def init_irc():
     logger.log("setting up the irc", "init_irc")
 
     # ensure the proper rights
-    subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/ircbot.py', shell=True)
-    subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/initIRC.sh', shell=True)
-    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh start', shell=True)
+    script_path = os.path.join(PLEBNET_HOME, "plebnet/communication/irc/ircbot.py")
+    subprocess.call('sudo chmod +x %s' % script_path, shell=True)
+
+    script_path = os.path.join(PLEBNET_HOME, "plebnet/communication/irc/initIRC.sh")
+    subprocess.call('sudo chmod +x %s' % script_path, shell=True)
+
+    # run the init file
+    success = subprocess.call('sudo %s start' % script_path, shell=True)
+
+    # subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/ircbot.py', shell=True)
+    # subprocess.call('chmod +x /root/PlebNet/plebnet/communication/irc/initIRC.sh', shell=True)
+    # success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh start', shell=True)
 
     if success:
-        print("Installation successful")
+        print("IRC client successfully initiated")
     else:
-        print("Installation unsuccesful")
+        print("IRC client unsuccesfully initiated")
     return success
 
 
 def stop_irc(args):
     logger.log("stopping the irc", "stop_irc")
 
-    success = subprocess.call('/root/PlebNet/plebnet/communication/irc/initIRC.sh stop', shell=True)
+    script_path = os.path.join(PLEBNET_HOME, "plebnet/communication/irc/initIRC.sh")
+    success = subprocess.call('%s stop' % script_path, shell=True)
+
     if success:
-        print("Stopping successful")
+        print("Stopped IRC client successful")
     else:
-        print("Stopping unsuccesful")
+        print("Stopping IRC client was unsuccesful")
     return success
 
 

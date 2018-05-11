@@ -11,7 +11,7 @@
 ### END INIT INFO
 
 # Change the next 3 lines to suit where you install your script and what you want to call it
-DIR=/root/PlebNet/plebnet/communication/irc
+DIR=~/PlebNet/plebnet/communication/irc
 DAEMON=$DIR/ircbot.py
 DAEMON_NAME=ircbot
 
@@ -20,7 +20,7 @@ DAEMON_OPTS=""
 
 # This next line determines what user the script runs as.
 # Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
-DAEMON_USER=root
+DAEMON_USER=$USER
 
 # The process ID of the script when it runs is stored here:
 PIDFILE=/var/run/$DAEMON_NAME.pid
