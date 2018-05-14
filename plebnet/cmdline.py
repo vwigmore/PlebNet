@@ -5,10 +5,11 @@ from argparse import ArgumentParser
 
 from plebnet.agent.config import PlebNetConfig
 from plebnet.agent.dna import DNA
-from plebnet.controllers import cloudomate_controller, electrum_controller
+from plebnet.controllers import electrum_controller
 from plebnet.utilities import logger, system_vals, fake_generator
 from plebnet.communication.irc import irc_handler
 from plebnet.run import checker
+
 
 def execute(cmd=sys.argv[1:2]):
     parser = ArgumentParser(description="Plebnet")
