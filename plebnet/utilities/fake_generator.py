@@ -1,69 +1,26 @@
 # -*- coding: utf-8 -*-
 import ConfigParser
 import codecs
+# TODO: Waarom niet de normale os?
+from cloudomate.util.settings import os
 import random
 import unicodedata
 
-from cloudomate.hoster.vps.clientarea import ClientArea
-from cloudomate.cmdline import ssh
+from plebnet.agent.config import PlebNetConfig
+
+
+from cloudomate.util.settings import Settings as userOptions
+
 from appdirs import user_config_dir
-from cloudomate import wallet as wallet_util
-from cloudomate.util.settings import Settings as userOptions, os
 from faker.factory import Factory
 
 
-def _user_settings():
-    settings = userOptions()
-    settings.read_settings()
-    return settings
-
-
-def status(provider):
-    settings = _user_settings()
-    return provider.get_status(settings)
-
-
-def get_ip(provider):
-    print('get ip: %s' % provider)
-
-    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), _user_settings())
-    print('ca: %s' % client_area.get_services())
-    return client_area.get_ip()
-
-
-def setrootpw(provider, password):
-    settings = _user_settings()
-    settings.put('server', 'root_password', password)
-    # return provider.set_rootpw(settings)
-
-
-def options(provider):
-    return provider.get_options()
-
-
-def get_network_fee():
-    return wallet_util.get_network_fee()
-
-
-def purchase(provider, vps_option, wallet):
-    settings = _user_settings()
-    # option = options(provider)[vps_option]
-    print('provider_to_purchase: ' + str(provider.get_metadata()))
-    try:
-        transaction_hash = provider.purchase(provider, wallet, vps_option)
-        print("Transaction hash of purchase: {0}".format(transaction_hash))
-        return transaction_hash
-    except SystemExit, e:
-        print("SystemExit catched at cloudomatecontroller purchase")
-        print(e)
-        return False
-
-
-def generate_config():
+def generate_child_account():
+    # TODO deze naar plebnet verplaatsen
     config = userOptions()
-    filename = os.path.join(user_config_dir(), 'cloudomate.cfg')
+    filename = os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
     if os.path.exists(filename):
-        print("cloudomate.cfg already present at %s" % filename)
+        print("child_config already present at %s" % filename)
         config.read_settings(filename=filename)
         return config
     locale = random.choice(['cs_CZ', 'de_DE', 'dk_DK', 'es_ES', 'et_EE', 'hr_HR', 'it_IT'])

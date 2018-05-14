@@ -3,10 +3,13 @@ import os
 from plebnet.settings import setting
 
 
+PATH_TO_FILE = "plebnet/settings/configuration/setup.cfg"
+
+
 class Init(object):
 
     def __init__(self):
-        self.filename = os.path.join(os.path.expanduser("~/PlebNet"), "plebnet/settings/configuration/setup.cfg")
+        self.filename = os.path.join(os.path.expanduser("~/PlebNet"), PATH_TO_FILE)
         self.settings = setting.Settings(self.filename)
         self.settings.load()
 
