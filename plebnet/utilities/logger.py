@@ -1,8 +1,25 @@
 import logging
 
 
-
 def log(msg, method="", name="logger", file="/root/Documents/logs"):
+    logger = get_logger(name, file)
+    # prepare the output
+    tex = fill(method, 15) + " : " + msg
+    # output the log details
+    print(tex)
+    logger.info(tex)
+
+
+def error(msg, method="", name="logger", file="/root/Documents/logs"):
+    logger = get_logger(name, file)
+    # prepare the output
+    tex = fill(method, 15) + " : " + msg
+    # output the log details
+    print(tex)
+    logger.error(tex)
+
+
+def get_logger(name, file):
     # create a logger
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
@@ -17,17 +34,13 @@ def log(msg, method="", name="logger", file="/root/Documents/logs"):
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-    # prepare the output
-    tex = fill(method, 10) + " : " + msg
-
-    # output the log details
-    print(tex)
-    logger.info(tex)
+    return logger
 
 
 def fill(tex, l):
     if len(tex) > l:
-        tex = tex.substring(0, l-3) + "..."
+        # tex = tex.substring(0, l-3) + "..."
+        tex = tex[:l-2] + ".."
     else:
         while len(tex) < l:
             tex = tex + " "

@@ -133,6 +133,17 @@ class DNA:
         self.write_dictionary()
 
 
+def get_own_provider(dna):
+    return dna.dictionary['Self']
+
+
+def evolve(provider, dna, success):
+    if success:
+        dna.positive_evolve(provider)
+    else:
+        dna.negative_evolve(provider)
+
+
 if __name__ == "__main__":
     dna = DNA()
     dna.read_dictionary()
@@ -143,3 +154,4 @@ if __name__ == "__main__":
         dna.positive_evolve('rockhoster')
     print(dna.dictionary)
     print(dna.choose_provider(dictionary))
+
