@@ -1,7 +1,7 @@
 import logging
 
 
-def log(msg, method="", name="logger", file="/root/Documents/logs"):
+def log(msg, method="", name="logger", file="/root/data/logs"):
     logger = get_logger(name, file)
     # prepare the output
     tex = fill(method, 15) + " : " + msg

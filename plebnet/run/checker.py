@@ -46,7 +46,7 @@ def check():
 
     if config.time_since_offer() > system_vals.TIME_IN_HOUR:
         logger.log("Calculating new offer")
-        cloudomate_controller.update_offer(config, dna)
+        cloudomate_controller.update_offer(config)
         config.save()
 
     if config.get('chosen_provider'):
