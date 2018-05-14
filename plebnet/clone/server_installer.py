@@ -3,7 +3,7 @@ import re
 import subprocess
 
 from cloudomate.cmdline import providers
-from cloudomate.util.settings import Settings as UserOptions
+from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.controllers import cloudomate_controller
 from plebnet.utilities import logger, system_vals
@@ -12,7 +12,7 @@ from plebnet.utilities import logger, system_vals
 def install_available_servers(config, dna):
     bought = config.get('bought')
     logger.log("instal: %s" % bought, "install_available_servers")
-    for provider, transaction_hash in bought:
+    for provider, transaction_hash, child_index in bought:
         logger.log("Checking whether %s is activated" % provider)
 
         # try:
@@ -25,21 +25,20 @@ def install_available_servers(config, dna):
         logger.log("Installling child on %s " % provider)
         logger.log('ip: %s' % ip)
         if is_valid_ip(ip):
-            user_options = UserOptions()
-            user_options.read_settings()
-            rootpw = user_options.get('server', 'root_password')
+            account_settings = cloudomate_controller.child_account(child_index)
+            rootpw = account_settings.get('server', 'root_password')
             providers['vps'][provider].br = providers['vps'][provider]._create_browser()
             # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
-            parentname = '{0}-{1}'.format(user_options.get('user', 'firstname'), user_options.get('user', 'lastname'))
+            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'), account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
             # Save config before entering possibly long lasting process
             config.save()
-            success = install_server(ip, rootpw)
+            success = _install_server(ip, rootpw)
             # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
             # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
-            if [provider, transaction_hash] in bought:
+            if [provider, transaction_hash, child_index] in bought:
                 bought.remove([provider, transaction_hash])
             config.save()
 
@@ -48,7 +47,7 @@ def is_valid_ip(ip):
     return re.match('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip)
 
 
-def install_server(ip, rootpw):
+def _install_server(ip, rootpw):
     script_path = os.path.join(system_vals.PLEBNET_HOME, "/scripts/create-child.sh")
     logger.log('tot_path: %s' % script_path)
     command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())

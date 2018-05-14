@@ -16,26 +16,32 @@ from plebnet.controllers import market_controller
 from plebnet.utilities import logger, system_vals, fake_generator
 
 
-def _child_account():
-    account = AccountSettings()
-    account.read_settings(os.path.join(user_config_dir(), 'child_config' + PlebNetConfig().get("child_index") + '.cfg'))
+def child_account(index=None):
+    if index:
+        account = AccountSettings()
+        account.read_settings(
+            os.path.join(user_config_dir(), 'child_config' + index + '.cfg'))
+    else:
+        account = AccountSettings()
+        account.read_settings(
+            os.path.join(user_config_dir(), 'child_config' + PlebNetConfig().get("child_index") + '.cfg'))
     return account
 
 
 def status(provider):
-    account = _child_account()
+    account = child_account()
     return provider.get_status(account)
 
 
 def get_ip(provider):
     logger.log('get ip: %s' % provider)
-    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), _child_account())
+    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), child_account())
     logger.log('ca: %s' % client_area.get_services())
     return client_area.get_ip()
 
 
 def setrootpw(provider, password):
-    settings = _child_account()
+    settings = child_account()
     settings.put('server', 'root_password', password)
     # return provider.set_rootpw(settings)
 
@@ -108,7 +114,10 @@ def purchase_choice(config):
 
     (provider, option, _) = config.get('chosen_provider')
 
-    provider_instance = cloudomate_providers['vps'][provider](_child_account())
+    provider_instance = cloudomate_providers['vps'][provider](child_account())
+    PlebNetConfig().increment_child_index()
+    fake_generator.generate_child_account()
+
     wallet = Wallet()
     c = cloudomate_providers['vps'][provider]
 
@@ -117,11 +126,8 @@ def purchase_choice(config):
     print('option: ' + str(option))
 
     transaction_hash, _ = provider_instance.purchase(wallet, option)
-    PlebNetConfig().increment_child_index()
-    fake_generator.child_account()
-
     if transaction_hash:
-        config.get('bought').append((provider, transaction_hash))
+        config.get('bought').append((provider, transaction_hash, PlebNetConfig().get('child_index')-1))
         config.set('chosen_provider', None)
     else:
         logger.log("Insufficient funds")
