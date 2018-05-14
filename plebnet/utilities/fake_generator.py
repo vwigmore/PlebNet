@@ -8,7 +8,6 @@ import unicodedata
 
 from plebnet.agent.config import PlebNetConfig
 
-
 from cloudomate.util.settings import Settings as userOptions
 
 from appdirs import user_config_dir

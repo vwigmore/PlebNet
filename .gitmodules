@@ -1,6 +1,3 @@
 [submodule "tribler"]
 	path = tribler
 	url = https://github.com/vwigmore/tribler
-[submodule "cloudomate"]
-	path = cloudomate
-	url = https://github.com/vwigmore/cloudomate.git
