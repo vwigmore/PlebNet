@@ -17,7 +17,8 @@ class PlebNetConfig(object):
             self.config = json.load(json_file)
 
     def __init__(self):
-        self.config = {'expiration_date': 0,
+        self.config = {'child_index': 0,
+                       'expiration_date': 0,
                        'last_offer_date': 0,
                        'last_offer': {'MC': 0,
                                       'BTC:': 0.0},
@@ -52,3 +53,7 @@ class PlebNetConfig(object):
 
     def set(self, option, value):
         self.config[option] = value
+
+    def increment_child_index(self):
+        self.config['child_index'] = self.config['child_index'] + 1
+        self.save()

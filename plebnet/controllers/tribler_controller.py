@@ -14,7 +14,7 @@ def running():
     return os.path.isfile(os.path.join(system_vals.TRIBLER_HOME, 'twistd.pid'))
 
 
-def start_tribler():
+def start():
     """
     Start tribler
     :return:

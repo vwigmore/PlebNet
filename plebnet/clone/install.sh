@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+git #!/usr/bin/env bash
 
 # Add locale
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf

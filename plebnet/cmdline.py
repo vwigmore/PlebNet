@@ -35,7 +35,7 @@ def execute_setup(cmd=sys.argv[2:]):
     logger.log("Setting up PlebNet")
 
     # Prepare Cloudomate
-    fake_generator.generate_config()
+    fake_generator.generate_child_account()
 
     # TODO: change --> Prepare plebnet
     config = PlebNetConfig()

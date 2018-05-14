@@ -1,7 +1,10 @@
 import logging
+import os
+
+LOGS_HOME = os.path.expanduser("~/data/logs")
 
 
-def log(msg, method="", name="logger", file="/root/data/logs"):
+def log(msg, method="", name="logger", file=LOGS_HOME):
     logger = get_logger(name, file)
     # prepare the output
     tex = fill(method, 15) + " : " + msg

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-
 import cloudomate
+
+
+from appdirs import *
 
 from cloudomate import wallet as wallet_util
 from cloudomate.wallet import Wallet
@@ -9,13 +11,14 @@ from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.agent.dna import DNA
+from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
-from plebnet.utilities import logger, system_vals
+from plebnet.utilities import logger, system_vals, fake_generator
 
 
 def _child_account():
     account = AccountSettings()
-    account.read_settings()
+    account.read_settings(os.path.join(user_config_dir(), 'child_config' + PlebNetConfig().get("child_index") + '.cfg'))
     return account
 
 
@@ -45,18 +48,6 @@ def get_network_fee():
     return wallet_util.get_network_fee()
 
 
-def purchase(provider, vps_option, wallet):
-    logger.log('provider_to_purchase: ' + str(provider.get_metadata()))
-    try:
-        transaction_hash = provider.purchase(provider, wallet, vps_option)
-        logger.log("Transaction hash of purchase: {0}".format(transaction_hash))
-        return transaction_hash
-    except SystemExit, e:
-        logger.log("SystemExit catched at cloudomatecontroller purchase")
-        logger.log(e)
-        return False
-
-
 def pick_provider(providers):
     provider = DNA.choose_provider(providers)
     print("pick: %s" % provider)
@@ -74,6 +65,10 @@ def pick_option(provider):
     :return: (option, price, currency)
     """
     vpsoptions = options(cloudomate_providers['vps'][provider])
+    if len(vpsoptions) == 0:
+
+        return
+
     cheapestoption = 0
     for item in range(len(vpsoptions)):
         if vpsoptions[item].price < vpsoptions[cheapestoption].price:
@@ -112,16 +107,18 @@ def purchase_choice(config):
     """
 
     (provider, option, _) = config.get('chosen_provider')
-    user_options = _child_account()
 
-    provider_instance = cloudomate_providers['vps'][provider](user_options)
+    provider_instance = cloudomate_providers['vps'][provider](_child_account())
     wallet = Wallet()
     c = cloudomate_providers['vps'][provider]
 
     configurations = c.get_options()
     option = configurations[option]
     print('option: ' + str(option))
+
     transaction_hash, _ = provider_instance.purchase(wallet, option)
+    PlebNetConfig().increment_child_index()
+    fake_generator.child_account()
 
     if transaction_hash:
         config.get('bought').append((provider, transaction_hash))
