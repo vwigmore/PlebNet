@@ -1,3 +1,10 @@
+"""
+A package which handles the main behaviour of the plebbot:
+- check if everything is up and running
+- check if the configuration is all set properly
+- check if a new child can be spawned and do so if possible
+"""
+
 import os
 import subprocess
 
@@ -7,14 +14,20 @@ from plebnet.clone import server_installer
 from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller
 from plebnet.utilities import logger, system_vals
 
-log_name = "agent.core"
+
+log_name = "agent.core"  # used for identifying the origin of the log message
+config = None  # Used to store the configuration and only load once
+dna = None  # Used to store the DNA of the agent and only load once
 
 
 def check():
     """
-    Check whether conditions for buying new server are met and proceed if so
-    :return:
+    The main function to run every interval
+    :return: None
+    :rtype: None
     """
+    global config, dna
+
     logger.log("Checking PlebNet", log_name)
     config = PlebNetConfig()
 
@@ -28,13 +41,18 @@ def check():
     if not check_tunnel_helper():
         return
 
-    select_provider(config, dna)
-    update_offer(config)
-    attempt_purchase(config, dna)
-    install_vps(config, dna)
+    select_provider()
+    update_offer()
+    attempt_purchase()
+    install_vps()
 
 
 def check_tribler():
+    """
+    Check whether Tribler is running and configured properly
+    :return: True if tribler is running, False otherwise
+    :rtype: Boolean
+    """
     if tribler_controller.running():
         logger.log("Tribler is already running", log_name)
         return True
@@ -44,6 +62,11 @@ def check_tribler():
 
 
 def check_tunnel_helper():
+    """
+    Temporary function to track the data stream processed by Tribler
+    :return: None
+    :rtype: None
+    """
     # TEMP TO SEE EXITNODE PERFORMANCE, tunnel_helper should merge with market or other way around
     if not os.path.isfile(os.path.join(system_vals.TRIBLER_HOME, system_vals.TUNNEL_HELPER_PID)):
         logger.log("Starting tunnel_helper", log_name)
@@ -60,25 +83,38 @@ def check_tunnel_helper():
     # TEMP TO SEE EXITNODE PERFORMANCE
 
 
-def select_provider(config, dna):
+def select_provider():
+    """
+    Check whether a provider is already selected, otherwise select one based on the dna
+    :return: None
+    :rtype: None
+    """
     if not config.get('chosen_provider'):
         logger.log("No provider chosen yet", log_name)
         update_choice(config, dna)
         logger.log("Provider chosen: %s" % str(config.get('chosen_provider')), log_name)
         config.save()
-        return False
-    return True
 
 
-def update_offer(config):
-    # check if the stored prices should be updated.
+def update_offer():
+    """
+    check if the stored prices for the selected provider should be updated.
+    This does not have to happen every iteration as they do not change that often
+    :return: None
+    :rtype: None
+    """
     if config.time_since_offer() > system_vals.TIME_IN_HOUR:
         logger.log("Calculating new offer", log_name)
         cloudomate_controller.update_offer(config)
         config.save()
 
 
-def attempt_purchase(config, dna):
+def attempt_purchase():
+    """
+    Check if rich enough to buy a server, and if so, do so
+    :return: None
+    :rtype: None
+    """
     # try to purchase the chosen vps.
     (provider, option, _) = config.get('chosen_provider')
     if market_controller.get_btc_balance() >= cloudomate_controller.calculate_price(provider, option):
@@ -93,22 +129,29 @@ def attempt_purchase(config, dna):
             DNA.evolve(provider, dna, False)
 
 
-def install_vps(config, dna):
+def install_vps():
+    """
+    Tries to install all purchased servers, can be skipped if the server is not configured yet.
+    :return: None
+    :rtype: None
+    """
     server_installer.install_available_servers(config, dna)
 
 
-#TODO: dit moet naar agent.DNA, maar die is nu al te groot
-def update_choice(config, dna):
+# TODO: dit moet naar agent.DNA, maar die is nu al te groot
+# TODO: Dit mergen met de andere updater, maar waarom is deze zo anders?
+def update_choice():
+    """
+    Update the selected provider
+    :return: None
+    :rtype: None
+    """
+    logger.log("Update provider choice: ", "update_choice")
+
     all_providers = dna.vps
-
-    logger.log("test_update choice: %s" % all_providers, "update_choice")
-
     excluded_providers = config.get('excluded_providers')
     available_providers = list(set(all_providers.keys()) - set(excluded_providers))
     providers = {k: all_providers[k] for k in all_providers if k in available_providers}
-
-    logger.log("Providers: %s" % providers, "update_choice")
-    logger.log("provider_values: %s" % providers.values(), "update_choice")
 
     if providers >= 1 and sum(providers.values()) > 0:
         providers = DNA.normalize_excluded(providers)

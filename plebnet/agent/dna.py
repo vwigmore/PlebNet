@@ -1,3 +1,7 @@
+"""
+Contains the DNA of the agent, which is used for the genetic decision making
+"""
+
 import copy
 import json
 import os
@@ -8,10 +12,13 @@ from cloudomate.cmdline import providers as cloudomate_providers
 
 
 class DNA:
-    rate = 0.005
-    length = 0.0
-    dictionary = {}
-    vps = {}
+    """
+    Class for the DNA of the agent
+    """
+    rate = 0.005  # the update rate to change the genes
+    length = 0.0  # no idea # TODO: what does it do?
+    dictionary = {}  # contains the probabilities for each option
+    vps = {}  # the options
 
     def __init__(self):
         pass
