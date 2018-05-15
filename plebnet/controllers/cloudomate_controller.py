@@ -96,10 +96,9 @@ def update_offer(config, dna):
 
 
 def calculate_price(provider, option):
-    logger.log('provider: %s option: %s' % (provider, option))
+    logger.log('provider: %s option: %s' % (provider, option), "cloudomate_controller")
     # vpsoptions = options(cloudomate_providers['vps'][provider])
     vpsoption = options(cloudomate_providers['vps'][provider])[option]
-    logger.log('chosen_option: %s' % str(vpsoption))
 
     gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
@@ -125,18 +124,22 @@ def purchase_choice(config):
 
     configurations = c.get_options()
     option = configurations[option]
-    print('option: ' + str(option))
     transaction_hash, _ = provider_instance.purchase(wallet, option)
 
-    if transaction_hash:
-        config.get('bought').append((provider, transaction_hash))
-        config.set('chosen_provider', None)
-    else:
-        logger.log("Insufficient funds")
-        return None, provider
-    if provider not in config.get('excluded_providers'):
-        config.get('excluded_providers').append(provider)
-    return transaction_hash, provider
+    if not transaction_hash:
+        logger.warning("Failed to purchase server")
+        return system_vals.FAILURE
+    # TODO: how to spot the difference?
+    if False:
+        logger.warning("Insufficient funds to purchase server")
+        return system_vals.UNKNOWN
+
+    config.get('bought').append((provider, transaction_hash))
+    config.get('transactions').append(transaction_hash)
+    config.set('chosen_provider', None)
+    config.save()
+
+    return system_vals.SUCCESS
 
 
 def place_offer(chosen_est_price, config):

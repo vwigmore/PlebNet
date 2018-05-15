@@ -2,6 +2,8 @@ import requests
 from requests.exceptions import ConnectionError
 from cloudomate.wallet import Wallet
 
+from plebnet.utilities import logger
+
 def is_market_running():
     try:
         requests.get('http://localhost:8085/market')
@@ -11,10 +13,13 @@ def is_market_running():
 
 
 def get_mc_balance():
-    print('market: ' + str(is_market_running()))
-    r = requests.get('http://localhost:8085/wallets/MC/balance')
-    balance = r.json()
-    return balance['balance']['available']
+    logger.log('The market is running: ' + str(is_market_running()), "get balance")
+    try:
+        r = requests.get('http://localhost:8085/wallets/MC/balance')
+        balance = r.json()
+        return balance['balance']['available']
+    except ConnectionError:
+        return False
 
 
 def get_btc_balance():

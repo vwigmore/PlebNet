@@ -1,33 +1,63 @@
 import logging
 
 
-def log(msg, method="", name="logger", file="/root/Documents/logs"):
-    logger = get_logger(name, file)
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def log(msg, method="", name="logger", path="Documents/plebnet_logs"):
+    logger = get_logger(name, path)
     # prepare the output
     tex = fill(method, 15) + " : " + msg
     # output the log details
-    print(tex)
-    logger.info(tex)
-
-
-def error(msg, method="", name="logger", file="/root/Documents/logs"):
-    logger = get_logger(name, file)
-    # prepare the output
-    tex = fill(method, 15) + " : " + msg
-    # output the log details
-    print(tex)
     logger.error(tex)
+    print(tex)
 
 
-def get_logger(name, file):
+
+def success(msg, method="", name="logger", path="Documents/plebnet_logs"):
+    logger = get_logger(name, path)
+    tex = fill(method, 15) + " : " + msg
+    # output the log details
+    logger.error(tex)
+    print(bcolors.OKGREEN + tex + bcolors.ENDC)
+
+
+def warning(msg, method="", name="logger", path="Documents/plebnet_logs"):
+    logger = get_logger(name, path)
+    # prepare the output
+    tex = fill(method, 15) + " : " + msg
+    # output the log details
+    logger.error(tex)
+    print(bcolors.WARNING + tex + bcolors.ENDC)
+
+
+def error(msg, method="", name="logger", path="Documents/plebnet_logs"):
+    logger = get_logger(name, path)
+    # prepare the output
+    tex = fill(method, 15) + " : " + msg
+    # output the log details
+    logger.error(tex)
+    print(bcolors.FAIL + tex + bcolors.ENDC)
+
+
+def get_logger(name, path):
     # create a logger
+
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
     if not logger.handlers:
         # create formatter and handler
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler = logging.FileHandler(file)
+        handler = logging.FileHandler(path)
 
         # combine
         handler.setLevel(logging.INFO)
