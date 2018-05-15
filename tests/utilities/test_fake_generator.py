@@ -2,6 +2,7 @@ import unittest
 
 from plebnet.utilities import fake_generator
 
+
 class TestFakeGenerator(unittest.TestCase):
 
     def setUp(self):
