@@ -29,7 +29,7 @@ def check():
         return
 
     select_provider(config, dna)
-    update_offer(config, dna)
+    update_offer(config)
     attempt_purchase(config, dna)
     install_vps(config, dna)
 
@@ -70,11 +70,11 @@ def select_provider(config, dna):
     return True
 
 
-def update_offer(config, dna):
+def update_offer(config):
     # check if the stored prices should be updated.
     if config.time_since_offer() > system_vals.TIME_IN_HOUR:
         logger.log("Calculating new offer", log_name)
-        cloudomate_controller.update_offer(config, dna)
+        cloudomate_controller.update_offer(config)
         config.save()
 
 

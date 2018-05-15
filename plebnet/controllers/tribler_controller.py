@@ -12,26 +12,9 @@ def running():
     :return: True if twistd.pid exists in /root/tribler
     """
 
+    # TODO: kijken of het proces draait ipv het bestand aanwezig is
     path = os.path.join(system_vals.TRIBLER_HOME, system_vals.TRIBLER_PID)
     return os.path.isfile(path)
-
-    # try:
-    #
-    #     pid = int(open(path).read())
-    #     os.kill(pid, 0)
-    #
-    # except OSError:
-    #     return False
-    # except IOError:
-    #     # no such file
-    #     return False
-    # else:
-    #     return True
-
-    # return os.path.isfile(os.path.join(system_vals.TRIBLER_HOME, 'twistd_tribler.pid'))
-    # return os.path.isfile(os.path.join(system_vals.TRIBLER_HOME, 'twistd.pid'))
-
-
 
 
 def start():
