@@ -8,7 +8,7 @@ from plebnet.agent.dna import DNA
 from plebnet.controllers import electrum_controller
 from plebnet.utilities import logger, system_vals, fake_generator
 from plebnet.communication.irc import irc_handler
-from plebnet.run import checker
+from plebnet.agent import core as agent
 
 
 def execute(cmd=sys.argv[1:2]):
@@ -55,14 +55,15 @@ def execute_setup(cmd=sys.argv[2:]):
     irc_handler.init_irc_client()
     irc_handler.start_irc_client()
 
+    logger.success("PlebNet is ready to roll!")
+
 
 def execute_check(cmd=sys.argv[2:]):
-    logger.log("checking PlebNet")
-    checker.check()
+    agent.check()
 
 
 def execute_irc(cmd=sys.argv[2:]):
-    parser = ArgumentParser(description="ircdingen")
+    parser = ArgumentParser(description="irc thingies")
 
     subparsers = parser.add_subparsers(dest="command")
     parser_list = subparsers.add_parser("status", help="Provides information regarding the status of the IRC Client")

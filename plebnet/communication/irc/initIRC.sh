@@ -28,11 +28,10 @@ PIDFILE=/var/run/$DAEMON_NAME.pid
 . /lib/lsb/init-functions
 
 do_start () {
-    echo "Starting system $DAEMON_NAME daemon"
-    log_daemon_msg "Starting2 system $DAEMON_NAME daemon"
+#    echo "Starting system $DAEMON_NAME daemon"
+    log_daemon_msg "Starting system $DAEMON_NAME daemon"
     start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER --chuid $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
     log_end_msg $?
-    echo "IRC started"
 }
 do_stop () {
     log_daemon_msg "Stopping system $DAEMON_NAME daemon"
@@ -57,8 +56,8 @@ case "$1" in
 
     *)
         echo "Usage: /etc/init.d/$DAEMON_NAME {start|stop|restart|status}"
-        exit 1
+        exit 0
         ;;
 
 esac
-exit 0
+exit 1
