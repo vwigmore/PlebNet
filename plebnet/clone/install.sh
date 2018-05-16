@@ -86,4 +86,4 @@ cd /root
 plebnet setup >> plebnet.log 2>&1
 
 cron plebnet check
-echo "*/2 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet

@@ -35,4 +35,4 @@ echo "Installing PlebNet"
 sshpass -p${PASSWORD} ssh -o StrictHostKeyChecking=no root@${IP} 'apt-get update && \
     apt-get install -y git && \
     git clone -b plebnet https://github.com/vwigmore/PlebNet && \
-    cd PlebNet && scripts/install.sh'
+    cd PlebNet && plebnet/clone/install.sh'
