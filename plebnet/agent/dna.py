@@ -23,14 +23,6 @@ class DNA:
     def __init__(self):
         pass
 
-    @staticmethod
-    def create_test_dict():
-        testdict = {'Self': '',
-                    'parent': '',
-                    'transaction_hash': '',
-                    'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
-        return testdict
-
     def read_dictionary(self):
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, 'DNA.json')
@@ -49,10 +41,10 @@ class DNA:
         with open(filename, 'w') as json_file:
             json.dump(self.dictionary, json_file)
 
-    def create_child_dna(self, provider, parentname, transaction_hash):
+    def create_child_dna(self, provider, parent_name, transaction_hash):
         dictionary = copy.deepcopy(self.dictionary)
         dictionary['Self'] = provider
-        dictionary['parent'] = parentname
+        dictionary['parent'] = parent_name
         dictionary['transaction_hash'] = transaction_hash
         #TODO
         #raise NotImlementedError('RESET ALL VARIABLES EXCEPT VPS')
@@ -139,11 +131,22 @@ class DNA:
         self.dictionary['Self'] = provider
         self.write_dictionary()
 
+    # TODO: Move to testing, this is not runnning code....
+    @staticmethod
+    def create_test_dict():
+        test_dict = {'Self': '',
+                     'parent': '',
+                     'transaction_hash': '',
+                     'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
+        return test_dict
 
+
+# TODO: Move to DNA, this is not a static method....
 def get_own_provider(dna):
     return dna.dictionary['Self']
 
 
+# TODO: Move to DNA, this is not a static method....
 def evolve(provider, dna, success):
     if success:
         dna.positive_evolve(provider)
@@ -151,6 +154,7 @@ def evolve(provider, dna, success):
         dna.negative_evolve(provider)
 
 
+# TODO: Move to testing, this is not runnning code....
 if __name__ == "__main__":
     dna = DNA()
     dna.read_dictionary()

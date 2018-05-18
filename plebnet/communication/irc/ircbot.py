@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 
-import platform
+"""
+This file is used to setup and maintain a connection with an IRC server.
+"""
+
 import traceback
 import random
 import socket
@@ -14,6 +17,9 @@ from plebnet.settings import setup_settings
 
 
 class Create(object):
+    """
+    The object which maintains the server connection
+    """
     def __init__(self):
         logger.log("preparing an IRC connection")
 
@@ -44,9 +50,23 @@ class Create(object):
         self.run()
 
     def add_response(self, command, response):
+        """
+        This method is used to add new commands to the IRC-bot.
+        :param command: the command (after !) which should trigger the provided method
+        :type command: String
+        :param response: The method to call as the command is received
+        :type response: a method
+        :return: None
+        :rtype: None
+        """
         self.responses[":!" + command] = response
 
     def run(self):
+        """
+        This method keeps listening to the server for incomming messages and processes them.
+        :return:
+        :rtype:
+        """
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.irc.connect((self.server, self.port))
 
@@ -81,6 +101,11 @@ class Create(object):
             self.send(st)
 
     def heartbeat(self):
+        """
+        This method sends a heartbeat to the IRC server when it is called
+        :return: None
+        :rtype: None
+        """
         timer = time.time()
         elapsed_time = timer - self.last_beat
 
@@ -91,6 +116,13 @@ class Create(object):
             self.send_msg("IRC is still running - alive for %s" % time_str)
 
     def handle_line(self, line):
+        """
+        This method handles a line received from the IRC server
+        :param line: The line to process
+        :type line: String
+        :return: None
+        :rtype: None
+        """
 
         line = str.rstrip(line)
         words = str.split(line)
@@ -110,7 +142,10 @@ class Create(object):
         elif len(words) > 3 and words[3] in self.responses:
             self.responses[words[3]]()
 
-    # the sender methods
+    """
+    THE SENDER METHODS
+    These handle the outgoing messages
+    """
     def send(self, msg):
         logger.log("Sending  IRC message: %s" % msg)
         self.irc.send("%s\r\n" % msg)
@@ -118,7 +153,10 @@ class Create(object):
     def send_msg(self, msg):
         self.send("PRIVMSG %s :%s" % (self.channel,  msg))
 
-    # the responses (don't forget to add them to the self.responses in the init method)
+    """
+    THE RESPONSES (don't forget to add them to the self.responses in the init method)
+    These methods are used to determine the response to received commands
+    """
     def msg_alive(self):
         time_str = time.strftime("%H:%M:%S", time.gmtime(time.time() - self.init_time))
         self.send_msg("I am alive, for %s" % time_str)
@@ -131,6 +169,7 @@ class Create(object):
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
+
 
 # init the bot when this file is run
 bot = Create()

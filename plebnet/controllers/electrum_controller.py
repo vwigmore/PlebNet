@@ -1,3 +1,11 @@
+"""
+This file is used to control all dependencies with Electrum.
+
+Other files should never have a direct import from Electrum, as the reduces the maintainability of this code.
+If Electrum alters its call methods, this should be the only file which needs to be updated in PlebNet.
+"""
+
+
 import os
 import electrum
 

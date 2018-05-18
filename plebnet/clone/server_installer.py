@@ -1,7 +1,15 @@
+"""
+This file is used to setup a new PlebNet agent on a remote server.
+
+It used the available servers in the configuration and tries to install
+the latest version of PlebNet on these servers.
+"""
+
 import os
 import re
 import subprocess
 
+# TODO: remove these imports from cloudomate and get them from the controller.
 from cloudomate.cmdline import providers
 from cloudomate.util.settings import Settings as AccountSettings
 
@@ -10,6 +18,15 @@ from plebnet.utilities import logger, system_vals
 
 
 def install_available_servers(config, dna):
+    """
+    This function checks if there are any servers ready to be installed and installs PlebNet on them.
+    :param config: The configuration of this Plebbot
+    :type config: dict
+    :param dna: The DNA of this Plebbot
+    :type dna: DNA
+    :return: None
+    :rtype: None
+    """
     bought = config.get('bought')
     logger.log("instal: %s" % bought, "install_available_servers")
     for provider, transaction_hash, child_index in bought:
@@ -44,10 +61,26 @@ def install_available_servers(config, dna):
 
 
 def is_valid_ip(ip):
+    """
+    This methods checks if the provided ip-address is valid
+    :param ip: The ipadress to check
+    :type ip: String
+    :return: True/False
+    :rtype: Boolean
+    """
     return re.match('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip)
 
 
 def _install_server(ip, rootpw):
+    """
+    This function starts the actual installation routine.
+    :param ip: The ip-address of the remote server
+    :type ip: String
+    :param rootpw: The root password of the remote server
+    :type rootpw: String
+    :return: The exit status of the installation
+    :rtype: Integer
+    """
     script_path = os.path.join(system_vals.PLEBNET_HOME, "/scripts/create-child.sh")
     logger.log('tot_path: %s' % script_path)
     command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())

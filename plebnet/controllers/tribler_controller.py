@@ -1,6 +1,12 @@
+"""
+This file is used to control all dependencies with Tribler.
+
+Other files should never have a direct import from Tribler, as the reduces the maintainability of this code.
+If Tribler alters its call methods, this should be the only file which needs to be updated in PlebNet.
+"""
+
 import os
 import subprocess
-
 
 from plebnet.utilities import logger, system_vals
 from plebnet.controllers import market_controller

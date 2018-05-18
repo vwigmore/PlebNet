@@ -1,3 +1,7 @@
+"""
+This file is used to handle the commandline input regarding the IRC connection. It tells the IRC-deamon what to do.
+"""
+
 import os
 import subprocess
 
@@ -10,11 +14,21 @@ CLIENT = "plebnet/communication/irc/ircbot.py"
 PATH_TO_DEAMON = os.path.join(PLEBNET_HOME, DEAMON)
 PATH_TO_CLIENT = os.path.join(PLEBNET_HOME, CLIENT)
 
+
 # TODO: implement send_heartbeat
+
+
 # TODO: implement send_msg(args)
 
 
 def init_irc_client(args=None):
+    """
+    This method initializes the IRC client by setting up the proper rights to run the files
+    :param args: The remaining commands from the commandline, can be neglected.
+    :type args: String
+    :return: None
+    :rtype: None
+    """
 
     logger.log("the IRC client is initializing", "init_irc_client")
 
@@ -25,6 +39,13 @@ def init_irc_client(args=None):
 
 
 def start_irc_client(args=None):
+    """
+    This method starts the IRC client deamon
+    :param args: The remaining commands from the commandline, can be neglected.
+    :type args: String
+    :return: None
+    :rtype: None
+    """
     logger.log("the IRC client is starting", "start_irc_client")
 
     # run the init file
@@ -37,6 +58,13 @@ def start_irc_client(args=None):
 
 
 def stop_irc_client(args=None):
+    """
+    This method stops the IRC client deamon
+    :param args: The remaining commands from the commandline, can be neglected.
+    :type args: String
+    :return: None
+    :rtype: None
+    """
     logger.log("the IRC client is stopping", "stop_irc_client")
 
     # run the init file
@@ -49,10 +77,25 @@ def stop_irc_client(args=None):
 
 
 def restart_irc_client(args=None):
+    """
+    This method restarts the IRC client deamon
+    :param args: The remaining commands from the commandline, can be neglected.
+    :type args: String
+    :return: None
+    :rtype: None
+    """
     stop_irc_client()
     success = start_irc_client()
     return success
 
 
 def status_irc_client(args=None):
+    """
+    This method can be used to check if the IRC client is still running.
+    :param args: The remaining commands from the commandline, can be neglected.
+    :type args: String
+    :return: None
+    :rtype: None
+    """
+
     subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)
