@@ -13,6 +13,7 @@ import os
 # Local imports
 
 # File parameters
+LOGS_HOME = os.path.expanduser("~/data/logs")
 
 
 class bcolors:
