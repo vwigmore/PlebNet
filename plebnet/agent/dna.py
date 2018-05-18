@@ -143,15 +143,3 @@ def evolve(provider, dna, success):
     else:
         dna.negative_evolve(provider)
 
-
-if __name__ == "__main__":
-    dna = DNA()
-    dna.read_dictionary()
-    print(dna.dictionary)
-    dictionary = dna.exclude('linevast')
-    print(dictionary)
-    for i in range(100):
-        dna.positive_evolve('rockhoster')
-    print(dna.dictionary)
-    print(dna.choose_provider(dictionary))
-

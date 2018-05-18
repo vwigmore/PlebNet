@@ -7,6 +7,7 @@ import random
 import unicodedata
 
 from plebnet.agent.config import PlebNetConfig
+from plebnet.utilities import logger
 
 from cloudomate.util.settings import Settings as userOptions
 
@@ -16,10 +17,10 @@ from faker.factory import Factory
 
 def generate_child_account():
     # TODO deze naar plebnet verplaatsen
-    config = userOptions()
     filename = os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
     if os.path.exists(filename):
-        print("child_config already present at %s" % filename)
+        logger.error(("child_config already present at %s" % filename), "generate_child_account()")
+        config = userOptions()
         config.read_settings(filename=filename)
         return config
     locale = random.choice(['cs_CZ', 'de_DE', 'dk_DK', 'es_ES', 'et_EE', 'hr_HR', 'it_IT'])
