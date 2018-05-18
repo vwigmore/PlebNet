@@ -12,6 +12,11 @@ import os
 
 # Local imports
 from plebnet.utilities.globals import LOGGER_PATH
+from plebnet.settings import plebnet_settings
+
+
+settings = plebnet_settings.Init()
+
 
 
 class bcolors:
@@ -25,7 +30,10 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def log(msg, method="", name="logger", path=LOGGER_PATH):
+def log(msg, method=""):
+    path = settings.get_logger_path()
+    name = settings.get_logger_file()
+
     logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg

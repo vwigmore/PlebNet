@@ -27,7 +27,7 @@ import os
 from configparser import ConfigParser
 from appdirs import *
 # Local imports
-from plebnet.utilities import logger
+# from plebnet.utilities import logger
 
 
 class Settings(object):
@@ -40,7 +40,6 @@ class Settings(object):
 			filename = self.filename
 
 		if not os.path.exists(filename):
-			logger.log("Config file: '%s' not found" % filename)
 			return False
 		files = self.settings.read(filename, encoding='utf-8')
 		return len(files) > 0
