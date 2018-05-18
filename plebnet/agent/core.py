@@ -12,7 +12,7 @@ from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.clone import server_installer
 from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller
-from plebnet.utilities import logger, system_vals
+from plebnet.utilities import logger, globals
 
 
 log_name = "agent.core"  # used for identifying the origin of the log message
@@ -68,13 +68,13 @@ def check_tunnel_helper():
     :rtype: None
     """
     # TEMP TO SEE EXITNODE PERFORMANCE, tunnel_helper should merge with market or other way around
-    if not os.path.isfile(os.path.join(system_vals.TRIBLER_HOME, system_vals.TUNNEL_HELPER_PID)):
+    if not os.path.isfile(os.path.join(globals.TRIBLER_HOME, globals.TUNNEL_HELPER_PID)):
         logger.log("Starting tunnel_helper", log_name)
         env = os.environ.copy()
-        env['PYTHONPATH'] = system_vals.TRIBLER_HOME
+        env['PYTHONPATH'] = globals.TRIBLER_HOME
         try:
-            subprocess.call(['twistd', '--pidfile='+system_vals.TUNNEL_HELPER_PID, 'tunnel_helper', '-x', '-M'],
-                            cwd=system_vals.TRIBLER_HOME, env=env)
+            subprocess.call(['twistd', '--pidfile='+globals.TUNNEL_HELPER_PID, 'tunnel_helper', '-x', '-M'],
+                            cwd=globals.TRIBLER_HOME, env=env)
             return True
         except subprocess.CalledProcessError as e:
             logger.error(e.output, log_name)
@@ -103,7 +103,7 @@ def update_offer():
     :return: None
     :rtype: None
     """
-    if config.time_since_offer() > system_vals.TIME_IN_HOUR:
+    if config.time_since_offer() > globals.TIME_IN_HOUR:
         logger.log("Calculating new offer", log_name)
         cloudomate_controller.update_offer(config)
         config.save()
@@ -120,11 +120,11 @@ def attempt_purchase():
     if market_controller.get_btc_balance() >= cloudomate_controller.calculate_price(provider, option):
         logger.log("Try to buy a new server from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice(config)
-        if success == system_vals.SUCCESS:
+        if success == globals.SUCCESS:
             # evolve yourself positively if you are successful
             own_provider = DNA.get_own_provider(dna)
             DNA.evolve(own_provider, dna, True)
-        elif success == system_vals.FAILURE:
+        elif success == globals.FAILURE:
             # evolve provider negatively if not successful
             DNA.evolve(provider, dna, False)
 

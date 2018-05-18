@@ -18,6 +18,7 @@ import os
 PLEBNET_CONFIG = os.path.expanduser("~/.plebnet.cfg")
 PLEBNET_HOME = os.path.expanduser("~/PlebNet")
 TRIBLER_HOME = os.path.expanduser("~/PlebNet/tribler")
+LOGGER_PATH = os.path.expanduser("~/data/logs")
 
 """ PROCESS IDENTIFICATION FILES """
 TRIBLER_PID = "twistd_tribler.pid"

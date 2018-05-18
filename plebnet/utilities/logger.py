@@ -11,9 +11,7 @@ import os
 # Partial imports
 
 # Local imports
-
-# File parameters
-LOGS_HOME = os.path.expanduser("~/data/logs")
+from plebnet.utilities.globals import LOGGER_PATH
 
 
 class bcolors:
@@ -27,7 +25,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def log(msg, method="", name="logger", path=LOGS_HOME):
+def log(msg, method="", name="logger", path=LOGGER_PATH):
     logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
@@ -36,7 +34,7 @@ def log(msg, method="", name="logger", path=LOGS_HOME):
     print(tex)
 
 
-def success(msg, method="", name="logger", path=LOGS_HOME):
+def success(msg, method="", name="logger", path=LOGGER_PATH):
     logger = _get_logger(name, path)
     tex = _fill(method, 15) + " : " + msg
     # output the log details
@@ -44,7 +42,7 @@ def success(msg, method="", name="logger", path=LOGS_HOME):
     print(bcolors.OKGREEN + tex + bcolors.ENDC)
 
 
-def warning(msg, method="", name="logger", path=LOGS_HOME):
+def warning(msg, method="", name="logger", path=LOGGER_PATH):
     logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
@@ -53,7 +51,7 @@ def warning(msg, method="", name="logger", path=LOGS_HOME):
     print(bcolors.WARNING + tex + bcolors.ENDC)
 
 
-def error(msg, method="", name="logger", path=LOGS_HOME):
+def error(msg, method="", name="logger", path=LOGGER_PATH):
     logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg

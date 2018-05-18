@@ -21,7 +21,7 @@ from cloudomate.util.settings import Settings as AccountSettings
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
-from plebnet.utilities import logger, system_vals, fake_generator
+from plebnet.utilities import logger, globals, fake_generator
 
 
 def child_account(index=None):
@@ -149,7 +149,7 @@ def purchase_choice(config):
 
     if not transaction_hash:
         logger.warning("Failed to purchase server")
-        return system_vals.FAILURE
+        return globals.FAILURE
     # TODO: how to spot the difference?
     if False:
         logger.warning("Insufficient funds to purchase server")
@@ -160,7 +160,7 @@ def purchase_choice(config):
     config.set('chosen_provider', None)
     config.save()
 
-    return system_vals.SUCCESS
+    return globals.SUCCESS
 
 
 def place_offer(chosen_est_price, config):
@@ -181,4 +181,4 @@ def place_offer(chosen_est_price, config):
                                      price_type='BTC',
                                      quantity=available_mc,
                                      quantity_type='MC',
-                                     timeout=system_vals.TIME_IN_HOUR)
+                                     timeout=globals.TIME_IN_HOUR)

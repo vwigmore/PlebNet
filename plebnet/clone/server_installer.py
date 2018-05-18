@@ -14,7 +14,7 @@ from cloudomate.cmdline import providers
 from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.controllers import cloudomate_controller
-from plebnet.utilities import logger, system_vals
+from plebnet.utilities import logger, globals
 
 
 def install_available_servers(config, dna):
