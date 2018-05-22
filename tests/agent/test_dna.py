@@ -8,7 +8,7 @@ class TestDna(unittest.TestCase):
 
     def setUp(self):
         self.test_dna = DNA()
-        self.test_dna.rate = 0.005
+        self.test_dna.rate = 1
         self.test_dna.length = 0.0
         self.test_dna.dictionary = {}
         self.test_dna.vps = {}
@@ -29,7 +29,16 @@ class TestDna(unittest.TestCase):
         self.test_dna.add_provider("provider1")
         self.test_dna.normalize()
         self.assertEqual({'provider1': 1}, self.test_dna.vps)
-        
+
+    def test_mutate_false(self):
+        self.test_dna.add_provider("provider1")
+        self.assertFalse(self.test_dna.mutate("provider2"))
+
+    def test_mutate_true(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.mutate("provider1")
+        self.assertEqual({'provider1': 1.5}, self.test_dna.vps)
+
 
 if __name__ == '__main__':
     unittest.main()
