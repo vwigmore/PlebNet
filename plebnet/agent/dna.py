@@ -69,7 +69,6 @@ class DNA:
 
     def mutate(self, provider):
         if provider not in self.vps:
-            logger.log("{0} not in dna".format(provider), "mutate")
             return False
         self.vps[provider] += self.rate
 
