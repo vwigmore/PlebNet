@@ -20,6 +20,7 @@ from cloudomate.util.settings import os  # TODO: Waarom niet de normale os?
 from cloudomate.util.settings import Settings as userOptions  # TODO: cloudomate import --> cloudomate_controller
 
 # Local imports
+from plebnet.utilities import logger
 from plebnet.agent.config import PlebNetConfig
 
 # File parameters
@@ -27,10 +28,10 @@ from plebnet.agent.config import PlebNetConfig
 
 def generate_child_account():
     # TODO deze naar plebnet verplaatsen
-    config = userOptions()
     filename = os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
     if os.path.exists(filename):
-        print("child_config already present at %s" % filename)
+        logger.error(("child_config already present at %s" % filename), "generate_child_account()")
+        config = userOptions()
         config.read_settings(filename=filename)
         return config
     locale = random.choice(['cs_CZ', 'de_DE', 'dk_DK', 'es_ES', 'et_EE', 'hr_HR', 'it_IT'])

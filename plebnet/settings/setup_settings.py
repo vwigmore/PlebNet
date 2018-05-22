@@ -38,7 +38,19 @@ class Init(object):
 
     def get_irc_timeout(self): return int(self.settings.get("irc", "timeout"))
 
-    """THE GETTERS FOR THE VPS SECTION"""
+    """THE SETTERS FOR THE IRC SECTION"""
+
+    def set_irc_channel(self, value): return self.settings.set("irc", "channel", value)
+
+    def set_irc_server(self, value): return self.settings.set("irc", "server", value)
+
+    def set_irc_port(self, value): return self.settings.set("irc", "port", value)
+
+    def set_irc_nick(self, value): return self.settings.set("irc", "nick", value)
+
+    def set_irc_timeout(self, value): return self.settings.set("irc", "timeout", value)
+
+    """THE SETTERS FOR THE VPS SECTION"""
 
     def get_vps_host(self): return self.settings.get("vps", "host")
 
