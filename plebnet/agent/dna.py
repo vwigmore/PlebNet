@@ -5,6 +5,7 @@ import random
 
 from appdirs import user_config_dir
 from cloudomate.cmdline import providers as cloudomate_providers
+from plebnet.utilities import logger
 
 
 class DNA:
@@ -68,7 +69,7 @@ class DNA:
 
     def mutate(self, provider):
         if provider not in self.vps:
-            print("{0} not in dna".format(provider))
+            logger.log("{0} not in dna".format(provider), "mutate")
             return False
         self.vps[provider] += self.rate
 
