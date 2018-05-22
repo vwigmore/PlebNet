@@ -1,3 +1,7 @@
+"""
+Contains the DNA of the agent, which is used for the genetic decision making
+"""
+
 import copy
 import json
 import os
@@ -9,21 +13,16 @@ from plebnet.utilities import logger
 
 
 class DNA:
-    rate = 0.005
-    length = 0.0
-    dictionary = {}
-    vps = {}
+    """
+    Class for the DNA of the agent
+    """
+    rate = 0.005  # the update rate to change the genes
+    length = 0.0  # no idea # TODO: what does it do?
+    dictionary = {}  # contains the probabilities for each option
+    vps = {}  # the options
 
     def __init__(self):
         pass
-
-    @staticmethod
-    def create_test_dict():
-        testdict = {'Self': '',
-                    'parent': '',
-                    'transaction_hash': '',
-                    'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
-        return testdict
 
     def read_dictionary(self):
         config_dir = user_config_dir()
@@ -43,10 +42,10 @@ class DNA:
         with open(filename, 'w') as json_file:
             json.dump(self.dictionary, json_file)
 
-    def create_child_dna(self, provider, parentname, transaction_hash):
+    def create_child_dna(self, provider, parent_name, transaction_hash):
         dictionary = copy.deepcopy(self.dictionary)
         dictionary['Self'] = provider
-        dictionary['parent'] = parentname
+        dictionary['parent'] = parent_name
         dictionary['transaction_hash'] = transaction_hash
         #TODO
         #raise NotImlementedError('RESET ALL VARIABLES EXCEPT VPS')
@@ -132,14 +131,24 @@ class DNA:
         self.dictionary['Self'] = provider
         self.write_dictionary()
 
+    # TODO: Move to testing, this is not runnning code....
+    @staticmethod
+    def create_test_dict():
+        test_dict = {'Self': '',
+                     'parent': '',
+                     'transaction_hash': '',
+                     'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
+        return test_dict
 
+
+# TODO: Move to DNA, this is not a static method....
 def get_own_provider(dna):
     return dna.dictionary['Self']
 
 
+# TODO: Move to DNA, this is not a static method....
 def evolve(provider, dna, success):
     if success:
         dna.positive_evolve(provider)
     else:
         dna.negative_evolve(provider)
-

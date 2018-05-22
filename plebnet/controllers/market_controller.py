@@ -1,5 +1,14 @@
+"""
+This file is used to control all dependencies with Tribler Market.
+
+Other files should never have a direct import from Tribler Market, as the reduces the maintainability of this code.
+If Tribler Market alters its call methods, this should be the only file which needs to be updated in PlebNet.
+"""
+
 import requests
+
 from requests.exceptions import ConnectionError
+# TODO: deze moet hier ook weg, en is deze wallet anders dan de Electurm wallet?
 from cloudomate.wallet import Wallet
 
 from plebnet.utilities import logger

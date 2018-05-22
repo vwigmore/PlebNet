@@ -1,8 +1,21 @@
+"""
+This subclass of settings is used to store the setup configuration.
+
+This configuration should only contain values which are set on initialization
+of the first parent, and should not change during the cloning process.
+
+The file it self can be found in the PATH_TO_FILE location.
+"""
+
+# Total imports
 import os
 
+# Partial imports
+
+# Local imports
 from plebnet.settings import setting
 
-
+# File parameters
 PATH_TO_FILE = "plebnet/settings/configuration/setup.cfg"
 
 
@@ -13,7 +26,7 @@ class Init(object):
         self.settings = setting.Settings(self.filename)
         self.settings.load()
 
-    # the getters for the irc section
+    """THE GETTERS FOR THE IRC SECTION"""
 
     def get_irc_channel(self): return self.settings.get("irc", "channel")
 
@@ -25,7 +38,19 @@ class Init(object):
 
     def get_irc_timeout(self): return int(self.settings.get("irc", "timeout"))
 
-    # the getters for the vps section
+    """THE SETTERS FOR THE IRC SECTION"""
+
+    def set_irc_channel(self, value): return self.settings.set("irc", "channel", value)
+
+    def set_irc_server(self, value): return self.settings.set("irc", "server", value)
+
+    def set_irc_port(self, value): return self.settings.set("irc", "port", value)
+
+    def set_irc_nick(self, value): return self.settings.set("irc", "nick", value)
+
+    def set_irc_timeout(self, value): return self.settings.set("irc", "timeout", value)
+
+    """THE SETTERS FOR THE VPS SECTION"""
 
     def get_vps_host(self): return self.settings.get("vps", "host")
 

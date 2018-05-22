@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+#
+# This file is called from the parent node together with the rest of the files from GitHub.
+#
+# It downloads all dependencies for this version of PlebNet and configures the system
+# for PlebNet.
+#
+
 # Add locale
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 locale-gen en_US.UTF-8
@@ -80,8 +87,6 @@ python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
 pip install ./tribler/electrum
-#no longer used since importing own tribler fork
-#cp docker/market/twistd_plugin/plebnet_plugin.py $HOME/PlebNet/tribler/twisted/plugins/
 cd /root
 plebnet setup >> plebnet.log 2>&1
 

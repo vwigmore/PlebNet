@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
+
+"""
+This file is used to create random (but valid) agent configuration files,
+which used for acquiring new VPS.
+
+The only method to call is the generate_child_account(), which returns a random configured account
+"""
+
+# Total imports
 import ConfigParser
 import codecs
-# TODO: Waarom niet de normale os?
-from cloudomate.util.settings import os
 import random
 import unicodedata
 
-from plebnet.agent.config import PlebNetConfig
-from plebnet.utilities import logger
-
-from cloudomate.util.settings import Settings as userOptions
-
+# Partial imports
 from appdirs import user_config_dir
 from faker.factory import Factory
+from cloudomate.util.settings import os  # TODO: Waarom niet de normale os?
+from cloudomate.util.settings import Settings as userOptions  # TODO: cloudomate import --> cloudomate_controller
+
+# Local imports
+from plebnet.utilities import logger
+from plebnet.agent.config import PlebNetConfig
+
+# File parameters
 
 
 def generate_child_account():

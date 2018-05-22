@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+
+#
+# This file is used to create a new PlebNet agent on a remote server.
+#
+# It should be called with two parameters:
+#  1: The ip address of the remote server
+#  2: the root password of the remote server
+#
+# It creates a connection, copies the agent specific files (DNA) and
+# pulls the latest version of PlebNet from a Git repo. Then it runs
+# the installation script provided by the latests version.
+#
+
 IP=$1
 PASSWORD=$2
 CHILD_DNA_FILE=".config/Child_DNA.json"
