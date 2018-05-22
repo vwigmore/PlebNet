@@ -28,7 +28,9 @@ class Init(object):
         self.settings.load()
 
     def get_logger_path(self):
-        return os.path.expanduser(self.settings.get("paths", "LOGGER_PATH"))
+        path = os.path.expanduser(self.settings.get("paths", "LOGGER_PATH"))
+        file = os.path.expanduser(self.settings.get("files", "LOGGER_FILE"))
+        return os.path.join(path, file)
 
     def get_logger_file(self):
         return self.settings.get("files", "LOGGER_FILE")

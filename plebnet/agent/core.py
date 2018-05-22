@@ -91,7 +91,7 @@ def select_provider():
     """
     if not config.get('chosen_provider'):
         logger.log("No provider chosen yet", log_name)
-        update_choice(config, dna)
+        update_choice()
         logger.log("Provider chosen: %s" % str(config.get('chosen_provider')), log_name)
         config.save()
 

@@ -29,7 +29,7 @@ def start():
     :return:
     """
     env = os.environ.copy()
-    env['PYTHONPATH'] = system_vals.TRIBLER_HOME
+    env['PYTHONPATH'] = globals.TRIBLER_HOME
     try:
         success = subprocess.call(['twistd', '--pidfile='+globals.TRIBLER_PID,
                                    'plebnet', '-p', '8085', '--exitnode'],
