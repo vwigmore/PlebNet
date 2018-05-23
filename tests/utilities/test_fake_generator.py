@@ -31,7 +31,7 @@ class TestFakeGenerator(unittest.TestCase):
     def test_generate_child_has_content(self):
         fake_generator.generate_child_account()
         account = Settings()
-        account.read_settings(os.path.join(user_config_dir(), 'child_config0.cfg'))
+        account.read_settings(file2)
 
         self.assertIsNotNone(account.get('user', 'email'))
         self.assertIsNotNone(account.get('user', 'firstname'))

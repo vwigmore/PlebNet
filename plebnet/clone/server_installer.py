@@ -68,7 +68,13 @@ def is_valid_ip(ip):
     :return: True/False
     :rtype: Boolean
     """
-    return re.match('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip)
+    pieces = ip.split('.')
+    if len(pieces) != 4:
+        return False
+    try:
+        return all(0 <= int(p) < 256 for p in pieces)
+    except ValueError:
+        return False
 
 
 def _install_server(ip, rootpw):
@@ -81,11 +87,11 @@ def _install_server(ip, rootpw):
     :return: The exit status of the installation
     :rtype: Integer
     """
-    script_path = os.path.join(system_vals.PLEBNET_HOME, "/scripts/create-child.sh")
+    script_path = os.path.join(globals.PLEBNET_HOME, "/scripts/create-child.sh")
     logger.log('tot_path: %s' % script_path)
     command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
     print("Running %s" % command)
-    success = subprocess.call(command, shell=True, cwd=system_vals.PLEBNET_HOME)
+    success = subprocess.call(command, shell=True, cwd=globals.PLEBNET_HOME)
     if success:
         logger.log("Installation successful")
     else:
