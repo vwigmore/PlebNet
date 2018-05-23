@@ -24,6 +24,10 @@ from plebnet.controllers import market_controller
 from plebnet.utilities import logger, globals, fake_generator
 
 
+def get_vps_providers():
+    return cloudomate_providers['vps']
+
+
 def child_account(index=None):
     """
     This method returns the configuration for a certain child number

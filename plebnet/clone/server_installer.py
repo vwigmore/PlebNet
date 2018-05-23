@@ -6,13 +6,9 @@ the latest version of PlebNet on these servers.
 """
 
 import os
-import re
 import subprocess
 
 # TODO: remove these imports from cloudomate and get them from the controller.
-from cloudomate.cmdline import providers
-from cloudomate.util.settings import Settings as AccountSettings
-
 from plebnet.controllers import cloudomate_controller
 from plebnet.utilities import logger, globals
 
@@ -33,7 +29,7 @@ def install_available_servers(config, dna):
         logger.log("Checking whether %s is activated" % provider)
 
         # try:
-        ip = cloudomate_controller.get_ip(providers['vps'][provider])
+        ip = cloudomate_controller.get_ip(get_vps_providers()[provider])
         # except BaseException as e:
         #    print(e)
         #    print("%s not ready yet" % provider)
@@ -44,14 +40,14 @@ def install_available_servers(config, dna):
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
             rootpw = account_settings.get('server', 'root_password')
-            providers['vps'][provider].br = providers['vps'][provider]._create_browser()
-            # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
+            cloudomate_controller.get_vps_providers()[provider].br = cloudomate_controller.get_vps_providers()[provider]._create_browser()
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'), account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
+
             # Save config before entering possibly long lasting process
             config.save()
             success = _install_server(ip, rootpw)
-            # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
+
             # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})

@@ -8,7 +8,8 @@ import os
 import random
 
 from appdirs import user_config_dir
-from cloudomate.cmdline import providers as cloudomate_providers
+from plebnet.controllers.cloudomate_controller import get_vps_providers
+
 from plebnet.utilities import logger
 
 
@@ -17,9 +18,9 @@ class DNA:
     Class for the DNA of the agent
     """
     rate = 0.005  # the update rate to change the genes
-    length = 0.0  # no idea # TODO: what does it do?
-    dictionary = {}  # contains the probabilities for each option
-    vps = {}  # the options
+    length = 0.0  # total length of DNA values
+    dictionary = {}  # contains all DNA data
+    vps = {}  # contains the probabilities for each option
 
     def __init__(self):
         pass
@@ -29,12 +30,20 @@ class DNA:
         filename = os.path.join(config_dir, 'DNA.json')
 
         if not os.path.exists(filename):
-            self.dictionary = self.create_test_dict()
+            self.dictionary = self.create_initial_dict()
         else:
             with open(filename) as json_file:
                 data = json.load(json_file)
                 self.dictionary = data
         self.vps = self.dictionary['VPS']
+
+    @staticmethod
+    def create_initial_dict():
+        initial_dict = {'Self': '',
+                     'parent': '',
+                     'transaction_hash': '',
+                     'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in get_vps_providers().values()}}
+        return initial_dict
 
     def write_dictionary(self):
         config_dir = user_config_dir()
@@ -130,15 +139,6 @@ class DNA:
     def set_own_provider(self, provider):
         self.dictionary['Self'] = provider
         self.write_dictionary()
-
-    # TODO: Move to testing, this is not runnning code....
-    @staticmethod
-    def create_test_dict():
-        test_dict = {'Self': '',
-                     'parent': '',
-                     'transaction_hash': '',
-                     'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in cloudomate_providers['vps'].values()}}
-        return test_dict
 
 
 # TODO: Move to DNA, this is not a static method....
