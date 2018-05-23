@@ -8,18 +8,20 @@ from plebnet.clone import server_installer
 from plebnet.agent.config import PlebNetConfig
 
 
-file1 = os.path.join(user_config_dir(), 'plebnet.json')
+# file1 = os.path.join(user_config_dir(), 'plebnet.json')
 
 
 class TestServerInstaller(unittest.TestCase):
 
     def setUp(self):
-        if os.path.isfile(file1):
-            os.remove(file1)
+        pass
+    #    if os.path.isfile(file1):
+    #        os.remove(file1)
 
     def tearDown(self):
-        if os.path.isfile(file1):
-            os.remove(file1)
+        pass
+    #    if os.path.isfile(file1):
+    #        os.remove(file1)
 
     def test_is_valid_ip_false(self):
         self.assertFalse(server_installer.is_valid_ip('20.0.110'))

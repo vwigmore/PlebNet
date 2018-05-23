@@ -27,8 +27,7 @@ from plebnet.agent.config import PlebNetConfig
 
 
 def generate_child_account():
-    # TODO deze naar plebnet verplaatsen
-    filename = os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
+    filename = _child_file()
     if os.path.exists(filename):
         logger.error(("child_config already present at %s" % filename), "generate_child_account()")
         config = userOptions()
@@ -44,6 +43,11 @@ def generate_child_account():
     with codecs.open(filename, 'w', 'utf8') as config_file:
         cp.write(config_file)
     return cp
+
+
+def _child_file():
+    # TODO deze naar plebnet verplaatsen
+    return os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
 
 
 def _remove_unicode(cp):
