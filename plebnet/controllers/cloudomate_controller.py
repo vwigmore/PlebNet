@@ -48,10 +48,9 @@ def child_account(index=None):
 
 
 def status(provider):
-    # TODO: function not used?
     """
-    This method returns the status of a provider, to see whether an installation can be made there.
-    :param provider: The provider which to check
+    This method returns the status parameters of a provider as specified in cloudomate.
+    :param provider: The provider to check
     :type provider: dict
     :return: status
     :rtype: String

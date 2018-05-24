@@ -8,7 +8,6 @@ the latest version of PlebNet on these servers.
 import os
 import subprocess
 
-# TODO: remove these imports from cloudomate and get them from the controller.
 from plebnet.controllers import cloudomate_controller
 from plebnet.utilities import logger, globals
 
@@ -35,13 +34,13 @@ def install_available_servers(config, dna):
         logger.log("Installing child on %s with ip %s" % (provider, ip))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
-            rootpw = account_settings.get('server', 'root_password')
-            cloudomate_controller.get_vps_providers()[provider].br = cloudomate_controller.get_vps_providers()[provider]._create_browser()
-            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'), account_settings.get('user', 'lastname'))
+            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
+                                          account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
 
             # Save config before entering possibly long lasting process
             config.save()
+            rootpw = account_settings.get('server', 'root_password')
             success = _install_server(ip, rootpw)
 
             # # Reload config in case install takes a long time
