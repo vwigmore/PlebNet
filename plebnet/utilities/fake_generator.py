@@ -21,16 +21,12 @@ from faker.factory import Factory
 # Local imports
 from plebnet.utilities import logger
 from plebnet.agent.config import PlebNetConfig
-from plebnet.controllers.cloudomate_controller import child_account
 
 # File parameters
 
 
 def generate_child_account():
     filename = _child_file()
-    if os.path.exists(filename):
-        logger.error(("child_config already present at %s" % filename), "generate_child_account()")
-        return child_account()
     locale = random.choice(['cs_CZ', 'de_DE', 'dk_DK', 'es_ES', 'et_EE', 'hr_HR', 'it_IT'])
     fake = Factory().create(locale)
     cp = ConfigParser.ConfigParser()

@@ -8,9 +8,6 @@ import os
 import random
 
 from appdirs import user_config_dir
-from plebnet.controllers.cloudomate_controller import get_vps_providers
-
-from plebnet.utilities import logger
 
 
 class DNA:
@@ -25,12 +22,12 @@ class DNA:
     def __init__(self):
         pass
 
-    def read_dictionary(self):
+    def read_dictionary(self, providers=None):
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, 'DNA.json')
 
         if not os.path.exists(filename):
-            self.dictionary = self.create_initial_dict()
+            self.dictionary = self.create_initial_dict(providers)
         else:
             with open(filename) as json_file:
                 data = json.load(json_file)
@@ -38,11 +35,12 @@ class DNA:
         self.vps = self.dictionary['VPS']
 
     @staticmethod
-    def create_initial_dict():
+    def create_initial_dict(providers):
         initial_dict = {'Self': '',
-                     'parent': '',
-                     'transaction_hash': '',
-                     'VPS': {provider_class.get_metadata()[0]: 0.5 for provider_class in get_vps_providers().values()}}
+                        'parent': '',
+                        'transaction_hash': '',
+                        'VPS': {provider_class.get_metadata()[0]: 0.5 for
+                                provider_class in providers.values()}}
         return initial_dict
 
     def write_dictionary(self):
@@ -56,9 +54,9 @@ class DNA:
         dictionary['Self'] = provider
         dictionary['parent'] = parent_name
         dictionary['transaction_hash'] = transaction_hash
-        #TODO
-        #raise NotImlementedError('RESET ALL VARIABLES EXCEPT VPS')
-        #TODO
+        # TODO
+        # raise NotImplementedError('RESET ALL VARIABLES EXCEPT VPS')
+        # TODO
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, 'Child_DNA.json')
         with open(filename, 'w') as json_file:
