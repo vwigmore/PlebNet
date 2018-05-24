@@ -8,9 +8,11 @@ If Tribler alters its call methods, this should be the only file which needs to 
 import os
 import subprocess
 
-from plebnet.utilities import logger, globals
+from plebnet.utilities import logger
+from plebnet.settings import plebnet_settings
 from plebnet.controllers import market_controller
 
+setup = plebnet_settings.get_instance()
 
 def running():
     """
@@ -19,7 +21,7 @@ def running():
     """
 
     # TODO: kijken of het proces draait ipv het bestand aanwezig is
-    path = os.path.join(globals.TRIBLER_HOME, globals.TRIBLER_PID)
+    path = os.path.join(setup.get_tribler_home(), setup.get_tribler_pid())
     return os.path.isfile(path)
 
 
@@ -29,11 +31,11 @@ def start():
     :return:
     """
     env = os.environ.copy()
-    env['PYTHONPATH'] = globals.TRIBLER_HOME
+    env['PYTHONPATH'] = setup.get_tribler_home()
     try:
-        success = subprocess.call(['twistd', '--pidfile='+globals.TRIBLER_PID,
+        success = subprocess.call(['twistd', '--pidfile='+setup.get_tribler_pid(),
                                    'plebnet', '-p', '8085', '--exitnode'],
-                                  cwd=globals.TRIBLER_HOME, env=env)
+                                  cwd=setup.get_tribler_home(), env=env)
         if not success:
             logger.error('Failed to start Tribler', "tribler_controller")
             return False

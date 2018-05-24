@@ -42,7 +42,7 @@ setup(
 
     packages=find_packages(exclude=['docs']),
 
-    install_requires=['requests', 'names', 'faker', 'twython'],
+    install_requires=['requests', 'names', 'faker'],
 
     extras_require={
         'dev': [],

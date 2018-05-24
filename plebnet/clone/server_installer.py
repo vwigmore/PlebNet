@@ -14,7 +14,8 @@ from cloudomate.cmdline import providers
 from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.controllers import cloudomate_controller
-from plebnet.utilities import logger, globals
+from plebnet.settings import plebnet_settings as setup
+from plebnet.utilities import logger
 
 
 def install_available_servers(config, dna):
@@ -81,11 +82,11 @@ def _install_server(ip, rootpw):
     :return: The exit status of the installation
     :rtype: Integer
     """
-    script_path = os.path.join(system_vals.PLEBNET_HOME, "/scripts/create-child.sh")
+    script_path = os.path.join(setup.get_plebnet_home(), "/scripts/create-child.sh")
     logger.log('tot_path: %s' % script_path)
     command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
     print("Running %s" % command)
-    success = subprocess.call(command, shell=True, cwd=system_vals.PLEBNET_HOME)
+    success = subprocess.call(command, shell=True, cwd=setup.get_plebnet_home())
     if success:
         logger.log("Installation successful")
     else:
