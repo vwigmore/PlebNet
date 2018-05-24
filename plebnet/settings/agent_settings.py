@@ -19,6 +19,12 @@ from plebnet.settings import setting
 # File parameters
 PATH_TO_FILE = "plebnet/settings/configuration/agent.cfg"
 
+def get_instance():
+    global instance
+    if not instance:
+        instance = AgentSettings()
+    return instance
+
 
 class AgentSettings(object):
 
@@ -27,5 +33,22 @@ class AgentSettings(object):
         self.settings = setting.Settings(self.filename)
         self.settings.load()
 
-    def get_uploaded(self):
-        return self.settings.get("data", "uploaded")
+    """ GET AGENT  """
+
+    def get_uploaded(self): return self.settings.get("data", "uploaded")
+
+    """ SERVER DETAILS """
+
+    """ CLONE DETAILS """
+
+    deg
+# {'child_index': 0,
+#                        'expiration_date': 0,
+#                        'last_offer_date': 0,
+#                        'last_offer': {'MC': 0,
+#                                       'BTC:': 0.0},
+#                        'excluded_providers': [],
+#                        'chosen_provider': None,
+#                        'bought': [],
+#                        'installed': [],
+#                        'transactions': []}

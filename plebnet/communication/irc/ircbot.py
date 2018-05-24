@@ -13,7 +13,8 @@ import sys
 # as the file is loaded separately, the imports have to be fixed
 sys.path.append('./PlebNet')
 from plebnet.utilities import logger
-from plebnet.settings import setup_settings
+from plebnet.settings import plebnet_settings
+
 
 
 class Create(object):
@@ -24,7 +25,7 @@ class Create(object):
         logger.log("preparing an IRC connection")
 
         # load required settings once
-        irc_settings = setup_settings.Init()
+        irc_settings = plebnet_settings.get_instance()
         self.server = irc_settings.get_irc_server()
         self.timeout = irc_settings.get_irc_timeout()
         self.channel = irc_settings.get_irc_channel()

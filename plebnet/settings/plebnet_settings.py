@@ -33,11 +33,11 @@ instance = None
 def get_instance():
     global instance
     if not instance:
-        instance = init()
+        instance = Init()
     return instance
 
 
-class init(object):
+class Init(object):
 
     def __init__(self):
         self.filename = os.path.join(os.path.expanduser("~/PlebNet"), PATH_TO_FILE)

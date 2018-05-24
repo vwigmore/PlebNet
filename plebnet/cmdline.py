@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 
 from plebnet.agent.config import PlebNetConfig
 from plebnet.agent.dna import DNA
-from plebnet.controllers import electrum_controller
 from plebnet.utilities import logger, fake_generator
+from plebnet.controllers import electrum_controller, cloudomate_controller
 from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings as setup
 from plebnet.agent import core as agent
@@ -45,7 +45,7 @@ def execute_setup(cmd=sys.argv[2:]):
 
     # handle the DNA
     dna = DNA()
-    dna.read_dictionary()
+    dna.read_dictionary(cloudomate_controller.get_vps_providers())
     dna.write_dictionary()
 
     # Prepare Electrum

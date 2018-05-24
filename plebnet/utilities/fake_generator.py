@@ -12,12 +12,11 @@ import ConfigParser
 import codecs
 import random
 import unicodedata
+import os
 
 # Partial imports
 from appdirs import user_config_dir
 from faker.factory import Factory
-from cloudomate.util.settings import os  # TODO: Waarom niet de normale os?
-from cloudomate.util.settings import Settings as userOptions  # TODO: cloudomate import --> cloudomate_controller
 
 # Local imports
 from plebnet.utilities import logger
@@ -27,13 +26,7 @@ from plebnet.agent.config import PlebNetConfig
 
 
 def generate_child_account():
-    # TODO deze naar plebnet verplaatsen
-    filename = os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
-    if os.path.exists(filename):
-        logger.error(("child_config already present at %s" % filename), "generate_child_account()")
-        config = userOptions()
-        config.read_settings(filename=filename)
-        return config
+    filename = _child_file()
     locale = random.choice(['cs_CZ', 'de_DE', 'dk_DK', 'es_ES', 'et_EE', 'hr_HR', 'it_IT'])
     fake = Factory().create(locale)
     cp = ConfigParser.ConfigParser()
@@ -44,6 +37,10 @@ def generate_child_account():
     with codecs.open(filename, 'w', 'utf8') as config_file:
         cp.write(config_file)
     return cp
+
+
+def _child_file():
+    return os.path.join(user_config_dir(), 'child_config' + str(PlebNetConfig().get('child_index')) + '.cfg')
 
 
 def _remove_unicode(cp):

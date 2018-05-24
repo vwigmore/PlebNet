@@ -85,19 +85,6 @@ def check_tunnel_helper():
     # TEMP TO SEE EXITNODE PERFORMANCE
 
 
-def select_provider():
-    """
-    Check whether a provider is already selected, otherwise select one based on the dna
-    :return: None
-    :rtype: None
-    """
-    if not config.get('chosen_provider'):
-        logger.log("No provider chosen yet", log_name)
-        update_choice()
-        logger.log("Provider chosen: %s" % str(config.get('chosen_provider')), log_name)
-        config.save()
-
-
 def update_offer():
     """
     check if the stored prices for the selected provider should be updated.
@@ -141,23 +128,23 @@ def install_vps():
 
 
 # TODO: dit moet naar agent.DNA, maar die is nu al te groot
-# TODO: Dit mergen met de andere updater, maar waarom is deze zo anders?
-def update_choice():
+def select_provider():
     """
-    Update the selected provider
+    Check whether a provider is already selected, otherwise select one based on the dna
     :return: None
     :rtype: None
     """
-    logger.log("Update provider choice: ", "update_choice")
+    if not config.get('chosen_provider'):
+        logger.log("No provider chosen yet", log_name)
 
-    all_providers = dna.vps
-    excluded_providers = config.get('excluded_providers')
-    available_providers = list(set(all_providers.keys()) - set(excluded_providers))
-    providers = {k: all_providers[k] for k in all_providers if k in available_providers}
+        all_providers = dna.vps
+        excluded_providers = config.get('excluded_providers')
+        available_providers = list(set(all_providers.keys()) - set(excluded_providers))
+        providers = {k: all_providers[k] for k in all_providers if k in available_providers}
 
-    if providers >= 1 and sum(providers.values()) > 0:
-        providers = DNA.normalize_excluded(providers)
-        choice = (provider, option, price) = cloudomate_controller.pick_provider(providers)
-        config.set('chosen_provider', choice)
-        logger.log("First provider: %s" % provider, "update_choice")
-
+        if providers >= 1 and sum(providers.values()) > 0:
+            providers = DNA.normalize_excluded(providers)
+            choice = cloudomate_controller.pick_provider(providers)
+            config.set('chosen_provider', choice)
+        logger.log("Provider chosen: %s" % str(config.get('chosen_provider')), log_name)
+        config.save()
