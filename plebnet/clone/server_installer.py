@@ -26,17 +26,13 @@ def install_available_servers(config, dna):
     bought = config.get('bought')
     logger.log("instal: %s" % bought, "install_available_servers")
     for provider, transaction_hash, child_index in bought:
-        logger.log("Checking whether %s is activated" % provider)
+        try:
+            ip = cloudomate_controller.get_ip(cloudomate_controller.get_vps_providers()[provider])
+        except BaseException as e:
+            logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
+            return
 
-        # try:
-        ip = cloudomate_controller.get_ip(get_vps_providers()[provider])
-        # except BaseException as e:
-        #    print(e)
-        #    print("%s not ready yet" % provider)
-        #    return
-
-        logger.log("Installling child on %s " % provider)
-        logger.log('ip: %s' % ip)
+        logger.log("Installing child on %s with ip %s" % (provider, ip))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
             rootpw = account_settings.get('server', 'root_password')
