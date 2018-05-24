@@ -18,10 +18,14 @@ from cloudomate.cmdline import providers as cloudomate_providers
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
 
-from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
 from plebnet.utilities import logger, globals, fake_generator
+from plebnet.agent.dna import DNA
+
+
+def get_vps_providers():
+    return cloudomate_providers['vps']
 
 
 def child_account(index=None):
@@ -45,8 +49,8 @@ def child_account(index=None):
 
 def status(provider):
     """
-    This method returns the status of a provider, to see whether an installation can be made there.
-    :param provider: The provider which to check
+    This method returns the status parameters of a provider as specified in cloudomate.
+    :param provider: The provider to check
     :type provider: dict
     :return: status
     :rtype: String
@@ -58,7 +62,7 @@ def status(provider):
 def get_ip(provider):
     logger.log('get ip: %s' % provider)
     client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), child_account())
-    logger.log('ca: %s' % client_area.get_services())
+    logger.log('client area: %s' % client_area.get_services())
     return client_area.get_ip()
 
 
@@ -78,8 +82,7 @@ def get_network_fee():
 
 def pick_provider(providers):
     provider = DNA.choose_provider(providers)
-    print("pick: %s" % provider)
-    gateway = cloudomate_providers['vps'][provider].get_gateway()
+    gateway = get_vps_providers()[provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
         cloudomate.wallet.get_price(price, currency)) + cloudomate.wallet.get_network_fee()
@@ -97,14 +100,14 @@ def pick_option(provider):
 
         return
 
-    cheapestoption = 0
+    cheapest_option = 0
     for item in range(len(vpsoptions)):
-        if vpsoptions[item].price < vpsoptions[cheapestoption].price:
-            cheapestoption = item
+        if vpsoptions[item].price < vpsoptions[cheapest_option].price:
+            cheapest_option = item
 
-    logger.log("test_vpsoptions: %s" % str(vpsoptions[cheapestoption]))
+    logger.log("cheapest option: %s" % str(vpsoptions[cheapest_option]))
 
-    return cheapestoption, vpsoptions[cheapestoption].price, 'USD'
+    return cheapest_option, vpsoptions[cheapest_option].price, 'USD'
 
 
 def update_offer(config):

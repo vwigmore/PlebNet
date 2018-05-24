@@ -6,12 +6,7 @@ the latest version of PlebNet on these servers.
 """
 
 import os
-import re
 import subprocess
-
-# TODO: remove these imports from cloudomate and get them from the controller.
-from cloudomate.cmdline import providers
-from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.controllers import cloudomate_controller
 from plebnet.utilities import logger, globals
@@ -30,28 +25,24 @@ def install_available_servers(config, dna):
     bought = config.get('bought')
     logger.log("instal: %s" % bought, "install_available_servers")
     for provider, transaction_hash, child_index in bought:
-        logger.log("Checking whether %s is activated" % provider)
+        try:
+            ip = cloudomate_controller.get_ip(cloudomate_controller.get_vps_providers()[provider])
+        except BaseException as e:
+            logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
+            return
 
-        # try:
-        ip = cloudomate_controller.get_ip(providers['vps'][provider])
-        # except BaseException as e:
-        #    print(e)
-        #    print("%s not ready yet" % provider)
-        #    return
-
-        logger.log("Installling child on %s " % provider)
-        logger.log('ip: %s' % ip)
+        logger.log("Installing child on %s with ip %s" % (provider, ip))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
-            rootpw = account_settings.get('server', 'root_password')
-            providers['vps'][provider].br = providers['vps'][provider]._create_browser()
-            # cloudomatecontroller.setrootpw(cloudomate_providers['vps'][provider], rootpw)
-            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'), account_settings.get('user', 'lastname'))
+            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
+                                          account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
+
             # Save config before entering possibly long lasting process
             config.save()
+            rootpw = account_settings.get('server', 'root_password')
             success = _install_server(ip, rootpw)
-            # send_child_creation_mail(ip, rootpw, success, config, user_options, transaction_hash)
+
             # # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
@@ -68,7 +59,13 @@ def is_valid_ip(ip):
     :return: True/False
     :rtype: Boolean
     """
-    return re.match('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip)
+    pieces = ip.split('.')
+    if len(pieces) != 4:
+        return False
+    try:
+        return all(0 <= int(p) < 256 for p in pieces)
+    except ValueError:
+        return False
 
 
 def _install_server(ip, rootpw):
@@ -81,11 +78,11 @@ def _install_server(ip, rootpw):
     :return: The exit status of the installation
     :rtype: Integer
     """
-    script_path = os.path.join(system_vals.PLEBNET_HOME, "/scripts/create-child.sh")
+    script_path = os.path.join(globals.PLEBNET_HOME, "/scripts/create-child.sh")
     logger.log('tot_path: %s' % script_path)
     command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
     print("Running %s" % command)
-    success = subprocess.call(command, shell=True, cwd=system_vals.PLEBNET_HOME)
+    success = subprocess.call(command, shell=True, cwd=globals.PLEBNET_HOME)
     if success:
         logger.log("Installation successful")
     else:

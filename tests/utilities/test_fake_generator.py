@@ -1,37 +1,34 @@
 import unittest
+import mock
 from appdirs import user_config_dir
 import os
 from cloudomate.util.settings import Settings
 from plebnet.utilities import fake_generator
 
 
-'These filepaths are already specified in the source code and cannot be changed here'
-file1 = os.path.join(user_config_dir(), 'plebnet.json')
-file2 = os.path.join(user_config_dir(), 'child_config0.cfg')
+test_file = os.path.join(user_config_dir(), 'test_child_config.cfg')
 
 
 class TestFakeGenerator(unittest.TestCase):
 
     def setUp(self):
-        if os.path.isfile(file1):
-            os.remove(file1)
-        if os.path.isfile(file2):
-            os.remove(file2)
+        if os.path.isfile(test_file):
+            os.remove(test_file)
 
     def tearDown(self):
-        if os.path.isfile(file1):
-            os.remove(file1)
-        if os.path.isfile(file2):
-            os.remove(file2)
+        if os.path.isfile(test_file):
+            os.remove(test_file)
 
-    def test_generate_child_account_file_created(self):
+    @mock.patch('plebnet.utilities.fake_generator._child_file', return_value=test_file)
+    def test_generate_child_account_file_created(self, mock):
         fake_generator.generate_child_account()
-        self.assertTrue(os.path.isfile(file2))
+        self.assertTrue(os.path.isfile(test_file))
 
-    def test_generate_child_has_content(self):
+    @mock.patch('plebnet.utilities.fake_generator._child_file', return_value=test_file)
+    def test_generate_child_has_content(self, mock):
         fake_generator.generate_child_account()
         account = Settings()
-        account.read_settings(os.path.join(user_config_dir(), 'child_config0.cfg'))
+        account.read_settings(test_file)
 
         self.assertIsNotNone(account.get('user', 'email'))
         self.assertIsNotNone(account.get('user', 'firstname'))
