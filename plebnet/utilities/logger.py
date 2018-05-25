@@ -6,15 +6,12 @@ in a color.
 
 # Total imports
 import logging
-import os
-
-# Partial imports
-
 # Local imports
 from plebnet.settings import plebnet_settings
 
-
+suppress_print = False
 settings = plebnet_settings.get_instance()
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -27,61 +24,57 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def reset():
+    if logging.root:
+        del logging.root.handlers[:]
+        del logging.getLogger().handlers[:]
+        del logging.getLogger(settings.get_logger_file()).handlers[:]
+
+
 def log(msg, method=""):
-    path = settings.get_logger()
-    name = settings.get_logger_file()
-    logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
     # output the log details
-    logger.error(tex)
-    print(tex)
+    _get_logger().info(tex)
+    if not suppress_print: print(tex)
 
 
 def success(msg, method=""):
-    path = settings.get_logger_path()
-    name = settings.get_logger_file()
-    logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
     # output the log details
-    logger.error(tex)
-    print(bcolors.OKGREEN + tex + bcolors.ENDC)
+    _get_logger().info(tex)
+    if not suppress_print: print(bcolors.OKGREEN + tex + bcolors.ENDC)
 
 
 def warning(msg, method=""):
-    path = settings.get_logger()
-    name = settings.get_logger_file()
-    logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
     # output the log details
-    logger.error(tex)
-    print(bcolors.WARNING + tex + bcolors.ENDC)
+    _get_logger().warning(tex)
+    if not suppress_print: print(bcolors.WARNING + tex + bcolors.ENDC)
 
 
 def error(msg, method=""):
-    path = settings.get_logger_path()
-    name = settings.get_logger_file()
-    logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
     # output the log details
-    logger.error(tex)
-    print(bcolors.FAIL + tex + bcolors.ENDC)
+    _get_logger().error(tex)
+    if not suppress_print: print(bcolors.FAIL + tex + bcolors.ENDC)
 
 
-def _get_logger(name, path):
-    # create a logger
-
+def _get_logger(name=settings.get_logger_file()):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
 
     if not logger.handlers:
+
+        logger.setLevel(logging.INFO)
+
         # create formatter and handler
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler = logging.FileHandler(path)
 
+        path = settings.get_logger()
+        handler = logging.FileHandler(path)
         # combine
         handler.setLevel(logging.INFO)
         handler.setFormatter(formatter)
@@ -90,10 +83,10 @@ def _get_logger(name, path):
     return logger
 
 
-def _fill(tex, l):
-    if len(tex) > l:
-        tex = tex[:l-2] + ".."
+def _fill(tex, leng):
+    if len(tex) > leng:
+        tex = tex[:leng-2] + ".."
     else:
-        while len(tex) < l:
+        while len(tex) < leng:
             tex = tex + " "
     return tex
