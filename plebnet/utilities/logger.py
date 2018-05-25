@@ -32,9 +32,6 @@ def reset():
 
 
 def log(msg, method=""):
-    path = settings.get_logger_path()
-    name = settings.get_logger_file()
-    logger = _get_logger(name, path)
     # prepare the output
     tex = _fill(method, 15) + " : " + msg
     # output the log details
