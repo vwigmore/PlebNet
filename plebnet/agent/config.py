@@ -20,16 +20,16 @@ class PlebNetConfig(object):
         """
         The initiator for a PlebNetConfig object
         """
-        self.config = {'child_index': 0,
-                       'expiration_date': 0,
-                       'last_offer_date': 0,
-                       'last_offer': {'MC': 0,
-                                      'BTC:': 0.0},
-                       'excluded_providers': [],
-                       'chosen_provider': None,
-                       'bought': [],
-                       'installed': [],
-                       'transactions': []}
+        self.config = {"child_index": 0,
+                       "expiration_date": 0,
+                       "last_offer_date": 0,
+                       "last_offer": {"MC": 0,
+                                      "BTC:": 0.0},
+                       "excluded_providers": [],
+                       "chosen_provider": None,
+                       "bought": [],
+                       "installed": [],
+                       "transactions": []}
         self.load()
 
     def load(self):
