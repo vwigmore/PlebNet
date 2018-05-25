@@ -41,7 +41,6 @@ class AgentSettings(object):
 
     """ CLONE DETAILS """
 
-    deg
 # {'child_index': 0,
 #                        'expiration_date': 0,
 #                        'last_offer_date': 0,

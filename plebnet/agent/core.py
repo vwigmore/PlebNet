@@ -7,19 +7,49 @@ A package which handles the main behaviour of the plebbot:
 
 import os
 import subprocess
+import time
 
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.clone import server_installer
-from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller
+from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller, electrum_controller
+from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings
-from plebnet.utilities import logger
+from plebnet.utilities import logger, fake_generator
 
 
 setup = plebnet_settings.get_instance()
 log_name = "agent.core"  # used for identifying the origin of the log message
 config = None  # Used to store the configuration and only load once
 dna = None  # Used to store the DNA of the agent and only load once
+
+
+def setup(args):
+    logger.log("Setting up PlebNet")
+
+    # Prepare Cloudomate
+    if args.test_net:
+        logger.warning("should use fake money, but not implemented yet", "setup")
+    fake_generator.generate_child_account()
+
+    # TODO: change --> Prepare plebnet
+    config = PlebNetConfig()
+    config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
+    config.save()
+
+    # handle the DNA
+    dna = DNA()
+    dna.read_dictionary(cloudomate_controller.get_vps_providers())
+    dna.write_dictionary()
+
+    # Prepare Electrum
+    electrum_controller.create_wallet()
+
+    # Prepare the IRC Client
+    irc_handler.init_irc_client()
+    irc_handler.start_irc_client()
+
+    logger.success("PlebNet is ready to roll!")
 
 
 def check():

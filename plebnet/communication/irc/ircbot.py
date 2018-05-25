@@ -16,7 +16,6 @@ from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
 
 
-
 class Create(object):
     """
     The object which maintains the server connection
