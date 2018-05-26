@@ -31,23 +31,33 @@ from appdirs import *
 
 
 class Settings(object):
-	def __init__(self, filename):
-		self.settings = ConfigParser()
-		self.filename = filename
+    def __init__(self, filename):
+        self.settings = ConfigParser()
+        self.filename = filename
 
-	def load(self, filename=None):
-		if not filename:
-			filename = self.filename
+    def load(self, filename=None):
+        if not filename:
+            filename = self.filename
 
-		if not os.path.exists(filename):
-			return False
-		files = self.settings.read(filename, encoding='utf-8')
-		return len(files) > 0
+        if not os.path.exists(filename):
+            return False
+        files = self.settings.read(filename, encoding='utf-8')
+        return len(files) > 0
 
-	def get(self, section, key):
-		return self.settings.get(section, key)
+    def write(self):
+        with open(self.filename, 'w') as configfile:
+            self.settings.write(configfile)
 
-	def set(self, section, key, value):
-		if not self.settings.has_section(section):
-			self.settings.add_section(section)
-		self.settings.set(section, key, value)
+    def get(self, section, key):
+        return self.settings.get(section, key)
+
+    def set(self, section, key, value):
+        if not self.settings.has_section(section):
+            self.settings.add_section(section)
+        self.settings.set(section, key, value)
+
+    def handle(self, section, name, value):
+        if value:
+            self.settings.set(section, name, value)
+        else:
+            self.settings.get(section, name)
