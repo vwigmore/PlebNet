@@ -11,12 +11,21 @@ The file it self can be found in the PATH_TO_FILE location.
 import os
 
 # Partial imports
+from appdirs import user_config_dir, user_data_dir
+from shutil import copy2 as copy
 
 # Local imports
 from plebnet.settings import setting
 
 # File parameters
-PATH_TO_FILE = "plebnet/settings/configuration/setup.cfg"
+file_name = 'plebnet_setup.cfg'
+
+conf_path = user_config_dir()
+data_path = user_data_dir()
+init_path = os.path.join(os.path.expanduser("~/PlebNet"), 'plebnet/settings/configuration')
+
+init_file = os.path.join(init_path, file_name)
+conf_file = os.path.join(conf_path, file_name)
 
 """ DATE AND TIME VARIABLES """
 TIME_IN_HOUR = 60.0 * 60.0
@@ -40,56 +49,72 @@ def get_instance():
 class Init(object):
 
     def __init__(self):
-        self.filename = os.path.join(os.path.expanduser("~/PlebNet"), PATH_TO_FILE)
-        self.settings = setting.Settings(self.filename)
-        self.settings.load()
+        # file does not exist --> copy the initial file
+        if not os.path.isfile(conf_file):
+            copy(init_file, conf_path)
 
-    """THE GETTERS FOR THE PATH SECTION"""
+        self.settings = setting.Settings(conf_file)
 
-    def get_logger(self): return os.path.join(self.get_logger_path(), self.get_logger_file())
+    """ THE ATTRIBUTE METHODS FOR THE PATH SECTION """
 
-    def get_logger_path(self): return os.path.expanduser(self.settings.get("paths", "LOGGER_PATH"))
+    def logger_file(self): return os.path.join(self.logger_path(), self.logger_filename())
 
-    def get_logger_file(self): return self.settings.get("files", "LOGGER_FILE")
+    def logger_path(self, value=None): return data_path
 
-    def get_tribler_home(self): return os.path.expanduser(self.settings.get("paths", "TRIBLER_HOME"))
+    def logger_filename(self, value=None): return self.settings.handle("filenames", "LOGGER_FILE", value)
 
-    def get_plebnet_home(self): return os.path.expanduser(self.settings.get("paths", "PLEBNET_HOME"))
+    def tribler_home(self, value=None):
+        str = self.settings.handle("paths", "TRIBLER_HOME", value)
+        if not value: return os.path.expanduser(str)
 
-    """THE GETTERS FOR THE PID SECTION"""
+    def plebnet_home(self, value=None):
+        str = self.settings.handle("paths", "PLEBNET_HOME", value)
+        if not value: return os.path.expanduser(str)
 
-    def get_tunnelhelper_pid(self): return self.settings.get("pids", "TUNNEL_HELPER_PID")
+    """ THE ATTRIBUTE METHODS FOR THE PID SECTION """
 
-    def get_tribler_pid(self): return self.settings.get("pids", "TRIBLER_PID")
+    def tunnelhelper_pid(self, value=None): return self.settings.handle("pids", "TUNNEL_HELPER_PID", value)
 
-    """THE GETTERS FOR THE IRC SECTION"""
+    def tribler_pid(self, value=None): return self.settings.handle("pids", "TRIBLER_PID", value)
 
-    def get_irc_channel(self): return self.settings.get("irc", "channel")
+    """ THE ATTRIBUTE METHODS FOR THE IRC SECTION """
 
-    def get_irc_server(self): return self.settings.get("irc", "server")
+    def irc_channel(self, value=None): return self.settings.handle("irc", "channel", value)
 
-    def get_irc_port(self): return int(self.settings.get("irc", "port"))
+    def irc_server(self, value=None): return self.settings.handle("irc", "server", value)
 
-    def get_irc_nick(self): return self.settings.get("irc", "nick")
+    def irc_port(self, value=None):
+        str = self.settings.handle("irc", "port", value)
+        if not value: return int(os.path.expanduser(str))
 
-    def get_irc_timeout(self): return int(self.settings.get("irc", "timeout"))
+    def irc_nick(self, value=None): return self.settings.handle("irc", "nick", value)
 
-    """THE SETTERS FOR THE IRC SECTION"""
+    def irc_timeout(self, value=None): return self.settings.handle("irc", "timeout", value)
 
-    def set_irc_channel(self, value): return self.settings.set("irc", "channel", value)
+    """ THE ATTRIBUTE METHODS FOR THE VPS SECTION """
 
-    def set_irc_server(self, value): return self.settings.set("irc", "server", value)
+    def vps_host(self, value=None): return self.settings.handle("vps", "host", value)
 
-    def set_irc_port(self, value): return self.settings.set("irc", "port", value)
+    def vps_life(self, value=None): return self.settings.handle("vps", "initdate", value)
 
-    def set_irc_nick(self, value): return self.settings.set("irc", "nick", value)
+    def vps_dead(self, value=None): return self.settings.handle("vps", "finaldate", value)
 
-    def set_irc_timeout(self, value): return self.settings.set("irc", "timeout", value)
+    """THE ATTRIBUTE METHODS FOR THE GITHUB SECTION"""
 
-    """THE SETTERS FOR THE VPS SECTION"""
+    def github_username(self, value=None): return self.settings.handle("github", "username", value)
 
-    def get_vps_host(self): return self.settings.get("vps", "host")
+    def github_password(self, value=None): return self.settings.handle("github", "password", value)
 
-    def get_vps_life(self): return self.settings.get("vps", "initdate")
+    def github_owner(self, value=None): return self.settings.handle("github", "owner", value)
 
-    def get_vps_dead(self): return self.settings.get("vps", "finaldate")
+    def github_repo(self, value=None): return self.settings.handle("github", "repo", value)
+
+    def github_active(self, value=None): return self.settings.handle("github", "active", value) == "1"
+
+
+def store(args):
+    get_instance()
+    for arg in vars(args):
+        if arg in dir(instance):
+            getattr(instance, arg)(getattr(args, arg))
+    instance.settings.write()

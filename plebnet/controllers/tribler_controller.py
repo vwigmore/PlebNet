@@ -21,7 +21,7 @@ def running():
     """
 
     # TODO: kijken of het proces draait ipv het bestand aanwezig is
-    path = os.path.join(setup.get_tribler_home(), setup.get_tribler_pid())
+    path = os.path.join(setup.tribler_home(), setup.tribler_pid())
     return os.path.isfile(path)
 
 
@@ -31,11 +31,11 @@ def start():
     :return:
     """
     env = os.environ.copy()
-    env['PYTHONPATH'] = setup.get_tribler_home()
+    env['PYTHONPATH'] = setup.tribler_home()
     try:
-        success = subprocess.call(['twistd', '--pidfile='+setup.get_tribler_pid(),
+        success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),
                                    'plebnet', '-p', '8085', '--exitnode'],
-                                  cwd=setup.get_tribler_home(), env=env)
+                                  cwd=setup.tribler_home(), env=env)
         if not success:
             logger.error('Failed to start Tribler', "tribler_controller")
             return False

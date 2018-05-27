@@ -2,24 +2,24 @@ import json
 import requests
 
 from plebnet.utilities import logger
-
-# Authentication for user filing issue (must have read/write access to
-# repository to add issue to)
-USERNAME = 'plebbot'
-PASSWORD = '1qazxsw2'
-
-# The repository to add this issue to
-REPO_OWNER = 'thijmensjf'
-REPO_NAME = 'PlebNet'
+from plebnet.settings import plebnet_settings
 
 
 def make_github_issue(title, body=None, labels=None):
-    '''Create an issue on github.com using the given parameters.'''
+    settings = plebnet_settings.get_instance()
+    if not settings.github_active(): return
+
+    username = settings.github_username()
+    password = settings.github_password()
+    repo_owner = settings.github_owner()
+    repo_name = settings.github_repo()
+
+    """Create an issue on github.com using the given parameters."""
     # Our url to create issues via POST
-    url = 'https://api.github.com/repos/%s/%s/issues' % (REPO_OWNER, REPO_NAME)
+    url = 'https://api.github.com/repos/%s/%s/issues' % (repo_owner, repo_name)
     # Create an authenticated session to create the issue
     session = requests.Session()
-    session.auth = (USERNAME, PASSWORD)
+    session.auth = (username, password)
     # Create our issue
     issue = {'title': title,
              'body': body,

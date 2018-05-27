@@ -25,10 +25,10 @@ class Create(object):
 
         # load required settings once
         irc_settings = plebnet_settings.get_instance()
-        self.server = irc_settings.get_irc_server()
-        self.timeout = irc_settings.get_irc_timeout()
-        self.channel = irc_settings.get_irc_channel()
-        self.port = irc_settings.get_irc_port()
+        self.server = irc_settings.irc_server()
+        self.timeout = irc_settings.irc_timeout()
+        self.channel = irc_settings.irc_channel()
+        self.port = irc_settings.irc_port()
 
         self.nick = "plebbot" + str(random.randint(1000, 10000))
         self.ident = "plebber"
