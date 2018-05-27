@@ -14,9 +14,9 @@
 
 IP=$1
 PASSWORD=$2
-CHILD_DNA_FILE=".config/Child_DNA.json"
-DNA_FILE=".config/DNA.json"
-WALLET_FILE=".electrum/wallets/default_wallet"
+CHILD_DNA_FILE="~/.config/Child_DNA.json"
+DNA_FILE="~/.config/DNA.json"
+WALLET_FILE="~/.electrum/wallets/default_wallet"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -33,12 +33,11 @@ echo "Creating directories"
 sshpass -p${PASSWORD} ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'mkdir -p data/; mkdir -p .config/; mkdir -p .electrum/wallets/; mkdir -p .Tribler/wallet/'
 
 echo "Copying DNA"
-[ ! -f ${CHILD_DNA_FILE} ] && echo "File $CHILD_DNA_FILE not found" && exit 1
-sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${CHILD_DNA_FILE} root@${IP}:${DNA_FILE}
-
-#echo "Copying wallet"
-#[ ! -f ${WALLET_FILE} ] && echo "File $WALLET_FILE not found" && exit 1
-#sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${WALLET_FILE} root@${IP}:${WALLET_FILE}
+if [ ! -e ${CHILD_DNA_FILE} ]; then
+    echo "File $CHILD_DNA_FILE not found"
+else
+    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${CHILD_DNA_FILE} root@${IP}:${DNA_FILE}
+fi
 
 echo "Symlinking to Tribler wallet"
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s ~/${WALLET_FILE} .Tribler/wallet/btc_wallet"
