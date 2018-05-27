@@ -22,9 +22,11 @@ apt-get update
 # Requiring manual configuration after installation
 # && apt-get -y upgrade
 
+apt-get install openssl
+apt-get install -y python-pip
+pip install -U pip wheel setuptools
 
 # Install dependencies
-apt-get install -y python-pip
 apt-get install -y \
     python-crypto \
     python-pyasn1 \
@@ -51,6 +53,7 @@ apt-get install -y \
     python-wxtools \
     git \
     python-lxml
+
 if [ $(lsb_release -cs) == "trusty" ]
 then
     echo "Trusty detected"
