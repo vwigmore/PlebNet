@@ -23,7 +23,7 @@ class PlebNetConfig(object):
         self.config = {"child_index": 0,
                        "expiration_date": 0,
                        "last_offer_date": 0,
-                       "last_offer": {"MC": 0,
+                       "last_offer": {"MB": 0,
                                       "BTC:": 0.0},
                        "excluded_providers": [],
                        "chosen_provider": None,

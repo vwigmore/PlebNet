@@ -8,10 +8,9 @@ If Tribler Market alters its call methods, this should be the only file which ne
 import requests
 
 from requests.exceptions import ConnectionError
-# TODO: deze moet hier ook weg, en is deze wallet anders dan de Electurm wallet?
-from cloudomate.wallet import Wallet
 
 from plebnet.utilities import logger
+
 
 def is_market_running():
     try:
@@ -19,6 +18,7 @@ def is_market_running():
         return True
     except ConnectionError:
         return False
+
 
 def get_balance(domain):
     logger.log('The market is running' + str(is_market_running()), "get " + domain + " balance")
@@ -28,20 +28,6 @@ def get_balance(domain):
         return balance['balance']['available']
     except ConnectionError:
         return False
-
-#def get_mc_balance():
-#    logger.log('The market is running: ' + str(is_market_running()), "get balance")
-#    try:
-#        r = requests.get('http://localhost:8085/wallets/MC/balance')
-#        balance = r.json()
-#        return balance['balance']['available']
-#    except ConnectionError:
-#        return False
-
-
-#def get_btc_balance():
-#    w = Wallet()
-#    return w.get_balance_confirmed()
 
 
 def put_ask(price, price_type, quantity, quantity_type, timeout):

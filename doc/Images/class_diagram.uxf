@@ -40,8 +40,7 @@ bg=orange</panel_attributes>
 --
 + start()
 + is_running()
-+ get_mc_balance()
-+ get_mc_balance()
++ get_balance()
 + put_ask()
 + put_bid()
 bg=white
