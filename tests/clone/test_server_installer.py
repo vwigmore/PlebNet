@@ -11,6 +11,7 @@ from plebnet.utilities import fake_generator
 from cloudomate.util.settings import Settings
 
 test_log_path = os.path.join(user_config_dir(), 'tests_logs')
+test_log_file = os.path.join(user_config_dir(), 'tests_logs/plebnet.logs')
 test_child_file = os.path.join(user_config_dir(), 'test_child_config.cfg')
 test_child_DNA_file = os.path.join(user_config_dir(), 'Child_DNA.json')
 test_bought = ('linevast', 666, 0)
@@ -27,8 +28,8 @@ class TestServerInstaller(unittest.TestCase):
     @mock.patch('plebnet.utilities.fake_generator._child_file', return_value=test_child_file)
     def setUp(self, mock):
 
-        if os.path.isfile(test_log_path):
-            os.remove(test_log_path)
+        if os.path.isfile(test_log_file):
+            os.remove(test_log_file)
         if os.path.isfile(test_child_file):
             os.remove(test_child_file)
         self.test_dna = DNA()
@@ -39,8 +40,8 @@ class TestServerInstaller(unittest.TestCase):
         test_account.read_settings(test_child_file)
 
     def tearDown(self):
-        if os.path.isfile(test_log_path):
-            os.remove(test_log_path)
+        if os.path.isfile(test_log_file):
+            os.remove(test_log_file)
         if os.path.isfile(test_child_file):
             os.remove(test_child_file)
         if os.path.isfile(test_child_DNA_file):
