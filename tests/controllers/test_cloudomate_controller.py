@@ -9,7 +9,7 @@ from unittest import skip
 
 class TestCloudomateController(unittest.TestCase):
 
- @skip("the unittest is still a work in progress")
+ @skip("this unittest class is still a work in progress")
  def test_child_account(self):
      self.cloudomate_account = cloudomate.util.settings.settings
      self.cloudomate_read = cloudomate.util.settings.settings.read_settings
