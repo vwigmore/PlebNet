@@ -24,10 +24,11 @@ def install_available_servers(config, dna):
     :rtype: None
     """
     bought = config.get('bought')
-    logger.log("instal: %s" % bought, "install_available_servers")
-    for provider, transaction_hash, child_index in bought:
+    logger.log("install: %s" % bought, "install_available_servers")
+    for provider, transaction_hash, child_index in list(bought):
         try:
-            ip = cloudomate_controller.get_ip(cloudomate_controller.get_vps_providers()[provider])
+            provider_class = cloudomate_controller.get_vps_providers()[provider]
+            ip = cloudomate_controller.get_ip(provider_class)
         except BaseException as e:
             logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
             return
@@ -44,11 +45,11 @@ def install_available_servers(config, dna):
             rootpw = account_settings.get('server', 'root_password')
             success = _install_server(ip, rootpw)
 
-            # # Reload config in case install takes a long time
+            # Reload config in case install takes a long time
             config.load()
             config.get('installed').append({provider: success})
-            if [provider, transaction_hash, child_index] in bought:
-                bought.remove([provider, transaction_hash])
+            if [provider, transaction_hash, child_index] in config.get('bought'):
+                config.get('bought').remove([provider, transaction_hash, child_index])
             config.save()
 
 
@@ -60,11 +61,12 @@ def is_valid_ip(ip):
     :return: True/False
     :rtype: Boolean
     """
-    pieces = ip.split('.')
+    pieces = ip.strip().split('.')
     if len(pieces) != 4:
         return False
     try:
-        return all(0 <= int(p) < 256 for p in pieces)
+        if 0 <= int(pieces[1]) < 256:
+            return all(0 <= int(p) < 256 for p in pieces)
     except ValueError:
         return False
 
@@ -87,5 +89,5 @@ def _install_server(ip, rootpw):
     if success:
         logger.log("Installation successful")
     else:
-        logger.log("Installation unsuccesful")
+        logger.log("Installation unsuccessful")
     return success

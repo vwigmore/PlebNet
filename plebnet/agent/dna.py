@@ -57,8 +57,7 @@ class DNA:
         # TODO
         # raise NotImplementedError('RESET ALL VARIABLES EXCEPT VPS')
         # TODO
-        config_dir = user_config_dir()
-        filename = os.path.join(config_dir, 'Child_DNA.json')
+        filename = os.path.join(user_config_dir(), 'Child_DNA.json')
         with open(filename, 'w') as json_file:
             json.dump(dictionary, json_file)
 
