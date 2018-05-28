@@ -7,9 +7,10 @@ from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
 
 # test_file = os.path.join(user_config_dir(), 'test.log')
-test_path = user_config_dir()
-test_name = plebnet_settings.get_instance().get_logger_file()
-test_file = os.path.join(test_path, test_name)
+# test_path = user_config_dir()
+# test_name = plebnet_settings.get_instance().logger_filename()
+# test_file = os.path.join(test_path, test_name)
+test_file = plebnet_settings.get_instance().logger_file()
 msg1 = "this is a log"
 msg2 = "this is another log"
 msg3 = "this is a nice line"
@@ -28,21 +29,21 @@ class TestLogger(unittest.TestCase):
         if os.path.isfile(test_file):
             os.remove(test_file)
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
-    def test_generate_file(self, mock):
+    # @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    def test_generate_file(self):
         self.assertFalse(os.path.isfile(test_file))
         logger.log(msg1)
         self.assertTrue(os.path.isfile(test_file))
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
-    def test_add_logs(self, mock):
+    # @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    def test_add_logs(self):
         logger.log(msg1)
         logger.log(msg2)
         self.assertTrue(msg1 in open(test_file).read())
         self.assertTrue(msg2 in open(test_file).read())
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
-    def test_add_multiple_logs(self, mock):
+    # @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    def test_add_multiple_logs(self):
         logger.log(msg1)
         logger.warning(msg2)
         logger.success(msg3)

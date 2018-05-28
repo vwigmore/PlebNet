@@ -28,7 +28,7 @@ def reset():
     if logging.root:
         del logging.root.handlers[:]
         del logging.getLogger().handlers[:]
-        del logging.getLogger(settings.get_logger_file()).handlers[:]
+        del logging.getLogger(settings.logger_filename()).handlers[:]
 
 
 def log(msg, method=""):
@@ -63,7 +63,7 @@ def error(msg, method=""):
     if not suppress_print: print(bcolors.FAIL + tex + bcolors.ENDC)
 
 
-def _get_logger(name=settings.get_logger_file()):
+def _get_logger(name=settings.logger_filename()):
     logger = logging.getLogger(name)
 
     if not logger.handlers:
@@ -73,7 +73,7 @@ def _get_logger(name=settings.get_logger_file()):
         # create formatter and handler
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-        path = settings.get_logger()
+        path = settings.logger_file()
         handler = logging.FileHandler(path)
         # combine
         handler.setLevel(logging.INFO)

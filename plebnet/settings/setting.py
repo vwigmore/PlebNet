@@ -24,30 +24,45 @@ This way the exact section name and variable name only have to be declared once.
 # Total imports
 import os
 # Partial imports
-from configparser import ConfigParser
+from configparser import ConfigParser, SafeConfigParser
 from appdirs import *
 # Local imports
 # from plebnet.utilities import logger
 
 
 class Settings(object):
-	def __init__(self, filename):
-		self.settings = ConfigParser()
-		self.filename = filename
+    def __init__(self, filename):
+        self.settings = SafeConfigParser()
+        self.filename = filename
+        self.load()
 
-	def load(self, filename=None):
-		if not filename:
-			filename = self.filename
+    def load(self, filename=None):
+        if not filename:
+            filename = self.filename
 
-		if not os.path.exists(filename):
-			return False
-		files = self.settings.read(filename, encoding='utf-8')
-		return len(files) > 0
+        if not os.path.exists(filename):
+            print('\033[91m file is not  found : %s \033[0m' % filename)
+            return False
+        files = self.settings.read(filename, encoding='utf-8')
 
-	def get(self, section, key):
-		return self.settings.get(section, key)
+        return len(files) > 0
 
-	def set(self, section, key, value):
-		if not self.settings.has_section(section):
-			self.settings.add_section(section)
-		self.settings.set(section, key, value)
+    def write(self):
+        with open(self.filename, 'w') as configfile:
+            self.settings.write(configfile)
+
+    def get(self, section, key):
+        return self.settings.get(section, key)
+
+    def set(self, section, key, value):
+        if not self.settings.has_section(section):
+            self.settings.add_section(section)
+        self.settings.set(section, key, value)
+
+    def handle(self, section, name, value):
+        if section not in self.settings.sections():
+            print('\033[91m %s not found in sections : %s \033[0m' % (section, self.settings.sections()))
+        if value:
+            self.settings.set(section, name, value)
+        else:
+            return self.settings.get(section, name)
