@@ -44,6 +44,7 @@ class Init(object):
     def __init__(self):
         # file does not exist --> copy the initial file
         if not os.path.isfile(conf_file):
+            print("config file should be at: %s" % conf_file)
             copy(init_file, conf_path)
 
         self.settings = setting.Settings(conf_file)
