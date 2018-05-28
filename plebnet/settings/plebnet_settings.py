@@ -39,13 +39,6 @@ UNKNOWN = 2
 instance = None
 
 
-def get_instance():
-    global instance
-    if not instance:
-        instance = Init()
-    return instance
-
-
 class Init(object):
 
     def __init__(self):
@@ -118,3 +111,10 @@ def store(args):
         if arg in dir(instance):
             getattr(instance, arg)(getattr(args, arg))
     instance.settings.write()
+
+
+def get_instance():
+    global instance
+    if not instance:
+        instance = Init()
+    return instance
