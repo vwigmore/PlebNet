@@ -168,20 +168,20 @@ def purchase_choice(config):
 
 def place_offer(chosen_est_price, config):
     """
-    Sell all available MC for the chosen estimated price on the Tribler market.
+    Sell all available MB for the chosen estimated price on the Tribler market.
     :param config: config
     :param chosen_est_price: Target amount of BTC to receive
     :return: success of offer placement
     """
-    available_mc = market_controller.get_mc_balance()
-    if available_mc == 0:
-        logger.log("No MC available")
+    available_mb = market_controller.get_mb_balance()
+    if available_mb == 0:
+        logger.log("No MB available")
         return False
     config.bump_offer_date()
-    config.set('last_offer', {'BTC': chosen_est_price, 'MC': available_mc})
-    price_per_unit = chosen_est_price / float(available_mc)
+    config.set('last_offer', {'BTC': chosen_est_price, 'MB': available_mb})
+    price_per_unit = chosen_est_price / float(available_mb)
     return market_controller.put_ask(price=price_per_unit,
                                      price_type='BTC',
-                                     quantity=available_mc,
-                                     quantity_type='MC',
+                                     quantity=available_mb,
+                                     quantity_type='MB',
                                      timeout=plebnet_settings.TIME_IN_HOUR)
