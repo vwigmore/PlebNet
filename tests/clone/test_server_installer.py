@@ -59,7 +59,7 @@ class TestServerInstaller(unittest.TestCase):
     def test_is_valid_ip_no_number(self):
         self.assertFalse(server_installer.is_valid_ip('120.0.1.a'))
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_log_path)
+    @mock.patch('plebnet.settings.plebnet_settings.Init.logger_path', return_value=test_log_path)
     @mock.patch('plebnet.clone.server_installer._install_server', return_value=False)
     @mock.patch('plebnet.controllers.cloudomate_controller.get_ip', return_value='120.21.0.12')
     @mock.patch('plebnet.controllers.cloudomate_controller.child_account', return_value=test_account)
