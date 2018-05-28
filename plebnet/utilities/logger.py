@@ -31,36 +31,50 @@ def reset():
         del logging.getLogger(settings.logger_filename()).handlers[:]
 
 
+def put_msg(msg, color=None, method=""):
+    msg = _fill(method, 15) + " : " + msg
+    if settings.active_logger():
+        _get_logger().info(msg)
+    if settings.active_verbose():
+        if color:
+            msg = color + msg + bcolors.ENDC
+        print(msg)
+
+
 def log(msg, method=""):
-    # prepare the output
-    tex = _fill(method, 15) + " : " + msg
-    # output the log details
-    _get_logger().info(tex)
-    if not suppress_print: print(tex)
+    put_msg(msg, method=method)
+    # # prepare the output
+    # tex = _fill(method, 15) + " : " + msg
+    # # output the log details
+    # _get_logger().info(tex)
+    # if not suppress_print: print(tex)
 
 
 def success(msg, method=""):
-    # prepare the output
-    tex = _fill(method, 15) + " : " + msg
-    # output the log details
-    _get_logger().info(tex)
-    if not suppress_print: print(bcolors.OKGREEN + tex + bcolors.ENDC)
+    put_msg(msg, bcolors.OKGREEN, method=method)
+    # # prepare the output
+    # tex = _fill(method, 15) + " : " + msg
+    # # output the log details
+    # _get_logger().info(tex)
+    # if not suppress_print: print(bcolors.OKGREEN + tex + bcolors.ENDC)
 
 
 def warning(msg, method=""):
-    # prepare the output
-    tex = _fill(method, 15) + " : " + msg
-    # output the log details
-    _get_logger().warning(tex)
-    if not suppress_print: print(bcolors.WARNING + tex + bcolors.ENDC)
+    put_msg(msg, bcolors.WARNING, method=method)
+    # # prepare the output
+    # tex = _fill(method, 15) + " : " + msg
+    # # output the log details
+    # _get_logger().warning(tex)
+    # if not suppress_print: print(bcolors.WARNING + tex + bcolors.ENDC)
 
 
 def error(msg, method=""):
-    # prepare the output
-    tex = _fill(method, 15) + " : " + msg
-    # output the log details
-    _get_logger().error(tex)
-    if not suppress_print: print(bcolors.FAIL + tex + bcolors.ENDC)
+    put_msg(msg, bcolors.FAIL, method=method)
+    # # prepare the output
+    # tex = _fill(method, 15) + " : " + msg
+    # # output the log details
+    # _get_logger().error(tex)
+    # if not suppress_print: print(bcolors.FAIL + tex + bcolors.ENDC)
 
 
 def _get_logger(name=settings.logger_filename()):

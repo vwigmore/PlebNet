@@ -90,6 +90,9 @@ def conf_secure(cmd=sys.argv[3:]):
     parser.add_argument('-go', '--github_owner', help='Set this password')
     parser.add_argument('-gr', '--github_repo', help='Set this password')
     parser.add_argument('-ga', '--github_active', help='(De)activate the github issuer', choices=["0", "1"])
+    # active section
+    parser.add_argument('-l', '--active_logger', help='(De)activate the logger', choices=["0", "1"])
+    parser.add_argument('-v', '--active_verbose', help='(De)activate the printer', choices=["0", "1"])
 
     args = parser.parse_args(cmd)
 

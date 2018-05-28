@@ -105,12 +105,19 @@ class Init(object):
 
     def github_active(self, value=None): return self.settings.handle("github", "active", value) == "1"
 
+    """THE ATTRIBUTE METHODS FOR THE ACTIVE SECTION"""
+
+    def active_verbose(self, value=None): return self.settings.handle("active", "logger", value) == "1"
+
+    def active_logger(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
+
 
 def store(args):
+    print(args)
     get_instance()
     for arg in vars(args):
         if arg in dir(instance):
-            getattr(instance, arg)(getattr(args, arg))
+            getattr(instance, arg)(str(getattr(args, arg)))
     instance.settings.write()
 
 
