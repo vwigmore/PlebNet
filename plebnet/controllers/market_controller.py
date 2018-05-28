@@ -15,22 +15,27 @@ from plebnet.utilities import logger
 
 def is_market_running():
     try:
-        requests.get('http://localhost:8085/market')
-        return True
+        askslive = requests.head('http://localhost:8085/market/asks')
+        bidslive = requests.head('http://localhost:8085/market/bids')
+        if askslive.status_code & bidslive.status_code == 200:
+            return True
+        else:
+            return False
     except ConnectionError:
         return False
 
 
-def get_mc_balance():
+def get_mb_balance():
     logger.log('The market is running: ' + str(is_market_running()), "get balance")
     try:
-        r = requests.get('http://localhost:8085/wallets/MC/balance')
+        r = requests.get('http://localhost:8085/wallets/MB/balance')
         balance = r.json()
         return balance['balance']['available']
     except ConnectionError:
         return False
 
 
+#TODO: change method to use tribler api to create the bitcoin wallet
 def get_btc_balance():
     w = Wallet()
     return w.get_balance_confirmed()
@@ -47,8 +52,8 @@ def put_bid(price, price_type, quantity, quantity_type, timeout):
 def _put_request(price, price_type, quantity, quantity_type, timeout, domain):
     url = 'http://localhost:8085/market/' + domain
     data = {'price': price,
-            'price_type': price_type,
             'quantity': quantity,
+            'price_type': price_type,
             'quantity_type': quantity_type,
             'timeout': timeout}
     json = requests.put(url, data=data).json()
@@ -75,7 +80,7 @@ if __name__ == '__main__':
     if not is_market_running():
         print "Market isn't running"
         exit(0)
-    print get_mc_balance()
+    print get_mb_balance()
     print put_bid(1, 'MC', 1, 'BTC', 120)
     print put_ask(1, 'MC', 1, 'BTC', 120)
     print asks()
