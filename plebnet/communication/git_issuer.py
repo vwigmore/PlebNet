@@ -5,7 +5,7 @@ from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
 
 
-def make_github_issue(title, body=None, labels=None):
+def make_github_issue(title, body=' ', labels=['bug']):
     settings = plebnet_settings.get_instance()
     if not settings.github_active(): return
 
@@ -30,4 +30,5 @@ def make_github_issue(title, body=None, labels=None):
         logger.log('Successfully created Issue "%s"' % title)
     else:
         logger.warning('Could not create Issue "%s"' % title)
-        logger.log('Response:', r.content)
+        logger.log(r.content, 'Response:')
+

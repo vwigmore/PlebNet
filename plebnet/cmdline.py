@@ -1,6 +1,7 @@
 import sys
 from argparse import ArgumentParser
 
+from plebnet.communication import git_issuer
 from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings
 from plebnet.agent import core as agent
@@ -26,6 +27,11 @@ def execute(cmd=sys.argv[1:2]):
     parser_list = subparsers.add_parser("irc", help="Provides access to the IRC client")
     parser_list.set_defaults(func=execute_irc)
 
+    # create the conf subcommand
+    parser_list = subparsers.add_parser("test", help="allows testing certain functionalities")
+    parser_list.set_defaults(func=execute_test)
+
+
     args = parser.parse_args(cmd)
     args.func()
 
@@ -42,6 +48,21 @@ def execute_setup(cmd=sys.argv[2:]):
 
 def execute_check(cmd=sys.argv[2:]):
     agent.check()
+
+
+def execute_test(cmd=sys.argv[2:3]):
+    parser = ArgumentParser(description="allows testing certain functionalities")
+    subparsers = parser.add_subparsers(dest="command", title="functionality")
+
+    parser_secure = subparsers.add_parser("gitissuer", help='commits an issue to the provided repo')
+    parser_secure.set_defaults(func=test_git_issuer)
+
+    args = parser.parse_args(cmd)
+    args.func()
+
+
+def test_git_issuer(cmd=sys.argv[3:]):
+    git_issuer.make_github_issue("This is a test issue", "used to provide test information")
 
 
 def execute_conf(cmd=sys.argv[2:3]):
