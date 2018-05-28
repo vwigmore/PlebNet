@@ -20,20 +20,28 @@ def is_market_running():
     except ConnectionError:
         return False
 
-
-def get_mc_balance():
-    logger.log('The market is running: ' + str(is_market_running()), "get balance")
+def get_balance(domain):
+    logger.log('The market is running' + str(is_market_running()), "get " + domain + " balance")
     try:
-        r = requests.get('http://localhost:8085/wallets/MC/balance')
+        r = requests.get('http://localhost:8085/wallets/' + domain + '/balance')
         balance = r.json()
         return balance['balance']['available']
     except ConnectionError:
         return False
 
+#def get_mc_balance():
+#    logger.log('The market is running: ' + str(is_market_running()), "get balance")
+#    try:
+#        r = requests.get('http://localhost:8085/wallets/MC/balance')
+#        balance = r.json()
+#        return balance['balance']['available']
+#    except ConnectionError:
+#        return False
 
-def get_btc_balance():
-    w = Wallet()
-    return w.get_balance_confirmed()
+
+#def get_btc_balance():
+#    w = Wallet()
+#    return w.get_balance_confirmed()
 
 
 def put_ask(price, price_type, quantity, quantity_type, timeout):
@@ -75,9 +83,9 @@ if __name__ == '__main__':
     if not is_market_running():
         print "Market isn't running"
         exit(0)
-    print get_mc_balance()
-    print put_bid(1, 'MC', 1, 'BTC', 120)
-    print put_ask(1, 'MC', 1, 'BTC', 120)
+    print get_balance('MB')
+    print put_bid(1, 'MB', 1, 'BTC', 120)
+    print put_ask(1, 'MB', 1, 'BTC', 120)
     print asks()
     print bids()
     print is_market_running()
