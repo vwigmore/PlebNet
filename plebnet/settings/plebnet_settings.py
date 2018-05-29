@@ -53,7 +53,7 @@ class Init(object):
 
     def logger_file(self): return os.path.join(self.logger_path(), self.logger_filename())
 
-    def logger_path(self, value=None): return data_path
+    def logger_path(self, value=None): return conf_path
 
     def logger_filename(self, value=None): return self.settings.handle("filenames", "LOGGER_FILE", value)
 
@@ -107,16 +107,16 @@ class Init(object):
 
     """THE ATTRIBUTE METHODS FOR THE ACTIVE SECTION"""
 
-    def active_verbose(self, value=None): return self.settings.handle("active", "logger", value) == "1"
+    def active_verbose(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
 
-    def active_logger(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
+    def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
 
 
 def store(args):
     print(args)
     get_instance()
     for arg in vars(args):
-        if arg in dir(instance):
+        if (arg in dir(instance)) and arg:
             getattr(instance, arg)(str(getattr(args, arg)))
     instance.settings.write()
 
