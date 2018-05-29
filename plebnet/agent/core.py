@@ -12,7 +12,7 @@ import time
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.clone import server_installer
-from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller, electrum_controller
+from plebnet.controllers import tribler_controller, cloudomate_controller, market_controller, wallet_controller
 from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings
 from plebnet.utilities import logger, fake_generator
@@ -29,11 +29,14 @@ def setup(args):
 
     # Prepare Cloudomate
     if args.test_net:
-        #logger.warning("should use fake money, but not implemented yet", "setup")
         logger.log("create Testnet wallet", "setup")
-        r = electrum_controller.create_wallet('TBTC')
+        r = wallet_controller.create_wallet('TBTC')
         if r:
             settings.wallets_testnet(1)
+    else:
+        # prepare Electrum BTC
+        wallet_controller.create_wallet('BTC')
+
     fake_generator.generate_child_account()
 
     # TODO: change --> Prepare plebnet
@@ -45,9 +48,6 @@ def setup(args):
     dna = DNA()
     dna.read_dictionary(cloudomate_controller.get_vps_providers())
     dna.write_dictionary()
-
-    # Prepare Electrum
-    electrum_controller.create_wallet('BTC')
 
     # Prepare the IRC Client
     irc_handler.init_irc_client()

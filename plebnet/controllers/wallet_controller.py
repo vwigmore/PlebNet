@@ -1,37 +1,32 @@
 """
-This file is used to control all dependencies with Electrum.
+This file is used to control all dependencies of the Electrum wallet using the Tribler API.
 
 Other files should never have a direct import from Electrum, as the reduces the maintainability of this code.
 If Electrum alters its call methods, this should be the only file which needs to be updated in PlebNet.
 """
 
-
 import os
 import tribler_controller as triblercontroller
 import market_controller as marketcontroller
 import plebnet.settings.plebnet_settings as plebnet_settings
-#import electrum
 import requests
 from requests.exceptions import ConnectionError
-#from electrum import Wallet as ElectrumWallet
-#from electrum import WalletStorage
-#from electrum import keystore
-#from electrum.mnemonic import Mnemonic
 from plebnet.utilities import logger
-#WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
+
+WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 settings = plebnet_settings.get_instance()
 
 
 def create_wallet(wallet_type):
-    if settings.wallets_testnet():
+    if wallet_type == 'TBTC' and settings.wallets_testnet():
         logger.log("Wallet already created", "create_wallet")
         return True
-    if wallet_type != 'BTC' or 'TBTC':
+    if wallet_type != 'BTC' and wallet_type != 'TBTC':
         logger.log("Called wrong wallet type", "create_wallet")
         return False
     start_tribler = triblercontroller.start()
     start_market = marketcontroller.is_market_running()
-    if not start_tribler or start_market:
+    if not (start_tribler and start_market):
         logger.log("Tribler or the marketplace can't be started", "create_wallet")
         return False
     try:
@@ -52,29 +47,5 @@ def create_wallet(wallet_type):
         return False
 
 
-#def create_wallet():
-#    """
-#    Create an electrum wallet if it does not exist
-#    :return:
-#    """
-#    if not os.path.isfile(WALLET_FILE):
-#        logger.log("Creating wallet", "create_wallet")
-#        config = electrum.SimpleConfig()
-#        storage = WalletStorage(config.get_wallet_path())
-#        passphrase = config.get('passphrase', '')
-#        seed = Mnemonic('en').make_seed()
-#        k = keystore.from_seed(seed, passphrase)
-#        k.update_password(None, None)
-#       storage.put('keystore', k.dump())
-#       storage.put('wallet_type', 'standard')
-#       storage.put('use_encryption', False)
-#       storage.write()
-#       wallet = ElectrumWallet(storage)
-#       wallet.synchronize()
-#       logger.log("Your wallet generation seed is:\n\"%s\"" % seed, "create_wallet")
-#       logger.log("Please keep it in a safe place; once lost, your wallet cannot be restored.", "create_wallet")
-#       wallet.storage.write()
-#       logger.log("Wallet saved in '%s'" % wallet.storage.path, "create_wallet")
-#   else:
-#       logger.log("Wallet already present", "create_wallet")
+
 
