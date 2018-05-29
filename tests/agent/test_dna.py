@@ -1,4 +1,6 @@
 import unittest
+import mock
+
 from plebnet.agent.dna import DNA
 
 
@@ -59,10 +61,19 @@ class TestDna(unittest.TestCase):
 
     def test_denormalize(self):
         self.test_dna.add_provider("provider1")
-        self.test_dna.length = 10
+        self.test_dna.add_provider("provider2")
+        self.test_dna.normalize()
 
+        self.test_dna.length = 7
+        self.test_dna.denormalize()
 
+        self.assertEqual({'provider1': 3.5, 'provider2': 3.5}, self.test_dna.vps)
 
+    @mock.patch('random.uniform', return_value=0.7)
+    def test_choose_provider(self, mock1):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.assertEqual(self.test_dna.choose_provider(self.test_dna.vps), 'provider2')
 
 
 if __name__ == '__main__':
