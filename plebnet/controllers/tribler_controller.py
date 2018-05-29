@@ -33,8 +33,8 @@ def start():
     env = os.environ.copy()
     env['PYTHONPATH'] = setup.tribler_home()
     try:
-        success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),
-                                   'plebnet', '-p', '8085', '--exitnode'],
+        # success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085', '--exitnode'],cwd=setup.tribler_home(), env=env)
+        success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085'],
                                   cwd=setup.tribler_home(), env=env)
         if not success:
             logger.error('Failed to start Tribler', "tribler_controller")

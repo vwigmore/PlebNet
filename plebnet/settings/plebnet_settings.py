@@ -44,6 +44,7 @@ class Init(object):
     def __init__(self):
         # file does not exist --> copy the initial file
         if not os.path.isfile(conf_file):
+            print("config file should be at: %s" % conf_file)
             copy(init_file, conf_path)
 
         self.settings = setting.Settings(conf_file)
@@ -52,7 +53,7 @@ class Init(object):
 
     def logger_file(self): return os.path.join(self.logger_path(), self.logger_filename())
 
-    def logger_path(self, value=None): return data_path
+    def logger_path(self, value=None): return conf_path
 
     def logger_filename(self, value=None): return self.settings.handle("filenames", "LOGGER_FILE", value)
 
@@ -82,6 +83,8 @@ class Init(object):
 
     def irc_nick(self, value=None): return self.settings.handle("irc", "nick", value)
 
+    def irc_nick_def(self, value=None): return self.settings.handle("irc", "nick_def", value)
+
     def irc_timeout(self, value=None): return self.settings.handle("irc", "timeout", value)
 
     """ THE ATTRIBUTE METHODS FOR THE VPS SECTION """
@@ -104,12 +107,18 @@ class Init(object):
 
     def github_active(self, value=None): return self.settings.handle("github", "active", value) == "1"
 
+    """THE ATTRIBUTE METHODS FOR THE ACTIVE SECTION"""
+
+    def active_verbose(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
+
+    def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
+
 
 def store(args):
     get_instance()
     for arg in vars(args):
-        if arg in dir(instance):
-            getattr(instance, arg)(getattr(args, arg))
+        if (arg in dir(instance)) and getattr(args, arg):
+            getattr(instance, arg)(str(getattr(args, arg)))
     instance.settings.write()
 
 
