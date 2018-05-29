@@ -14,8 +14,12 @@ from plebnet.utilities import logger
 
 def is_market_running():
     try:
-        requests.get('http://localhost:8085/market')
-        return True
+        askslive = requests.head('http://localhost:8085/market/asks')
+        bidslive = requests.head('http://localhost:8085/market/bids')
+        if askslive.status_code & bidslive.status_code == 200:
+            return True
+        else:
+            return False
     except ConnectionError:
         return False
 
@@ -41,8 +45,8 @@ def put_bid(price, price_type, quantity, quantity_type, timeout):
 def _put_request(price, price_type, quantity, quantity_type, timeout, domain):
     url = 'http://localhost:8085/market/' + domain
     data = {'price': price,
-            'price_type': price_type,
             'quantity': quantity,
+            'price_type': price_type,
             'quantity_type': quantity_type,
             'timeout': timeout}
     json = requests.put(url, data=data).json()

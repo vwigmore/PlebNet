@@ -22,9 +22,11 @@ apt-get update
 # Requiring manual configuration after installation
 # && apt-get -y upgrade
 
+apt-get install openssl
+apt-get install -y python-pip
+pip install -U pip wheel setuptools
 
 # Install dependencies
-apt-get install -y python-pip
 apt-get install -y \
     python-crypto \
     python-pyasn1 \
@@ -51,6 +53,7 @@ apt-get install -y \
     python-wxtools \
     git \
     python-lxml
+
 if [ $(lsb_release -cs) == "trusty" ]
 then
     echo "Trusty detected"
@@ -80,9 +83,9 @@ echo "done upgrading pip"
 pip install pyaes psutil
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b plebnet https://github.com/vwigmore/PlebNet
-[ ! -d "cloudomate" ] && git clone -b update https://github.com/vwigmore/cloudomate
-python -m pip install --upgrade ./cloudomate
+[ ! -d "PlebNet" ] && git clone -b master https://github.com/vwigmore/PlebNet
+[ ! -d "Cloudomate" ] && git clone -b master https://github.com/codesalad/Cloudomate
+python -m pip install --upgrade ./Cloudomate
 python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
