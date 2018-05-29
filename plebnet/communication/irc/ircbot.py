@@ -161,11 +161,9 @@ class Create(object):
         time_str = time.strftime("%H:%M:%S", time.gmtime(time.time() - self.init_time))
         self.send_msg("I am alive, for %s" % time_str)
 
-    def msg_host(self):
-        self.send_msg("My host is : %s" % setup_settings.Init().get_vps_host())
+    def msg_host(self): self.send_msg("My host is : %s" % plebnet_settings.get_instance().vps_host())
 
-    def msg_init(self):
-        self.send_msg("My init date is : %s" % setup_settings.Init().get_vps_life())
+    def msg_init(self): self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
     def msg_joke(self):
         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
