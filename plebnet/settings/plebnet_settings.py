@@ -83,6 +83,8 @@ class Init(object):
 
     def irc_nick(self, value=None): return self.settings.handle("irc", "nick", value)
 
+    def irc_nick_def(self, value=None): return self.settings.handle("irc", "nick_def", value)
+
     def irc_timeout(self, value=None): return self.settings.handle("irc", "timeout", value)
 
     """ THE ATTRIBUTE METHODS FOR THE VPS SECTION """
@@ -113,10 +115,9 @@ class Init(object):
 
 
 def store(args):
-    print(args)
     get_instance()
     for arg in vars(args):
-        if (arg in dir(instance)) and arg:
+        if (arg in dir(instance)) and getattr(args, arg):
             getattr(instance, arg)(str(getattr(args, arg)))
     instance.settings.write()
 

@@ -62,7 +62,7 @@ def execute_test(cmd=sys.argv[2:3]):
 
 
 def test_git_issuer(cmd=sys.argv[3:]):
-    git_issuer.make_github_issue("This is a test issue", "used to provide test information")
+    git_issuer.send("This is a test issue", "used to provide test information")
 
 
 def execute_conf(cmd=sys.argv[2:3]):
