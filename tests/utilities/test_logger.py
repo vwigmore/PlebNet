@@ -29,20 +29,20 @@ class TestLogger(unittest.TestCase):
         if os.path.isfile(test_file):
             os.remove(test_file)
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    @mock.patch('plebnet.settings.plebnet_settings.Init.logger_file', return_value=test_path)
     def test_generate_file(self, mock):
         self.assertFalse(os.path.isfile(test_file))
         logger.log(msg1)
         self.assertTrue(os.path.isfile(test_file))
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    @mock.patch('plebnet.settings.plebnet_settings.Init.logger_file', return_value=test_path)
     def test_add_logs(self, mock):
         logger.log(msg1)
         logger.log(msg2)
         self.assertTrue(msg1 in open(test_file).read())
         self.assertTrue(msg2 in open(test_file).read())
 
-    @mock.patch('plebnet.settings.plebnet_settings.Init.get_logger_path', return_value=test_path)
+    @mock.patch('plebnet.settings.plebnet_settings.Init.logger_file', return_value=test_path)
     def test_add_multiple_logs(self, mock):
         logger.log(msg1)
         logger.warning(msg2)
