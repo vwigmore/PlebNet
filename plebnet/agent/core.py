@@ -29,7 +29,8 @@ def setup(args):
 
     # Prepare Cloudomate
     if args.test_net:
-        settings.wallets_testnet(1)
+        settings.wallets_testnet("1")
+        settings.settings.write()
 
     fake_generator.generate_child_account()
 
@@ -76,7 +77,8 @@ def check():
         logger.log("create Testnet wallet", "setup")
         r = wallet_controller.create_wallet('TBTC')
         if r:
-            settings.wallets_testnet_created(1)
+            settings.wallets_testnet_created("1")
+            settings.settings.write()
     else:
         # prepare Electrum BTC
         wallet_controller.create_wallet('BTC')
@@ -114,7 +116,7 @@ def check_tunnel_helper():
         env = os.environ.copy()
         env['PYTHONPATH'] = settings.tribler_home()
         try:
-            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-M'],
+            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x'], #, '-M'],
                             cwd=settings.tribler_home(), env=env)
             return True
         except subprocess.CalledProcessError as e:
