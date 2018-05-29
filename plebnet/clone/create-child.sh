@@ -49,5 +49,5 @@ sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecki
 
 echo "Installing PlebNet"
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'apt-get install -y git && \
-    git clone -b update_install_scripts https://github.com/vwigmore/PlebNet && \
+    git clone -b master https://github.com/vwigmore/PlebNet && \
     cd PlebNet && sh plebnet/clone/install.sh'
