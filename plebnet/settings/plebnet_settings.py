@@ -105,6 +105,8 @@ class Init(object):
     def github_active(self, value=None): return self.settings.handle("github", "active", value) == "1"
 
     """"THE ATTRIBUTE METHODS FOR THE WALLETS SECTION"""
+    def wallets_testnet_created(self, value=None): return self.settings.handle("wallets", "testnet_created", value) == "1"
+
     def wallets_testnet(self, value=None): return self.settings.handle("wallets", "testnet", value) == "1"
 
     def wallets_password(self, value=None): return self.settings.handle("wallets", "password", value)

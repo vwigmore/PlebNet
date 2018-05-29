@@ -18,7 +18,7 @@ settings = plebnet_settings.get_instance()
 
 
 def create_wallet(wallet_type):
-    if wallet_type == 'TBTC' and settings.wallets_testnet():
+    if wallet_type == 'TBTC' and settings.wallets_testnet_created():
         logger.log("Wallet already created", "create_wallet")
         return True
     if wallet_type != 'BTC' and wallet_type != 'TBTC':

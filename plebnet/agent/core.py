@@ -29,13 +29,7 @@ def setup(args):
 
     # Prepare Cloudomate
     if args.test_net:
-        logger.log("create Testnet wallet", "setup")
-        r = wallet_controller.create_wallet('TBTC')
-        if r:
-            settings.wallets_testnet(1)
-    else:
-        # prepare Electrum BTC
-        wallet_controller.create_wallet('BTC')
+        settings.wallets_testnet(1)
 
     fake_generator.generate_child_account()
 
@@ -76,6 +70,17 @@ def check():
         return
     if not check_tunnel_helper():
         return
+
+    # Prepare Cloudomate
+    if settings.wallets_testnet():
+        logger.log("create Testnet wallet", "setup")
+        r = wallet_controller.create_wallet('TBTC')
+        if r:
+            settings.wallets_testnet_created(1)
+    else:
+        # prepare Electrum BTC
+        wallet_controller.create_wallet('BTC')
+
 
     select_provider()
     update_offer()
