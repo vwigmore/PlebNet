@@ -24,10 +24,14 @@ class TestLogger(unittest.TestCase):
         logger.suppress_print = True
         if os.path.isfile(test_file):
             os.remove(test_file)
+        #ensure logging is allowed
+        plebnet_settings.get_instance().active_logger("1")
 
     def tearDown(self):
         if os.path.isfile(test_file):
             os.remove(test_file)
+        # disable logging for further tests
+        plebnet_settings.get_instance().active_logger("0")
 
     @mock.patch('plebnet.settings.plebnet_settings.Init.logger_file', return_value=test_path)
     def test_generate_file(self, mock):
