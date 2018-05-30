@@ -79,7 +79,6 @@ class DNA:
 
     def demutate(self, provider):
         if provider not in self.vps:
-            print("{0} not in dna".format(provider))
             return False
         self.vps[provider] -= self.rate
         if self.vps[provider] < 0:

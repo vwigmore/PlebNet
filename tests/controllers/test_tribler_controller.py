@@ -49,5 +49,5 @@ class TestTriblerController(unittest.TestCase):
         logger.error = self.true_logger_error
         subprocess.call = self.true_subprocess_call
 
-    if __name__ == '__main__':
-        unittest.main()
+if __name__ == '__main__':
+    unittest.main()
