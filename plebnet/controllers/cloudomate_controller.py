@@ -179,7 +179,7 @@ def place_offer(chosen_est_price, config):
         return False
     config.bump_offer_date()
     config.set('last_offer', {'BTC': chosen_est_price, 'MB': available_mb})
-    price_per_unit = chosen_est_price / float(available_mb)
+    price_per_unit = max(0.0001, chosen_est_price / float(available_mb))
     return market_controller.put_ask(price=price_per_unit,
                                      price_type='BTC',
                                      quantity=available_mb,

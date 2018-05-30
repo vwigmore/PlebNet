@@ -157,7 +157,11 @@ def attempt_purchase():
     """
     # try to purchase the chosen vps.
     (provider, option, _) = config.get('chosen_provider')
-    if market_controller.get_balance('BTC') >= cloudomate_controller.calculate_price(provider, option):
+    if settings.wallets_testnet():
+        domain = 'TBTC'
+    else:
+        domain = 'BTC'
+    if market_controller.get_balance(domain) >= cloudomate_controller.calculate_price(provider, option):
         logger.log("Try to buy a new server from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice(config)
         if success == plebnet_settings.SUCCESS:

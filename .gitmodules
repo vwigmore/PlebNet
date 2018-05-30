@@ -1,3 +1,3 @@
 [submodule "tribler"]
 	path = tribler
-	url = https://github.com/HvanVeltom/tribler
+	url = https://github.com/HvanVeltom/tribler.git
