@@ -166,11 +166,10 @@ def attempt_purchase():
         success = cloudomate_controller.purchase_choice(config)
         if success == plebnet_settings.SUCCESS:
             # evolve yourself positively if you are successful
-            own_provider = DNA.get_own_provider(dna)
-            DNA.evolve(own_provider, dna, True)
+            DNA().evolve(True)
         elif success == plebnet_settings.FAILURE:
             # evolve provider negatively if not successful
-            DNA.evolve(provider, dna, False)
+            DNA().evolve(False)
 
 
 def install_vps():

@@ -75,6 +75,57 @@ class TestDna(unittest.TestCase):
         self.test_dna.add_provider("provider2")
         self.assertEqual(self.test_dna.choose_provider(self.test_dna.vps), 'provider2')
 
+    def test_exclude(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.add_provider("provider3")
+        new = self.test_dna.exclude("provider2")
+
+        self.assertEqual({'provider1': 0.5, 'provider3': 0.5}, new)
+        self.assertEqual({'provider1': 0.5, 'provider2': 0.5, 'provider3': 0.5}, self.test_dna.vps)
+
+    def test_normalize_excluded(self):
+        test_dict = {'provider1': 0.5}
+        res_dict = self.test_dna.normalize_excluded(test_dict)
+        self.assertEqual({'provider1': 1}, res_dict)
+
+    def test_positive_evolve(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.rate = 0.25
+        self.test_dna.positive_evolve("provider2")
+
+        result = self.test_dna.exclude("provider2")
+        self.assertEqual({'provider1': 0.4}, result)
+
+    def test_negative_evolve(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.rate = 0.5
+        self.test_dna.negative_evolve("provider2")
+        self.assertEqual({'provider1': 1.0, 'provider2': 0.0}, self.test_dna.vps)
+
+    def test_set_and_get_own_provider(self):
+        self.test_dna.set_own_provider("provider2")
+        self.assertEqual("provider2", self.test_dna.get_own_provider())
+
+    def test_evolve_positive(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.set_own_provider("provider2")
+
+        self.test_dna.evolve(True)
+        self.assertEqual({'provider1': 0.25, 'provider2': 0.75}, self.test_dna.vps)
+
+    def test_evolve_negative(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.set_own_provider("provider2")
+
+        self.test_dna.rate = 0.5
+        self.test_dna.evolve(False)
+        self.assertEqual({'provider1': 1.0, 'provider2': 0.0}, self.test_dna.vps)
+
 
 if __name__ == '__main__':
     unittest.main()
