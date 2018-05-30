@@ -54,7 +54,8 @@ def execute_check(cmd=None):
     agent.check()
 
 
-def execute_test(cmd=sys.argv[2:3]):
+def execute_test(cmd=None):
+    if not cmd: cmd = sys.argv[2:3]
 
     parser = ArgumentParser(description="allows testing certain functionalities")
     subparsers = parser.add_subparsers(dest="command", title="functionality")
@@ -66,32 +67,35 @@ def execute_test(cmd=sys.argv[2:3]):
     args.func()
 
 
-def test_git_issuer(cmd=sys.argv[3:]):
+def test_git_issuer(cmd=None):
 
     git_issuer.send("This is a test issue", "used to provide test information")
 
 
-def execute_conf(cmd=sys.argv[2:3]):
+def execute_conf(cmd=None):
+    if not cmd: cmd = sys.argv[2:3]
 
     parser = ArgumentParser(description="allows changing the configuration files")
     subparsers = parser.add_subparsers(dest="command", title="files")
 
     parser_secure = subparsers.add_parser("setup", help='this is no help')
-    parser_secure.set_defaults(func=conf_secure)
+    parser_secure.set_defaults(func=conf_setup)
 
     args = parser.parse_args(cmd)
     args.func()
 
 
-def conf_secure(cmd=sys.argv[3:]):
+def conf_setup(cmd=None):
+    if not cmd: cmd = sys.argv[3:]
 
     parser = ArgumentParser(description="allow changing the configuration files for logging in")
     #irc section
-    parser.add_argument('-ic', '--irc_channel', help='Set the irc channel to use')
-    parser.add_argument('-is', '--irc_server',  help='Set the irc server to use')
-    parser.add_argument('-ip', '--irc_port',    help='Set the irc server port to use')
-    parser.add_argument('-in', '--irc_nick',    help='Set the irc nickname to use')
-    parser.add_argument('-it', '--irc_timeout', help='Set the irc heartbeat timeout to use')
+    parser.add_argument('-ic',  '--irc_channel',  help='Set the irc channel to use')
+    parser.add_argument('-is',  '--irc_server',   help='Set the irc server to use')
+    parser.add_argument('-ip',  '--irc_port',     help='Set the irc server port to use')
+    parser.add_argument('-in',  '--irc_nick',     help='Set the irc nickname to use')
+    parser.add_argument('-ind', '--irc_nick_def', help='Set the irc nickname to use')
+    parser.add_argument('-it',  '--irc_timeout',  help='Set the irc heartbeat timeout to use')
     #github section
     parser.add_argument('-gu', '--github_username', help='Set this username')
     parser.add_argument('-gp', '--github_password', help='Set this password')
