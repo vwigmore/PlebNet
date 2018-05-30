@@ -47,7 +47,7 @@ class Create(object):
         self.add_response("joke", self.msg_joke)
 
         # start running the IRC server
-        logger.log("start running an IRC connection on " + self.server + " " + self.channel)
+        self.init_irc()
         self.run()
 
     def add_response(self, command, response):
@@ -62,6 +62,19 @@ class Create(object):
         """
         self.responses[":!" + command] = response
 
+    def init_irc(self):
+        try:
+            logger.log("start running an IRC connection on " + self.server + " " + self.channel)
+            self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.irc.connect((self.server, self.port))
+        except:
+            title = "A error occurred in IRCbot init_irc %s" % sys.exc_info()[0]
+            body = traceback.format_exc()
+            logger.error(title)
+            logger.error(body)
+            git_issuer.handle_error(title, body)
+            git_issuer.handle_error("A error occurred in IRCbot", sys.exc_info()[0], ['crash'])
+
     def run(self):
         """
         This method keeps listening to the server for incomming messages and processes them.
@@ -69,21 +82,11 @@ class Create(object):
         :rtype:
         """
 
+        self.send("NICK %s" % self.nick)
+        self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
+        self.heartbeat()
+
         buffer = ""
-
-        try:
-            self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.irc.connect((self.server, self.port))
-            # init the contact
-            self.send("NICK %s" % self.nick)
-            self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
-
-            self.heartbeat()
-        except:
-            # git_issuer("A error occurred in IRCbot", sys.exc_info()[0], ['crash'])
-            logger.error("An error occurred at server connectionthe IRC")
-            logger.error(traceback.format_exc())
-
         while 1:
             buffer = self.keep_running(buffer)
 
