@@ -1,3 +1,5 @@
+import json
+import subprocess
 import responses
 import requests
 import unittest
@@ -59,6 +61,92 @@ class TestWalletController(unittest.TestCase):
         requests.put = MagicMock(side_effect=requests.ConnectionError)
         self.assertFalse(walletcontroller.create_wallet('TBTC'))
         requests.put = self.requests
+
+    def test_tribler_wallet_constructor(self):
+        r = walletcontroller.TriblerWallet()
+        assert r.coin == 'BTC'
+        o = walletcontroller.TriblerWallet(True)
+        assert o.coin == 'TBTC'
+
+    def test_get_balance(self):
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
+
+        json.loads = MagicMock()
+        subprocess.Popen.communicate = MagicMock()
+        r = walletcontroller.TriblerWallet()
+
+        r.get_balance()
+        json.loads.assert_called_once()
+        subprocess.Popen.communicate.assert_called_once()
+
+        json.loads = self.json
+        subprocess.Popen.communicate = self.popen
+
+    def test_pay_not_enough_balance(self):
+        self.balance = walletcontroller.TriblerWallet.get_balance
+        self.popen = subprocess.Popen.communicate
+        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=0)
+        subprocess.Popen.communicate = MagicMock()
+
+        r = walletcontroller.TriblerWallet()
+        r.pay('address', 30)
+        walletcontroller.TriblerWallet.get_balance.assert_called_once()
+        subprocess.Popen.communicate.assert_not_called()
+
+        walletcontroller.TriblerWallet.get_balance = self.balance
+        subprocess.Popen.communicate = self.popen
+
+    """
+    class used so that a mocked object returns a MockResponse object with a __getitem__ attribute that returns false
+    """
+    class MockResponse(object):
+
+        def __init__(self, obj):
+            self.x = obj
+
+        def __getitem__(self, item):
+            return self.x
+
+    def test_pay_no_response(self):
+        self.balance = walletcontroller.TriblerWallet.get_balance
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
+        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=50)
+        subprocess.Popen.communicate = MagicMock(return_value=self.MockResponse(False))
+        json.loads = MagicMock()
+
+        r = walletcontroller.TriblerWallet()
+        r.pay('address', 30)
+
+        walletcontroller.TriblerWallet.get_balance.assert_called_once()
+        subprocess.Popen.communicate.assert_called_once()
+        json.loads.assert_not_called()
+
+        walletcontroller.TriblerWallet.get_balance = self.balance
+        subprocess.Popen.communicate = self.popen
+        json.loads = self.json
+
+    def test_pay(self):
+        self.balance = walletcontroller.TriblerWallet.get_balance
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
+
+        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=50)
+        subprocess.Popen.communicate = MagicMock()
+        json.loads = MagicMock(returun_value='test')
+
+        r = walletcontroller.TriblerWallet()
+        r.pay('address', 30)
+
+        json.loads.assert_called_once()
+
+        walletcontroller.TriblerWallet.get_balance = self.balance
+        subprocess.Popen.communicate = self.popen
+        json.loads = self.json
+
+
+
 
 
 if __name__ == '__main__':
