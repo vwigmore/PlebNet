@@ -1,38 +1,45 @@
 import unittest
 
 from plebnet.communication.irc import ircbot
+from plebnet.settings import plebnet_settings
 
-reply_host = "My host is : "
-reply_ping = "PONG 1234"
-reply_alive = "I am alive, for"
 
+line_join = "376 " + plebnet_settings.get_instance().irc_nick()
 line_ping = "PING 1234"
 line_host = "a b c :!host"
 line_alive = "a b c :!alive"
+line_error = "a b c :!error"
+
+reply_join = "JOIN"
+reply_host = "My host is : "
+reply_ping = "PONG 1234"
+reply_alive = "I am alive, for"
+reply_error = "A error occurred in IRCbot"
 
 
 class TestIRCbot(unittest.TestCase):
 
     msgs = None
+    plebnet_settings.get_instance().active_logger("0")
+    plebnet_settings.get_instance().active_verbose("0")
+    plebnet_settings.get_instance().github_active("0")
 
     def setUp(self):
         global msgs
         # store originals
-        self.original_send = ircbot.Create.send
         self.original_run = ircbot.Create.run
         self.original_init_irc = ircbot.Create.init_irc
         # modify
-        ircbot.Create.send = self.append_msg
         ircbot.Create.run = self.skip
         ircbot.Create.init_irc = self.skip
         # create instance with modified properties
         self.instance = ircbot.Create()
+        self.instance.irc = self.irc_server()
         # empty the send messages
         msgs = []
 
     def tearDown(self):
         # restore originals
-        ircbot.Create.send_msg = self.original_send
         ircbot.Create.send_run = self.original_run
         ircbot.Create.init_irc = self.original_init_irc
 
@@ -49,6 +56,9 @@ class TestIRCbot(unittest.TestCase):
         def recv(self, x=None):
             return ""
 
+        def send(self, msg):
+            msgs.append(msg)
+
     """ THE ACTUAL TESTS """
 
     def test_handle_lines_ping(self):
@@ -60,12 +70,18 @@ class TestIRCbot(unittest.TestCase):
         self.assertIn(reply_host, msgs[0])
 
     def test_keep_running(self):
-        self.instance.irc = self.irc_server()
-        msg = "%s\r\n%s\r\n%s\r\n" % (line_ping, line_host, line_alive)
-        self.instance.keep_running(msg)
-        self.assertIn(reply_ping, msgs[0])
-        self.assertIn(reply_host, msgs[1])
-        self.assertIn(reply_alive, msgs[2])
+        # self.instance.irc = self.irc_server()
+        msg = "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
+        self.instance.keep_running(str(msg))
+        self.assertIn(reply_join, msgs[0])
+        self.assertIn(reply_ping, msgs[1])
+        self.assertIn(reply_host, msgs[2])
+        self.assertIn(reply_error, msgs[3])
+        msg = "%s\r\n" % (line_alive)
+        self.instance.keep_running(str(msg))
+        self.assertIn(reply_alive, msgs[4])
+
+    # def test_error(self):
 
 
 if __name__ == '__main__':
