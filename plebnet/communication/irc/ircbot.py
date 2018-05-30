@@ -5,7 +5,6 @@ This file is used to setup and maintain a connection with an IRC server.
 """
 
 import traceback
-import random
 import socket
 import time
 import sys
@@ -30,9 +29,6 @@ class Create(object):
         self.timeout = settings.irc_timeout()
         self.channel = settings.irc_channel()
         self.port = settings.irc_port()
-
-        if settings.irc_nick() == settings.irc_nick_def():
-            settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
 
         self.nick = settings.irc_nick()
         self.ident = "plebber"
@@ -112,7 +108,7 @@ class Create(object):
             body = traceback.format_exc()
             logger.error(title)
             logger.error(body)
-            git_issuer.send(title, body, ['crash'])
+            git_issuer.handle_error(title, body)
             self.irc.send(title)
 
         return buffer
@@ -182,9 +178,7 @@ class Create(object):
 
     def msg_init(self): self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
-    def msg_error(self):
-        print("hier maken we een error")
-        self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
+    def msg_error(self): self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
 
     def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 

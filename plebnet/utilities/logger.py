@@ -53,16 +53,16 @@ def put_msg(msg, color=None, origin="", method=_get_logger().info):
         print(msg)
 
 
-def log(msg, origin=""): put_msg(msg, origin=origin)
+def log(msg, origin=""): put_msg(str(msg), origin=str(origin))
 
 
-def success(msg, origin=""): put_msg(msg, bcolors.OKGREEN, origin=origin)
+def success(msg, origin=""): put_msg(str(msg), bcolors.OKGREEN, origin=str(origin))
 
 
-def warning(msg, origin=""): put_msg(msg, bcolors.WARNING, origin=origin, method=_get_logger().warning)
+def warning(msg, origin=""): put_msg(str(msg), bcolors.WARNING, origin=str(origin), method=_get_logger().warning)
 
 
-def error(msg, origin=""): put_msg(msg, bcolors.FAIL, origin=origin, method=_get_logger().error)
+def error(msg, origin=""): put_msg(str(msg), bcolors.FAIL, origin=str(origin), method=_get_logger().error)
 
 
 def _fill(tex, leng):

@@ -44,7 +44,6 @@ class Init(object):
     def __init__(self):
         # file does not exist --> copy the initial file
         if not os.path.isfile(conf_file):
-            print("config file should be at: %s" % conf_file)
             copy(init_file, conf_path)
 
         self.settings = setting.Settings(conf_file)
@@ -94,8 +93,6 @@ class Init(object):
     def vps_life(self, value=None): return self.settings.handle("vps", "initdate", value)
 
     def vps_dead(self, value=None): return self.settings.handle("vps", "finaldate", value)
-
-    """THE ATTRIBUTE METHODS FOR THE GITHUB SECTION"""
 
     def github_username(self, value=None): return self.settings.handle("github", "username", value)
 
