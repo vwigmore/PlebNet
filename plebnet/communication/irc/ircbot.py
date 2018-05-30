@@ -124,6 +124,8 @@ class Create(object):
         """
         timer = time.time()
         elapsed_time = timer - self.last_beat
+        print(elapsed_time, self.timeout)
+
 
         if elapsed_time > self.timeout:
             self.last_beat = timer

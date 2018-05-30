@@ -84,7 +84,9 @@ class Init(object):
 
     def irc_nick_def(self, value=None): return self.settings.handle("irc", "nick_def", value)
 
-    def irc_timeout(self, value=None): return self.settings.handle("irc", "timeout", value)
+    def irc_timeout(self, value=None):
+        str = self.settings.handle("irc", "timeout", value)
+        if not value: return int(os.path.expanduser(str))
 
     """ THE ATTRIBUTE METHODS FOR THE VPS SECTION """
 

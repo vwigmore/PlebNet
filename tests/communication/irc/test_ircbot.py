@@ -15,6 +15,7 @@ reply_host = "My host is : "
 reply_ping = "PONG 1234"
 reply_alive = "I am alive, for"
 reply_error = "A error occurred in IRCbot"
+reply_heart = "IRC is still running - alive for"
 
 
 class TestIRCbot(unittest.TestCase):
@@ -70,7 +71,6 @@ class TestIRCbot(unittest.TestCase):
         self.assertIn(reply_host, msgs[0])
 
     def test_keep_running(self):
-        # self.instance.irc = self.irc_server()
         msg = "%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
         self.instance.keep_running(str(msg))
         self.assertIn(reply_join, msgs[0])
@@ -80,6 +80,17 @@ class TestIRCbot(unittest.TestCase):
         msg = "%s\r\n" % (line_alive)
         self.instance.keep_running(str(msg))
         self.assertIn(reply_alive, msgs[4])
+
+    def test_heartbeat(self):
+        self.instance.last_beat = 0
+        self.instance.timeout = 1000 # large enough for no second heartbeat
+        self.instance.heartbeat()
+        self.assertIn(reply_heart, msgs[0])
+        self.assertEqual(len(msgs), 1)
+        # only send once
+        self.assertNotEqual(self.instance.last_beat, 0)
+        self.instance.heartbeat()
+        self.assertEqual(len(msgs), 1)
 
     # def test_error(self):
 
