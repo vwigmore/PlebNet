@@ -1,5 +1,5 @@
 import unittest
-from plebnet.communication import irc_handler
+from plebnet.communication.irc import irc_handler
 
 
 class TestLogger(unittest.TestCase):
