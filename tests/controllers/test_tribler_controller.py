@@ -1,17 +1,10 @@
 import unittest
-import os
 import subprocess
 import plebnet.controllers.tribler_controller as Tribler
 from mock.mock import MagicMock
 from plebnet.utilities import logger
 
 class TestTriblerController(unittest.TestCase):
-
-    def test_running(self):
-        self.true_os_path = os.path.isfile
-        os.path.isfile = MagicMock(return_value=True)
-        assert(Tribler.running())
-        os.path.isfile = self.true_os_path
 
     def test_start(self):
         self.true_logger_log = logger.log
