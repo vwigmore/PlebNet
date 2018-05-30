@@ -99,4 +99,4 @@ def status_irc_client(args=None):
     :rtype: None
     """
 
-    subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)
+    return subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)
