@@ -142,7 +142,7 @@ def purchase_choice(config):
     PlebNetConfig().increment_child_index()
     fake_generator.generate_child_account()
 
-    wallet = TriblerWallet()
+    wallet = TriblerWallet(plebnet_settings.get_instance().wallets_testnet_created())
     c = cloudomate_providers['vps'][provider]
 
     configurations = c.get_options()

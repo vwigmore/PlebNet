@@ -36,11 +36,11 @@ def create_wallet(wallet_type):
         if 'created' in response:
             logger.log("Wallet created successfully", "create_wallet")
             return True
-        elif response['error']['message'] == 'this wallet already exists':
+        elif response['error'] == 'this wallet already exists':
             logger.log("The wallet was already created", "create_wallet")
             return True
         else:
-            logger.log(response['error']['message'], "create_wallet")
+            logger.log(response['error'], "create_wallet")
             return False
     except ConnectionError:
         logger.log("connection error while creating a wallet", "create_wallet")
@@ -50,7 +50,7 @@ def create_wallet(wallet_type):
 class TriblerWallet(object):
     """
     This class expects Tribler to be running and uses the wallet created via Tribler.
-    Either an TBTC or an BTC wallet.
+    Either a TBTC or a BTC wallet.
     """
 
     def __init__(self, testnet=None):
