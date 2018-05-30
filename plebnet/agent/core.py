@@ -126,7 +126,7 @@ def check_tunnel_helper():
         env = os.environ.copy()
         env['PYTHONPATH'] = settings.tribler_home()
         try:
-            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x'], #, '-M'],
+            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m'], #, '-M'],
                             cwd=settings.tribler_home(), env=env)
             return True
         except subprocess.CalledProcessError as e:
