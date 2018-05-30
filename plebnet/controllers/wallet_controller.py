@@ -6,7 +6,6 @@ If Electrum alters its call methods, this should be the only file which needs to
 """
 
 import os
-import tribler_controller as triblercontroller
 import market_controller as marketcontroller
 import plebnet.settings.plebnet_settings as plebnet_settings
 import requests
@@ -19,15 +18,14 @@ settings = plebnet_settings.get_instance()
 
 def create_wallet(wallet_type):
     if wallet_type == 'TBTC' and settings.wallets_testnet_created():
-        logger.log("Wallet already created", "create_wallet")
+        logger.log("Testnet wallet already created", "create_wallet")
         return True
     if wallet_type != 'BTC' and wallet_type != 'TBTC':
-        logger.log("Called wrong wallet type", "create_wallet")
+        logger.log("Called unknown wallet type", "create_wallet")
         return False
-    start_tribler = triblercontroller.start()
     start_market = marketcontroller.is_market_running()
-    if not (start_tribler and start_market):
-        logger.log("Tribler or the marketplace can't be started", "create_wallet")
+    if not start_market:
+        logger.log("The marketplace can't be started", "create_wallet")
         return False
     try:
         data = {'password': settings.wallets_password()}

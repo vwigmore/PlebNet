@@ -109,6 +109,8 @@ class Init(object):
 
     def wallets_testnet(self, value=None): return self.settings.handle("wallets", "testnet", value) == "1"
 
+    def wallets_initiate_once(self, value=None): return self.settings.handle("wallets", "initiate_once", value) == "1"
+
     def wallets_password(self, value=None): return self.settings.handle("wallets", "password", value)
 
 

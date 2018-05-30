@@ -73,21 +73,31 @@ def check():
         return
 
     # Prepare Cloudomate
-    if settings.wallets_testnet():
-        logger.log("create Testnet wallet", "setup")
-        r = wallet_controller.create_wallet('TBTC')
-        if r:
-            settings.wallets_testnet_created("1")
-            settings.settings.write()
-    else:
-        # prepare Electrum BTC
-        wallet_controller.create_wallet('BTC')
-
+    if not settings.wallets_initiate_once():
+        create_wallet()
 
     select_provider()
     update_offer()
     attempt_purchase()
     install_vps()
+
+
+def create_wallet():
+    if settings.wallets_testnet():
+        # attempt to create testnet wallet
+        logger.log("create Testnet wallet", "setup")
+        x = wallet_controller.create_wallet('TBTC')
+        if x:
+            settings.wallets_testnet_created("1")
+            settings.wallets_initiate_once("1")
+            settings.settings.write()
+    else:
+        # attempt to create bitcoin wallet
+        y = wallet_controller.create_wallet('BTC')
+        if y:
+            settings.wallets_initiate_once("1")
+            settings.settings.write()
+
 
 
 def check_tribler():
