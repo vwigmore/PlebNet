@@ -13,7 +13,7 @@ import os
 from appdirs import user_config_dir
 
 from cloudomate import wallet as wallet_util
-from cloudomate.wallet import Wallet
+from cloudomate.wallet import TriblerWallet
 from cloudomate.cmdline import providers as cloudomate_providers
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
@@ -142,7 +142,7 @@ def purchase_choice(config):
     PlebNetConfig().increment_child_index()
     fake_generator.generate_child_account()
 
-    wallet = Wallet()
+    wallet = TriblerWallet()
     c = cloudomate_providers['vps'][provider]
 
     configurations = c.get_options()
