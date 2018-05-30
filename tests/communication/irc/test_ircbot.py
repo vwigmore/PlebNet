@@ -71,7 +71,7 @@ class TestIRCbot(unittest.TestCase):
 
     def test_keep_running(self):
         # self.instance.irc = self.irc_server()
-        msg = "%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
+        msg = "%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
         self.instance.keep_running(str(msg))
         self.assertIn(reply_join, msgs[0])
         self.assertIn(reply_ping, msgs[1])
