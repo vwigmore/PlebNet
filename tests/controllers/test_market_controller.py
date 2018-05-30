@@ -5,6 +5,7 @@ import requests
 from mock.mock import MagicMock
 from plebnet.utilities import logger
 
+
 class TestMarketController(unittest.TestCase):
 
  @responses.activate
@@ -71,5 +72,5 @@ class TestMarketController(unittest.TestCase):
      self.assertFalse(Market._put_request(10, 'MB', 10, 'BTC', 1000, 'bids'))
 
 
- if __name__ == '__main__':
-      unittest.main()
+if __name__ == '__main__':
+    unittest.main()

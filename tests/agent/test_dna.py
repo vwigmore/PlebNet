@@ -1,4 +1,6 @@
 import unittest
+import mock
+
 from plebnet.agent.dna import DNA
 
 
@@ -38,6 +40,40 @@ class TestDna(unittest.TestCase):
         self.test_dna.add_provider("provider1")
         self.test_dna.mutate("provider1")
         self.assertEqual({'provider1': 1.5}, self.test_dna.vps)
+
+    def test_demutate_false(self):
+        self.test_dna.add_provider("provider1")
+        self.assertFalse(self.test_dna.demutate("provider2"))
+
+    def test_demutate_enough(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.rate = 0.5
+        self.test_dna.demutate("provider1")
+        self.assertEqual({'provider1': 0.0}, self.test_dna.vps)
+
+    def test_demutate_not_enough(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.rate = 0.2
+        self.test_dna.demutate("provider1")
+        self.test_dna.rate = 0.4
+        self.test_dna.demutate("provider1")
+        self.assertEqual({'provider1': 0.3}, self.test_dna.vps)
+
+    def test_denormalize(self):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.test_dna.normalize()
+
+        self.test_dna.length = 7
+        self.test_dna.denormalize()
+
+        self.assertEqual({'provider1': 3.5, 'provider2': 3.5}, self.test_dna.vps)
+
+    @mock.patch('random.uniform', return_value=0.7)
+    def test_choose_provider(self, mock1):
+        self.test_dna.add_provider("provider1")
+        self.test_dna.add_provider("provider2")
+        self.assertEqual(self.test_dna.choose_provider(self.test_dna.vps), 'provider2')
 
 
 if __name__ == '__main__':

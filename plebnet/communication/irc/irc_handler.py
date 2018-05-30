@@ -6,6 +6,7 @@ import os
 import subprocess
 
 from plebnet.utilities import logger
+from plebnet.communication.irc import ircbot
 
 #TODO alle bestandspaden in 1 file, vanuit daar vervolgens inladen --> improved maintainability
 PLEBNET_HOME = os.path.expanduser("~/PlebNet")
