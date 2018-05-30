@@ -13,13 +13,13 @@ import os
 from appdirs import user_config_dir
 
 from cloudomate import wallet as wallet_util
-from cloudomate.wallet import TriblerWallet
 from cloudomate.cmdline import providers as cloudomate_providers
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
 
 from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
+from plebnet.controllers.wallet_controller import TriblerWallet
 from plebnet.settings import plebnet_settings
 from plebnet.utilities import logger, fake_generator
 from plebnet.agent.dna import DNA

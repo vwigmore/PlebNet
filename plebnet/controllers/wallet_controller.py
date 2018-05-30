@@ -6,6 +6,8 @@ If Electrum alters its call methods, this should be the only file which needs to
 """
 
 import os
+import json
+import subprocess
 import tribler_controller as triblercontroller
 import market_controller as marketcontroller
 import plebnet.settings.plebnet_settings as plebnet_settings
@@ -47,5 +49,53 @@ def create_wallet(wallet_type):
         return False
 
 
+class TriblerWallet(object):
+    """
+    This class expects Tribler to be running and uses the wallet created via Tribler.
+    Either an TBTC or an BTC wallet.
+    """
 
+    def __init__(self, testnet=None):
+        if testnet:
+            self.coin = 'TBTC'
+        else:
+            self.coin = 'BTC'
 
+    def get_balance(self):
+        """
+        Returns the balance of the current wallet
+        :return: the balance
+        """
+        data = ['curl', '-X', 'GET', 'http://localhost:8085/wallets/' + self.coin + '/balance']
+
+        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
+        available = json.loads(response)['balance']['available']
+        return float(available)
+
+    def pay(self, address, amount, fee=None):
+        """
+
+        :param address: the address of the receiver
+        :param amount: the amount to be sent excluding fee
+        :param fee: the fee to be used, 0 if None
+        :return: the transaction hash
+        """
+
+        tx_fee = 0 if fee is None else fee
+
+        if self.get_balance() < amount + tx_fee:
+            print('Not enough funds')
+            return
+
+        data = ['curl', '-X', 'POST', 'http://localhost:8085/wallets/' + self.coin + '/transfer',
+                '--data', 'amount=' + str(amount + tx_fee) + '&destination=' + address]
+
+        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
+
+        if not response:
+            print('Transaction unsuccessfull')
+        else:
+            print('Transaction successful')
+            transaction_hash = json.loads(response)['txid']
+            print(transaction_hash)
+            return transaction_hash
