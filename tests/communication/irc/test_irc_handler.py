@@ -56,8 +56,8 @@ class TestIRCbot(unittest.TestCase):
         success = irc_handler.restart_irc_client()
         self.assertFalse(success)
 
-        success = irc_handler.status_irc_client()
-        self.assertFalse(success)
+        # success = irc_handler.status_irc_client()
+        # self.assertFalse(success)
 
 
 if __name__ == '__main__':
