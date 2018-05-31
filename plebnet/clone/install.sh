@@ -78,8 +78,9 @@ echo "Install Crypto, pynacl, libsodium"
 apt-get install -y python-cryptography \
 python-nacl \
 python-libnacl \
-python-socks \
 keyrings.alt
+
+# python-socks needed? It's going to be installed by pip later
 
 apt-get install -y build-essential libssl-dev libffi-dev python-dev software-properties-common
 pip install cryptography
