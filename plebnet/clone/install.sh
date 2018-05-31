@@ -91,7 +91,8 @@ pip install libnacl
 add-apt-repository -y ppa:chris-lea/libsodium;
 echo "deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
 echo "deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
-apt-get update && apt-get install -y libsodium-dev;
+apt-get update
+apt-get install -y libsodium-dev;
 
 # Update pip to avoid locale errors in certain configurations
 #echo "upgrading pip"
