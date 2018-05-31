@@ -30,12 +30,12 @@ apt-get install openssl
 
 # Reinstall pip
 apt-get remove --purge python-pip
-wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 pip install -U pip wheel setuptools
 
-(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
+#(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
 
 # Fix paths
 echo "fixing path"
