@@ -29,13 +29,14 @@ apt-get update
 apt-get install openssl
 apt-get install -y python-pip
 
-# Fix paths
-PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin
-export PATH
-
 pip install -U pip wheel setuptools
 
 (echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
+
+# Fix paths
+echo "fixing path"
+(echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
+(echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
 
 # Install dependencies
 apt-get install -y \
