@@ -69,7 +69,7 @@ def get_ip(provider):
 def setrootpw(provider, password):
     settings = child_account()
     settings.put('server', 'root_password', password)
-    return provider.set_rootpw(settings)
+    return #provider.set_rootpw(settings)
 
 
 def options(provider):
