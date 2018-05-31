@@ -27,7 +27,11 @@ apt-get update
 # && apt-get -y upgrade
 
 apt-get install openssl
-apt-get install -y python-pip
+
+# Reinstall pip
+apt-get remove --purge python-pip
+wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+python get-pip.py
 
 pip install -U pip wheel setuptools
 
