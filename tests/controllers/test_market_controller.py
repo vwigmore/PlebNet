@@ -34,19 +34,19 @@ class TestMarketController(unittest.TestCase):
      self.assertEqual(Market.bids(), [{'test': 'true'}])
 
  @responses.activate
- def test_get_mb_balance(self):
+ def test_get_balance(self):
     self.true_logger = logger.log
     logger.log = MagicMock(return_value='Test')
     responses.add(responses.GET, 'http://localhost:8085/wallets/MB/balance',
               json={'balance': {'available': 0.02, 'pending': 0.0, 'currency': 'MB'}})
-    r = Market.get_mb_balance()
+    r = Market.get_balance('MB')
     self.assertEqual(r, 0.02)
     logger.log = self.true_logger
 
- def test_get_mb_balance_no_connection(self):
+ def test_get_balance_no_connection(self):
      self.true_logger = logger.log
      logger.log = MagicMock(return_value='Test')
-     self.assertFalse(Market.get_mb_balance())
+     self.assertFalse(Market.get_balance('MB'))
      logger.log = self.true_logger
 
  def test_put_ask(self):

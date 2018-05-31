@@ -106,11 +106,22 @@ class Init(object):
 
     def github_active(self, value=None): return self.settings.handle("github", "active", value) == "1"
 
+    """"THE ATTRIBUTE METHODS FOR THE WALLETS SECTION"""
+    
+    def wallets_testnet_created(self, value=None): return self.settings.handle("wallets", "testnet_created", value) == "1"
+
+    def wallets_testnet(self, value=None): return self.settings.handle("wallets", "testnet", value) == "1"
+
+    def wallets_initiate_once(self, value=None): return self.settings.handle("wallets", "initiate_once", value) == "1"
+
+    def wallets_password(self, value=None): return self.settings.handle("wallets", "password", value)
+
     """THE ATTRIBUTE METHODS FOR THE ACTIVE SECTION"""
 
     def active_verbose(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
 
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
+
 
 
 def store(args):

@@ -109,16 +109,16 @@ class DNA:
             dictionary[item] /= length
         return dictionary
 
-    def choose(self):
-        self.normalize()
-        provider = self.choose_provider(self.vps)
-        self.denormalize()
-        dictionary = self.exclude(provider)
-        dictionary = self.normalize_excluded(dictionary)
-        provider2 = None
-        while not provider2:
-            provider2 = self.choose_provider(dictionary)
-        return provider, provider2
+    # def choose(self):
+    #     self.normalize()
+    #     provider = self.choose_provider(self.vps)
+    #     self.denormalize()
+    #     dictionary = self.exclude(provider)
+    #     dictionary = self.normalize_excluded(dictionary)
+    #     provider2 = None
+    #     while not provider2:
+    #         provider2 = self.choose_provider(dictionary)
+    #     return provider, provider2
 
     def positive_evolve(self, provider):
         self.normalize()
@@ -136,15 +136,12 @@ class DNA:
         self.dictionary['Self'] = provider
         self.write_dictionary()
 
+    def get_own_provider(self):
+        return self.dictionary['Self']
 
-# TODO: Move to DNA, this is not a static method....
-def get_own_provider(dna):
-    return dna.dictionary['Self']
-
-
-# TODO: Move to DNA, this is not a static method....
-def evolve(provider, dna, success):
-    if success:
-        dna.positive_evolve(provider)
-    else:
-        dna.negative_evolve(provider)
+    def evolve(self, success):
+        provider = self.get_own_provider()
+        if success:
+            self.positive_evolve(provider)
+        else:
+            self.negative_evolve(provider)
