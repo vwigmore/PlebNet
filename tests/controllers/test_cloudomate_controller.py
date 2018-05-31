@@ -94,16 +94,20 @@ class TestCloudomateController(unittest.TestCase):
 
     def test_options(self):
         self.provider = blueAngel.BlueAngelHost.get_options
+
         blueAngel.BlueAngelHost.get_options = MagicMock()
         cloudomate.options(blueAngel.BlueAngelHost)
         blueAngel.BlueAngelHost.get_options.assert_called_once()
+
         blueAngel.BlueAngelHost.get_options = self.provider
 
     def test_get_network_fee(self):
         self.wallet_util = wallet_util.get_network_fee
+
         wallet_util.get_network_fee = MagicMock()
         cloudomate.get_network_fee()
         wallet_util.get_network_fee.assert_called_once()
+
         wallet_util.get_network_fee = self.wallet_util
 
     def test_pick_providers(self):
@@ -207,6 +211,9 @@ class TestCloudomateController(unittest.TestCase):
         Logger.log = MagicMock()
         market.get_balance = MagicMock(return_value=0)
         self.assertFalse(cloudomate.place_offer(5, PlebNetConfig()))
+
+        market.get_balance = self.mb
+        Logger.log = self.logger
 
     def test_place_offer(self):
         self.mb = market.get_balance
