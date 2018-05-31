@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>install_$(date +'%Y%m%dT%H%M%S').log 2>&1
+
 #
 # This file is called from the parent node together with the rest of the files from GitHub.
 #
@@ -24,7 +28,14 @@ apt-get update
 
 apt-get install openssl
 apt-get install -y python-pip
+
+# Fix paths
+PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin
+export PATH
+
 pip install -U pip wheel setuptools
+
+(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
 
 # Install dependencies
 apt-get install -y \
@@ -76,16 +87,16 @@ else
 fi
 
 # Update pip to avoid locale errors in certain configurations
-echo "upgrading pip"
-LC_ALL=en_US.UTF-8 pip install --upgrade pip
-echo "done upgrading pip"
+#echo "upgrading pip"
+#LC_ALL=en_US.UTF-8 pip install --upgrade pip
+#echo "done upgrading pip"
 
 pip install pyaes psutil
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b master https://github.com/vwigmore/PlebNet
-[ ! -d "Cloudomate" ] && git clone -b master https://github.com/codesalad/Cloudomate
-python -m pip install --upgrade ./Cloudomate
+[ ! -d "PlebNet" ] && git clone -b fix_installs https://github.com/vwigmore/PlebNet
+[ ! -d "cloudomate" ] && git clone -b master https://github.com/codesalad/cloudomate
+python -m pip install --upgrade ./cloudomate
 python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
