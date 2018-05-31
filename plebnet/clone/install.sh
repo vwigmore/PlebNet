@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-exec 3>&1 4>&2
-trap 'exec 2>&4 1>&3' 0 1 2 3
-exec 1>install_$(date +'%Y%m%dT%H%M%S').log 2>&1
+#exec 3>&1 4>&2
+#trap 'exec 2>&4 1>&3' 0 1 2 3
+#exec 1>install_$(date +'%Y%m%dT%H%M%S').log 2>&1
 
 #
 # This file is called from the parent node together with the rest of the files from GitHub.
@@ -49,6 +49,7 @@ apt-get install -y \
     python-crypto \
     python-pyasn1 \
     python-twisted \
+    python-meliae \
     python-libtorrent \
     python-apsw \
     python-chardet \
