@@ -51,4 +51,4 @@ echo "Installing PlebNet"
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'apt-get install -y git && \
     git clone -b fix_installs https://github.com/vwigmore/PlebNet && \
     chmod +x PlebNet/plebnet/clone/install.sh && \
-    cd PlebNet && ./plebnet/clone/install.sh'
+    cd PlebNet && ./plebnet/clone/install.sh | tee install_log_$1.log'
