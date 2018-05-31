@@ -1,6 +1,5 @@
 import json
 import subprocess
-import responses
 import requests
 import unittest
 
@@ -41,26 +40,45 @@ class TestWalletController(unittest.TestCase):
         marketcontroller.is_market_running = MagicMock(return_value=False)
         self.assertFalse(walletcontroller.create_wallet('TBTC'))
 
-    # @responses.activate
-    # def test_create_wallet_true(self):
-    #     responses.add(responses.PUT, 'http://localhost:8085/wallet/TBTC', json={'created': True})
-    #     assert walletcontroller.create_wallet('TBTC')
+    def test_create_wallet_true(self):
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
 
-    # @responses.activate
-    # def test_create_wallet_already_created(self):
-    #     responses.add(responses.PUT, 'http://localhost:8085/wallet/TBTC', json={'error': 'this wallet already exists'})
-    #     assert walletcontroller.create_wallet('TBTC')
+        subprocess.Popen.communicate = MagicMock()
 
-    # @responses.activate
-    # def test_create_wallet_different_error(self):
-    #     responses.add(responses.PUT, 'http://localhost:8085/wallet/TBTC', json={'error': 'unspecified error'})
-    #     self.assertFalse(walletcontroller.create_wallet('TBTC'))
+        json.loads = MagicMock(return_value= 'created')
+        assert walletcontroller.create_wallet('TBTC')
 
-    # def test_create_wallet_error(self):
-    #     self.requests = requests.put
-    #     requests.put = MagicMock(side_effect=requests.ConnectionError)
-    #     self.assertFalse(walletcontroller.create_wallet('TBTC'))
-    #     requests.put = self.requests
+        json.loads = self.json
+        subprocess.Popen.communicate = self.popen
+
+    def test_create_wallet_already_created(self):
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
+        json.loads = MagicMock(return_value={'error': 'this wallet already exists'})
+
+        assert walletcontroller.create_wallet('TBTC')
+
+        json.loads = self.json
+        subprocess.Popen.communicate = self.popen
+
+    def test_create_wallet_different_error(self):
+        self.popen = subprocess.Popen.communicate
+        self.json = json.loads
+        json.loads = MagicMock(return_value={'error': 'unspecified error'})
+
+        self.assertFalse(walletcontroller.create_wallet('TBTC'))
+
+        json.loads = self.json
+        subprocess.Popen.communicate = self.popen
+
+    def test_create_wallet_error(self):
+        self.popen = subprocess.Popen.communicate
+        subprocess.Popen.communicate = MagicMock(side_effect=requests.ConnectionError)
+
+        self.assertFalse(walletcontroller.create_wallet('TBTC'))
+
+        subprocess.Popen.communicate = self.popen
 
     def test_tribler_wallet_constructor(self):
         r = walletcontroller.TriblerWallet()
