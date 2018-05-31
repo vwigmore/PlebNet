@@ -7,7 +7,9 @@ from plebnet.settings import plebnet_settings
 from plebnet.agent import core as agent
 
 
-def execute(cmd=sys.argv[1:2]):
+def execute(cmd=None):
+    if not cmd : cmd = sys.argv[1:2]
+
     parser = ArgumentParser(description="Plebnet - a working-class bot")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -31,26 +33,30 @@ def execute(cmd=sys.argv[1:2]):
     parser_list = subparsers.add_parser("test", help="allows testing certain functionalities")
     parser_list.set_defaults(func=execute_test)
 
-
     args = parser.parse_args(cmd)
     args.func()
 
 
-def execute_setup(cmd=sys.argv[2:]):
+def execute_setup(cmd=None):
+    if not cmd: cmd = sys.argv[2:3]
+
     parser = ArgumentParser(description="setup thingies")
     parser.add_argument('-test', action='store_true', default=False,
                   dest='test_net',
-                  help='Use test net instead of BTC')
+                  help='Use TBTC instead of BTC')
     args = parser.parse_args(cmd)
 
     agent.setup(args)
 
 
-def execute_check(cmd=sys.argv[2:]):
+def execute_check(cmd=None):
+
     agent.check()
 
 
-def execute_test(cmd=sys.argv[2:3]):
+def execute_test(cmd=None):
+    if not cmd: cmd = sys.argv[2:3]
+
     parser = ArgumentParser(description="allows testing certain functionalities")
     subparsers = parser.add_subparsers(dest="command", title="functionality")
 
@@ -61,29 +67,35 @@ def execute_test(cmd=sys.argv[2:3]):
     args.func()
 
 
-def test_git_issuer(cmd=sys.argv[3:]):
+def test_git_issuer(cmd=None):
+
     git_issuer.send("This is a test issue", "used to provide test information")
 
 
-def execute_conf(cmd=sys.argv[2:3]):
+def execute_conf(cmd=None):
+    if not cmd: cmd = sys.argv[2:3]
+
     parser = ArgumentParser(description="allows changing the configuration files")
     subparsers = parser.add_subparsers(dest="command", title="files")
 
     parser_secure = subparsers.add_parser("setup", help='this is no help')
-    parser_secure.set_defaults(func=conf_secure)
+    parser_secure.set_defaults(func=conf_setup)
 
     args = parser.parse_args(cmd)
     args.func()
 
 
-def conf_secure(cmd=sys.argv[3:]):
+def conf_setup(cmd=None):
+    if not cmd: cmd = sys.argv[3:]
+
     parser = ArgumentParser(description="allow changing the configuration files for logging in")
     #irc section
-    parser.add_argument('-ic', '--irc_channel', help='Set the irc channel to use')
-    parser.add_argument('-is', '--irc_server',  help='Set the irc server to use')
-    parser.add_argument('-ip', '--irc_port',    help='Set the irc server port to use')
-    parser.add_argument('-in', '--irc_nick',    help='Set the irc nickname to use')
-    parser.add_argument('-it', '--irc_timeout', help='Set the irc heartbeat timeout to use')
+    parser.add_argument('-ic',  '--irc_channel',  help='Set the irc channel to use')
+    parser.add_argument('-is',  '--irc_server',   help='Set the irc server to use')
+    parser.add_argument('-ip',  '--irc_port',     help='Set the irc server port to use')
+    parser.add_argument('-in',  '--irc_nick',     help='Set the irc nickname to use')
+    parser.add_argument('-ind', '--irc_nick_def', help='Set the irc nickname to use')
+    parser.add_argument('-it',  '--irc_timeout',  help='Set the irc heartbeat timeout to use')
     #github section
     parser.add_argument('-gu', '--github_username', help='Set this username')
     parser.add_argument('-gp', '--github_password', help='Set this password')
@@ -99,7 +111,9 @@ def conf_secure(cmd=sys.argv[3:]):
     plebnet_settings.store(args)
 
 
-def execute_irc(cmd=sys.argv[2:]):
+def execute_irc(cmd=None):
+    if not cmd: cmd = sys.argv[2:]
+
     parser = ArgumentParser(description="irc thingies")
 
     subparsers = parser.add_subparsers(dest="command")

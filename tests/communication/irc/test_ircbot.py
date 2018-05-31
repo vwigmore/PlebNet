@@ -1,38 +1,99 @@
-# import unittest
-#
-# import irc.client
-#
-# from plebnet.communication import ircbot
-# from plebnet.settings import setup_settings
-#
-#
-# class TestIRCbot(unittest.TestCase):
-#
-#     def get_irc_channel(self): return self.settings.get("irc", "channel")
-#
-#     def get_irc_server(self): return self.settings.get("irc", "server")
-#
-#     def get_irc_port(self): return int(self.settings.get("irc", "port"))
-#
-#     def get_irc_nick(self): return self.settings.get("irc", "nick")
-#
-#     def get_irc_timeout(self): return int(self.settings.get("irc", "timeout"))
-#
-#     def setUp(self):
-#         self.irc_settings = setup_settings.Init()
-#         self.temp_server = self.irc_settings.get_irc_server()
-#         self.irc_settings.set_irc_server()
-#
-#     def tearDown(self):
-#         self.irc_settings = setup_settings.Init()
-#
-#
-#     @unittest.mock.patch('irc.connection.socket')
-#     def test_init(self):
-#         DNA().add_provider("provider1")
-#         self.assertEqual(DNA().vps, {'provider1': 0.5})
-#
-#
-#
-# if __name__ == '__main__':
-#     unittest.main()
+import unittest
+
+from plebnet.communication.irc import ircbot
+from plebnet.settings import plebnet_settings
+
+
+line_join = "376 " + plebnet_settings.get_instance().irc_nick()
+line_ping = "PING 1234"
+line_host = "a b c :!host"
+line_alive = "a b c :!alive"
+line_error = "a b c :!error"
+
+reply_join = "JOIN"
+reply_host = "My host is : "
+reply_ping = "PONG 1234"
+reply_alive = "I am alive, for"
+reply_error = "A error occurred in IRCbot"
+reply_heart = "IRC is still running - alive for"
+
+
+class TestIRCbot(unittest.TestCase):
+
+    msgs = None
+    plebnet_settings.get_instance().active_logger("0")
+    plebnet_settings.get_instance().active_verbose("0")
+    plebnet_settings.get_instance().github_active("0")
+
+    def setUp(self):
+        global msgs
+        # store originals
+        self.original_run = ircbot.Create.run
+        self.original_init_irc = ircbot.Create.init_irc
+        # modify
+        ircbot.Create.run = self.skip
+        ircbot.Create.init_irc = self.skip
+        # create instance with modified properties
+        self.instance = ircbot.Create()
+        self.instance.irc = self.irc_server()
+        # empty the send messages
+        msgs = []
+
+    def tearDown(self):
+        # restore originals
+        ircbot.Create.send_run = self.original_run
+        ircbot.Create.init_irc = self.original_init_irc
+
+    """ USED FOR REPLACEMENTS """
+
+    def append_msg(self, msg): msgs.append(msg)
+
+    def skip(self): pass
+
+    class irc_server(object):
+        def __init__(self):
+            pass
+
+        def recv(self, x=None):
+            return ""
+
+        def send(self, msg):
+            msgs.append(msg)
+
+    """ THE ACTUAL TESTS """
+
+    def test_handle_lines_ping(self):
+        self.instance.handle_line(line_ping)
+        self.assertIn(reply_ping, msgs[0])
+
+    def test_handle_lines_host(self):
+        self.instance.handle_line(line_host)
+        self.assertIn(reply_host, msgs[0])
+
+    def test_keep_running(self):
+        msg = "%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
+        self.instance.keep_running(str(msg))
+        self.assertIn(reply_join, msgs[0])
+        self.assertIn(reply_ping, msgs[1])
+        self.assertIn(reply_host, msgs[2])
+        self.assertIn(reply_error, msgs[3])
+        msg = "%s\r\n" % (line_alive)
+        self.instance.keep_running(str(msg))
+        self.assertIn(reply_alive, msgs[4])
+
+    def test_heartbeat(self):
+        self.instance.last_beat = 0
+        self.instance.timeout = 1000 # large enough for no second heartbeat
+        self.instance.heartbeat()
+        self.assertIn(reply_heart, msgs[0])
+        self.assertEqual(len(msgs), 1)
+        # only send once
+        self.assertNotEqual(self.instance.last_beat, 0)
+        self.instance.heartbeat()
+        self.assertEqual(len(msgs), 1)
+
+    # def test_error(self):
+
+
+if __name__ == '__main__':
+    unittest.main()

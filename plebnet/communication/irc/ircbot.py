@@ -5,7 +5,6 @@ This file is used to setup and maintain a connection with an IRC server.
 """
 
 import traceback
-import random
 import socket
 import time
 import sys
@@ -31,9 +30,6 @@ class Create(object):
         self.channel = settings.irc_channel()
         self.port = settings.irc_port()
 
-        if settings.irc_nick() == settings.irc_nick_def():
-            settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
-
         self.nick = settings.irc_nick()
         self.ident = "plebber"
         self.gecos = "Plebbot version 2.14"
@@ -51,7 +47,7 @@ class Create(object):
         self.add_response("joke", self.msg_joke)
 
         # start running the IRC server
-        logger.log("start running an IRC connection on " + self.server + " " + self.channel)
+        self.init_irc()
         self.run()
 
     def add_response(self, command, response):
@@ -66,6 +62,19 @@ class Create(object):
         """
         self.responses[":!" + command] = response
 
+    def init_irc(self):
+        try:
+            logger.log("start running an IRC connection on " + self.server + " " + self.channel)
+            self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.irc.connect((self.server, self.port))
+        except:
+            title = "A error occurred in IRCbot init_irc %s" % sys.exc_info()[0]
+            body = traceback.format_exc()
+            logger.error(title)
+            logger.error(body)
+            git_issuer.handle_error(title, body)
+            git_issuer.handle_error("A error occurred in IRCbot", sys.exc_info()[0], ['crash'])
+
     def run(self):
         """
         This method keeps listening to the server for incomming messages and processes them.
@@ -73,21 +82,11 @@ class Create(object):
         :rtype:
         """
 
+        self.send("NICK %s" % self.nick)
+        self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
+        self.heartbeat()
+
         buffer = ""
-
-        try:
-            self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.irc.connect((self.server, self.port))
-            # init the contact
-            self.send("NICK %s" % self.nick)
-            self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
-
-            self.heartbeat()
-        except:
-            # git_issuer("A error occurred in IRCbot", sys.exc_info()[0], ['crash'])
-            logger.error("An error occurred at server connectionthe IRC")
-            logger.error(traceback.format_exc())
-
         while 1:
             buffer = self.keep_running(buffer)
 
@@ -112,7 +111,7 @@ class Create(object):
             body = traceback.format_exc()
             logger.error(title)
             logger.error(body)
-            git_issuer.send(title, body, ['crash'])
+            git_issuer.handle_error(title, body)
             self.irc.send(title)
 
         return buffer
@@ -125,6 +124,8 @@ class Create(object):
         """
         timer = time.time()
         elapsed_time = timer - self.last_beat
+        print(elapsed_time, self.timeout)
+
 
         if elapsed_time > self.timeout:
             self.last_beat = timer
@@ -182,9 +183,7 @@ class Create(object):
 
     def msg_init(self): self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
-    def msg_error(self):
-        print("hier maken we een error")
-        self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
+    def msg_error(self): self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
 
     def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 

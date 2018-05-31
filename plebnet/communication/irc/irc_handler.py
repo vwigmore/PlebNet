@@ -44,8 +44,8 @@ def start_irc_client(args=None):
     This method starts the IRC client deamon
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
-    :return: None
-    :rtype: None
+    :return: the exitcode of the call
+    :rtype: exitcode
     """
     logger.log("the IRC client is starting", "start_irc_client")
 
@@ -99,4 +99,4 @@ def status_irc_client(args=None):
     :rtype: None
     """
 
-    subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)
+    return subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)

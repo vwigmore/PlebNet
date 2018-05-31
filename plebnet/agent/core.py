@@ -6,6 +6,7 @@ A package which handles the main behaviour of the plebbot:
 """
 
 import os
+import random
 import subprocess
 import time
 
@@ -34,7 +35,7 @@ def setup(args):
 
     fake_generator.generate_child_account()
 
-    # TODO: change --> Prepare plebnet
+    settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
     config.save()

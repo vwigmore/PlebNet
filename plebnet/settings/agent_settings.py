@@ -10,15 +10,24 @@ The file it self can be found in the PATH_TO_FILE location.
 
 # Total imports
 import os
-
 # Partial imports
-
+from appdirs import user_config_dir, user_data_dir
+from shutil import copy2 as copy
 # Local imports
 from plebnet.settings import setting
 
 # File parameters
-PATH_TO_FILE = "plebnet/settings/configuration/agent.cfg"
+file_name = 'agent_setup.cfg'
 
+conf_path = user_config_dir()
+data_path = user_data_dir()
+init_path = os.path.join(os.path.expanduser("~/PlebNet"), 'plebnet/settings/configuration')
+
+init_file = os.path.join(init_path, file_name)
+conf_file = os.path.join(conf_path, file_name)
+
+
+# TODO: extend settings: prevent double code with plebnet_settings
 def get_instance():
     global instance
     if not instance:
@@ -26,20 +35,27 @@ def get_instance():
     return instance
 
 
+def store(args):
+    get_instance()
+    for arg in vars(args):
+        if (arg in dir(instance)) and getattr(args, arg):
+            getattr(instance, arg)(str(getattr(args, arg)))
+    instance.settings.write()
+
+
 class AgentSettings(object):
 
     def __init__(self):
-        self.filename = os.path.join(os.path.expanduser("~/PlebNet"), PATH_TO_FILE)
-        self.settings = setting.Settings(self.filename)
-        self.settings.load()
+        # file does not exist --> copy the initial file
+        if not os.path.isfile(conf_file):
+            copy(init_file, conf_path)
 
-    """ GET AGENT  """
+        self.settings = setting.Settings(conf_file)
 
-    def get_uploaded(self): return self.settings.get("data", "uploaded")
+    """ THE ATTRIBUTE METHODS FOR THE SELF SECTION """
 
-    """ SERVER DETAILS """
+    def self_id(self, value=None): return self.settings.handle("self", "id", value)
 
-    """ CLONE DETAILS """
 
 # {'child_index': 0,
 #                        'expiration_date': 0,
