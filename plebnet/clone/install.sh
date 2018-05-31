@@ -100,7 +100,7 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b fix_installs https://github.com/vwigmore/PlebNet
+[ ! -d "PlebNet" ] && git clone -b master-dev https://github.com/vwigmore/PlebNet
 [ ! -d "cloudomate" ] && git clone -b master https://github.com/codesalad/cloudomate
 python -m pip install --upgrade ./cloudomate
 python -m pip install --upgrade ./PlebNet
