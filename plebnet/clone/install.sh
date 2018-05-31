@@ -71,8 +71,16 @@ apt-get install -y \
     git \
     python-lxml
 
+pip install pyaes psutil
+pip install -U pyopenssl
 
-echo "Install crypto"
+echo "Install Crypto, pynacl, libsodium"
+apt-get install -y python-cryptography \
+python-nacl \
+python-libnacl \
+python-socks \
+keyrings.alt
+
 apt-get install -y build-essential libssl-dev libffi-dev python-dev software-properties-common
 pip install cryptography
 pip install pynacl
@@ -84,19 +92,10 @@ echo "deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /e
 echo "deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main" >> /etc/apt/sources.list;
 apt-get update && apt-get install -y libsodium-dev;
 
-apt-get install -y python-cryptography \
-python-nacl \
-python-libnacl \
-python-socks \
-keyrings.alt
-
 # Update pip to avoid locale errors in certain configurations
 #echo "upgrading pip"
 #LC_ALL=en_US.UTF-8 pip install --upgrade pip
 #echo "done upgrading pip"
-
-pip install pyaes psutil
-pip install -U pyopenssl
 
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b fix_installs https://github.com/vwigmore/PlebNet
