@@ -33,7 +33,7 @@ apt-get remove --purge python-pip
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
-pip install -U pip wheel setuptools
+pip install -U wheel setuptools
 
 #(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
 
@@ -95,7 +95,7 @@ keyrings.alt
 #LC_ALL=en_US.UTF-8 pip install --upgrade pip
 #echo "done upgrading pip"
 
-pip install pyaes psutil
+pip install pyaes psutil pyopenssl
 
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b fix_installs https://github.com/vwigmore/PlebNet
