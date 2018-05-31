@@ -26,6 +26,8 @@ apt-get update
 # Requiring manual configuration after installation
 # && apt-get -y upgrade
 
+apt-get install python
+
 apt-get install openssl
 
 # Reinstall pip
