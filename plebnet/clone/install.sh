@@ -95,7 +95,8 @@ keyrings.alt
 #LC_ALL=en_US.UTF-8 pip install --upgrade pip
 #echo "done upgrading pip"
 
-pip install pyaes psutil pyopenssl
+pip install pyaes psutil
+pip install -U pyopenssl
 
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b fix_installs https://github.com/vwigmore/PlebNet
