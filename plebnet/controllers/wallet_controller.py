@@ -31,7 +31,7 @@ def create_wallet(wallet_type):
         return False
     try:
         data = {'password': settings.wallets_password()}
-        r = requests.put('http://localhost:8085/wallet/' + wallet_type, data=data)
+        r = requests.put('http://localhost:8085/wallets/' + wallet_type, data=data)
         message = r.json()
         if 'created' in message:
             logger.log("Wallet created successfully", "create_wallet")
