@@ -102,11 +102,15 @@ apt-get install -y libsodium-dev;
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b master-dev https://github.com/vwigmore/PlebNet
 #[ ! -d "cloudomate" ] && git clone -b master https://github.com/codesalad/cloudomate
-python -m pip install --upgrade ./cloudomate
+# python -m pip install --upgrade ./cloudomate
 python -m pip install --upgrade ./PlebNet
 cd PlebNet
 git submodule update --init --recursive tribler
 pip install ./tribler/electrum
+
+git submodule update --init --recursive cloudomate
+pip install ./cloudomate
+
 cd /root
 plebnet setup -test >> plebnet.log 2>&1
 
