@@ -6,14 +6,16 @@ This file is used to setup and maintain a connection with an IRC server.
 
 import traceback
 import socket
+import random
 import time
 import sys
 
 # as the file is loaded separately, the imports have to be fixed
 sys.path.append('./PlebNet')
+from plebnet.communication import git_issuer
+from plebnet.controllers import wallet_controller
 from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
-from plebnet.communication import git_issuer
 
 
 class Create(object):
@@ -40,11 +42,17 @@ class Create(object):
 
         # prep reply functions
         self.responses = {}
-        self.add_response("alive", self.msg_alive)
-        self.add_response("error", self.msg_error)
-        self.add_response("host", self.msg_host)
-        self.add_response("init", self.msg_init)
-        self.add_response("joke", self.msg_joke)
+        self.add_response("alive",       self.msg_alive)
+        self.add_response("error",       self.msg_error)
+        self.add_response("host",        self.msg_host)
+        self.add_response("init",        self.msg_init)
+        self.add_response("joke",        self.msg_joke)
+        self.add_response("MB_wallet",   self.msg_MB_balance)
+        self.add_response("BTC_wallet",  self.msg_BTC_balance)
+        self.add_response("TBTC_wallet", self.msg_TBTC_balance)
+        self.add_response("MB_balance",   self.msg_MB_balance)
+        self.add_response("BTC_balance",  self.msg_BTC_balance)
+        self.add_response("TBTC_balance", self.msg_TBTC_balance)
 
         # start running the IRC server
         self.init_irc()
@@ -151,6 +159,15 @@ class Create(object):
             st = "PONG %s" % words[1]
             self.send(st)
 
+        # server status 433 --> nickname is already in use, so we chose a new one
+        elif line.find("433 * " + self.nick) != -1:
+            settings = plebnet_settings.get_instance()
+            settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
+            self.nick = settings.irc_nick()
+
+            self.send("NICK %s" % self.nick)
+            self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
+
         # server status 376 and 422 means ready to join a channel
         elif line.find("376 " + self.nick) != -1 or line.find("422 " + self.nick) != -1:
             st = "JOIN " + self.channel
@@ -188,6 +205,18 @@ class Create(object):
         self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
 
     def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
+
+    def msg_MB_wallet(self): self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_Wallet())
+
+    def msg_BTC_wallet(self): self.send_msg("My BTC wallet is: %s" % wallet_controller.get_BTC_Wallet())
+
+    def msg_TBTC_wallet(self): self.send_msg("My TBTC wallet is: %s" % wallet_controller.get_TBTC_Wallet())
+
+    def msg_MB_balance(self): self.send_msg("My MB balance is: %s" % wallet_controller.get_MB_balance())
+
+    def msg_BTC_balance(self): self.send_msg("My BTC balance is: %s" % wallet_controller.get_BTC_balance())
+
+    def msg_TBTC_balance(self): self.send_msg("My TBTC balance is: %s" % wallet_controller.get_TBTC_balance())
 
 
 # init the bot when this file is run

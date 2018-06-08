@@ -64,5 +64,6 @@ class Settings(object):
             print('\033[91m %s not found in sections : %s \033[0m' % (section, self.settings.sections()))
         if value:
             self.settings.set(section, name, value)
+            self.write()
         else:
             return self.settings.get(section, name)

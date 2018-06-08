@@ -123,6 +123,10 @@ class Init(object):
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
 
 
+def write():
+    get_instance()
+    instance.settings.write()
+
 
 def store(args):
     get_instance()
