@@ -100,21 +100,16 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b master-dev https://github.com/vwigmore/PlebNet
+[ ! -d "PlebNet" ] && git clone -b master-dev --recurse-submodules https://github.com/vwigmore/PlebNet
 
 python -m pip install --upgrade ./PlebNet
 
 cd PlebNet
-
-git submodule update --init --recursive cloudomate
 pip install ./cloudomate
-
-
-git submodule update --init --recursive tribler
 pip install ./tribler/electrum
 
 cd /root
 plebnet setup -test >> plebnet.log 2>&1
 
-#cron plebnet check
-#echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+cron plebnet check
+echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
