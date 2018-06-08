@@ -60,6 +60,9 @@ def check():
     """
     global config, dna
 
+    if settings.wallets_testnet_created():
+        os.environ['TESTNET'] = '1'    
+
     logger.log("Checking PlebNet", log_name)
     config = PlebNetConfig()
 
