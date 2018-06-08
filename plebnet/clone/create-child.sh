@@ -48,7 +48,6 @@ sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecki
     apt-get install -y ca-certificates'
 
 echo "Installing PlebNet"
-sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'apt-get install -y git && \
-    git clone -b wallet_fix https://github.com/vwigmore/PlebNet && \
-    chmod +x PlebNet/plebnet/clone/install.sh && \
-    cd PlebNet && ./plebnet/clone/install.sh | tee install_log_$1.log'
+sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'wget https://github.com/vwigmore/PlebNet/raw/plebnet/clone/install.sh && \
+    chmod +x install.sh && \
+    ./install.sh | tee install_log_$1.log'
