@@ -100,7 +100,7 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b wallet_fix https://github.com/vwigmore/PlebNet
+[ ! -d "PlebNet" ] && git clone -b master-dev https://github.com/vwigmore/PlebNet
 
 python -m pip install --upgrade ./PlebNet
 
