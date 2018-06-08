@@ -112,7 +112,7 @@ class Create(object):
             logger.error(title)
             logger.error(body)
             git_issuer.handle_error(title, body)
-            self.irc.send(title)
+            self.send_msg(title)
 
         return buffer
 
@@ -183,7 +183,9 @@ class Create(object):
 
     def msg_init(self): self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
-    def msg_error(self): self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
+    def msg_error(self):
+        self.send_msg("Let me create an error ...")
+        self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
 
     def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 
