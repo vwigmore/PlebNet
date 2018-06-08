@@ -47,9 +47,9 @@ class Create(object):
         self.add_response("host",        self.msg_host)
         self.add_response("init",        self.msg_init)
         self.add_response("joke",        self.msg_joke)
-        self.add_response("MB_wallet",   self.msg_MB_balance)
-        self.add_response("BTC_wallet",  self.msg_BTC_balance)
-        self.add_response("TBTC_wallet", self.msg_TBTC_balance)
+        self.add_response("MB_wallet",   self.msg_MB_wallet)
+        self.add_response("BTC_wallet",  self.msg_BTC_wallet)
+        self.add_response("TBTC_wallet", self.msg_TBTC_wallet)
         self.add_response("MB_balance",   self.msg_MB_balance)
         self.add_response("BTC_balance",  self.msg_BTC_balance)
         self.add_response("TBTC_balance", self.msg_TBTC_balance)
@@ -193,7 +193,7 @@ class Create(object):
     These methods are used to determine the response to received commands
     """
     def msg_alive(self):
-        time_str = time.strftime("%H:%M:%S", time.gmtime(time.time() - self.init_time))
+        time_str = time.strftime("%j days + %H:%M:%S", time.gmtime(time.time() - self.init_time))
         self.send_msg("I am alive, for %s" % time_str)
 
     def msg_host(self): self.send_msg("My host is : %s" % plebnet_settings.get_instance().vps_host())
@@ -206,11 +206,11 @@ class Create(object):
 
     def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 
-    def msg_MB_wallet(self): self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_Wallet())
+    def msg_MB_wallet(self): self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_wallet())
 
-    def msg_BTC_wallet(self): self.send_msg("My BTC wallet is: %s" % wallet_controller.get_BTC_Wallet())
+    def msg_BTC_wallet(self): self.send_msg("My BTC wallet is: %s" % wallet_controller.get_BTC_wallet())
 
-    def msg_TBTC_wallet(self): self.send_msg("My TBTC wallet is: %s" % wallet_controller.get_TBTC_Wallet())
+    def msg_TBTC_wallet(self): self.send_msg("My TBTC wallet is: %s" % wallet_controller.get_TBTC_wallet())
 
     def msg_MB_balance(self): self.send_msg("My MB balance is: %s" % wallet_controller.get_MB_balance())
 

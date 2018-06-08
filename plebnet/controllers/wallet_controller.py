@@ -101,8 +101,8 @@ class TriblerWallet(object):
 
 def get_wallet_address(type):
     try:
-        return requests.get('http://localhost:8085/wallets/').json()[type]['address']
-    except ConnectionError:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['address']
+    except:
         return "No %s wallet found" % type
 
 
@@ -117,8 +117,8 @@ def get_MB_wallet(): return get_wallet_address('MB')
 
 def get_balance(type):
     try:
-        return requests.get('http://localhost:8085/wallets/').json()[type]['balance']['available']
-    except ConnectionError:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['balance']['available']
+    except:
         return "No %s wallet found" % type
 
 
