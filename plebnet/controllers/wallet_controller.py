@@ -30,10 +30,9 @@ def create_wallet(wallet_type):
         logger.log("The marketplace can't be started", "create_wallet")
         return False
     try:
-        data = ['curl', '-X', 'PUT', 'http://localhost:8085/wallets/' + wallet_type, '--data', '\"password=' + settings.wallets_password() + '\"']
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-        message = json.loads(response)
-
+        data = {'password': settings.wallets_password()}
+        r = requests.put('http://localhost:8085/wallets/' + wallet_type, data=data)
+        message = r.json()
         if 'created' in message:
             logger.log("Wallet created successfully", "create_wallet")
             return True

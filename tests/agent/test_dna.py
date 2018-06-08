@@ -1,8 +1,9 @@
 import unittest
 import mock
+import os
+from appdirs import user_config_dir
 
 from plebnet.agent.dna import DNA
-
 
 class TestDna(unittest.TestCase):
 
@@ -89,7 +90,8 @@ class TestDna(unittest.TestCase):
         res_dict = self.test_dna.normalize_excluded(test_dict)
         self.assertEqual({'provider1': 1}, res_dict)
 
-    def test_positive_evolve(self):
+    @mock.patch('plebnet.agent.dna.DNA.write_dictionary', return_value=None)
+    def test_positive_evolve(self, mock):
         self.test_dna.add_provider("provider1")
         self.test_dna.add_provider("provider2")
         self.test_dna.rate = 0.25
@@ -98,18 +100,21 @@ class TestDna(unittest.TestCase):
         result = self.test_dna.exclude("provider2")
         self.assertEqual({'provider1': 0.4}, result)
 
-    def test_negative_evolve(self):
+    @mock.patch('plebnet.agent.dna.DNA.write_dictionary', return_value=None)
+    def test_negative_evolve(self, mock):
         self.test_dna.add_provider("provider1")
         self.test_dna.add_provider("provider2")
         self.test_dna.rate = 0.5
         self.test_dna.negative_evolve("provider2")
         self.assertEqual({'provider1': 1.0, 'provider2': 0.0}, self.test_dna.vps)
 
-    def test_set_and_get_own_provider(self):
+    @mock.patch('plebnet.agent.dna.DNA.write_dictionary', return_value=None)
+    def test_set_and_get_own_provider(self, mock):
         self.test_dna.set_own_provider("provider2")
         self.assertEqual("provider2", self.test_dna.get_own_provider())
 
-    def test_evolve_positive(self):
+    @mock.patch('plebnet.agent.dna.DNA.write_dictionary', return_value=None)
+    def test_evolve_positive(self, mock):
         self.test_dna.add_provider("provider1")
         self.test_dna.add_provider("provider2")
         self.test_dna.set_own_provider("provider2")
@@ -117,7 +122,8 @@ class TestDna(unittest.TestCase):
         self.test_dna.evolve(True)
         self.assertEqual({'provider1': 0.25, 'provider2': 0.75}, self.test_dna.vps)
 
-    def test_evolve_negative(self):
+    @mock.patch('plebnet.agent.dna.DNA.write_dictionary', return_value=None)
+    def test_evolve_negative(self, mock):
         self.test_dna.add_provider("provider1")
         self.test_dna.add_provider("provider2")
         self.test_dna.set_own_provider("provider2")
