@@ -30,7 +30,7 @@ if ! hash sshpass 2> /dev/null; then
 fi
 
 echo "Creating directories"
-sshpass -p${PASSWORD} ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'mkdir -p data/; mkdir -p .config/; mkdir -p .electrum/wallets/; mkdir -p .Tribler/wallet/'
+sshpass -p${PASSWORD} ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'mkdir -p .config/; mkdir -p .electrum/wallets/; mkdir -p .Tribler/wallet/'
 
 echo "Copying DNA"
 if [ ! -e ${CHILD_DNA_FILE} ]; then

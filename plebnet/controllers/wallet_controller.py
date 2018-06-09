@@ -97,3 +97,37 @@ class TriblerWallet(object):
             transaction_hash = json.loads(response)['txid']
             print(transaction_hash)
             return transaction_hash
+
+
+def get_wallet_address(type):
+    try:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['address']
+    except:
+        return "No %s wallet found" % type
+
+
+def get_TBTC_wallet(): return get_wallet_address('TBTC')
+
+
+def get_BTC_wallet(): return get_wallet_address('BTC')
+
+
+def get_MB_wallet(): return get_wallet_address('MB')
+
+
+def get_balance(type):
+    try:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['balance']['available']
+    except:
+        return "No %s wallet found" % type
+
+
+def get_TBTC_balance(): return get_balance('TBTC')
+
+
+def get_BTC_balance(): return get_balance('BTC')
+
+
+def get_MB_balance(): return get_balance('MB')
+
+
