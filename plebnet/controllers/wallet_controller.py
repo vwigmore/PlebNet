@@ -14,7 +14,6 @@ import requests
 from requests.exceptions import ConnectionError
 from plebnet.utilities import logger
 
-WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 settings = plebnet_settings.get_instance()
 
 
@@ -64,11 +63,7 @@ class TriblerWallet(object):
         Returns the balance of the current wallet
         :return: the balance
         """
-        data = ['curl', '-X', 'GET', 'http://localhost:8085/wallets/' + self.coin + '/balance']
-
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-        available = json.loads(response)['balance']['available']
-        return float(available)
+        return marketcontroller.get_balance(self.coin)
 
     def pay(self, address, amount, fee=None):
         """
@@ -82,21 +77,18 @@ class TriblerWallet(object):
         tx_fee = 0 if fee is None else fee
 
         if self.get_balance() < amount + tx_fee:
-            print('Not enough funds')
-            return
+            logger.log('Not enough funds', 'wallet_controller.pay')
+            return False
 
-        data = ['curl', '-X', 'POST', 'http://localhost:8085/wallets/' + self.coin + '/transfer',
-                '--data', 'amount=' + str(amount + tx_fee) + '&destination=' + address]
-
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-
-        if not response:
-            print('Transaction unsuccessfull')
-        else:
-            print('Transaction successful')
-            transaction_hash = json.loads(response)['txid']
-            print(transaction_hash)
-            return transaction_hash
+        try:
+           data = {'amount': amount+tx_fee, 'destination': address}
+           r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
+           transaction_hash = r.json()['txid']
+           logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
+           return transaction_hash
+        except ConnectionError:
+           logger.log('Transaction unsuccessfull', 'pay')
+           return False        
 
 
 def get_wallet_address(type):

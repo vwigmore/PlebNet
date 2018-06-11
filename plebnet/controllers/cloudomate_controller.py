@@ -148,7 +148,8 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    transaction_hash, _ = provider_instance.purchase(wallet, option)
+    # TODO: provider.purchase has to return a value
+    transaction_hash = provider_instance.purchase(wallet, option)
 
     if not transaction_hash:
         logger.warning("Failed to purchase server")
