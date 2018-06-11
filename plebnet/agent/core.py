@@ -28,22 +28,23 @@ dna = None  # Used to store the DNA of the agent and only load once
 def setup(args):
     logger.log("Setting up PlebNet")
 
+    # handle the DNA
+    dna = DNA()
+    dna.read_dictionary(cloudomate_controller.get_vps_providers())
+
     # Prepare Cloudomate
     if args.test_net:
         settings.wallets_testnet("1")
         settings.settings.write()
+        dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
 
+    dna.write_dictionary()
     fake_generator.generate_child_account()
 
     settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
     config.save()
-
-    # handle the DNA
-    dna = DNA()
-    dna.read_dictionary(cloudomate_controller.get_vps_providers())
-    dna.write_dictionary()
 
     # Prepare the IRC Client
     irc_handler.init_irc_client()
@@ -95,6 +96,7 @@ def create_wallet():
             settings.wallets_testnet_created("1")
             settings.wallets_initiate_once("1")
             settings.settings.write()
+            os.environ['TESTNET'] = '1'
     else:
         # attempt to create bitcoin wallet
         y = wallet_controller.create_wallet('BTC')
@@ -130,7 +132,7 @@ def check_tunnel_helper():
         env = os.environ.copy()
         env['PYTHONPATH'] = settings.tribler_home()
         try:
-            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m'], #, '-M'],
+            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m', '0'], #, '-M'],
                             cwd=settings.tribler_home(), env=env)
             return True
         except subprocess.CalledProcessError as e:

@@ -148,7 +148,8 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    transaction_hash, _ = provider_instance.purchase(wallet, option)
+    # TODO: provider.purchase has to return a value
+    transaction_hash = provider_instance.purchase(wallet, option)
 
     if not transaction_hash:
         logger.warning("Failed to purchase server")
@@ -178,10 +179,13 @@ def place_offer(chosen_est_price, config):
         logger.log("No MB available")
         return False
     config.bump_offer_date()
-    config.set('last_offer', {'BTC': chosen_est_price, 'MB': available_mb})
+
+    coin = 'TBTC' if plebnet_settings.get_instance().wallets_testnet() else 'BTC'
+
+    config.set('last_offer', {coin: chosen_est_price, 'MB': available_mb})
     price_per_unit = max(0.0001, chosen_est_price / float(available_mb))
     return market_controller.put_ask(price=price_per_unit,
-                                     price_type='BTC',
+                                     price_type=coin,
                                      quantity=available_mb,
                                      quantity_type='MB',
                                      timeout=plebnet_settings.TIME_IN_HOUR)

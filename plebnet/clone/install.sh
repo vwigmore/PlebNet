@@ -29,7 +29,7 @@ apt-get update
 apt-get install -y python
 
 # Reinstall pip
-apt-get remove --purge python-pip
+apt-get remove --purge -y python-pip
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
