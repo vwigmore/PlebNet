@@ -85,7 +85,7 @@ def pick_provider(providers):
     gateway = get_vps_providers()[provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(price, currency)) + cloudomate.wallet.get_network_fee()
+        wallet_util.get_price(price, currency)) + get_network_fee()
     return provider, option, btc_price
 
 
@@ -121,10 +121,9 @@ def update_offer(config):
 def calculate_price(provider, option):
     logger.log('provider: %s option: %s' % (provider, option), "cloudomate_controller")
     vps_option = options(cloudomate_providers['vps'][provider])[option]
-
     gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(vps_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
+        wallet_util.get_price(vps_option.price, 'USD')) + get_network_fee()
     return btc_price
 
 
@@ -137,7 +136,6 @@ def purchase_choice(config):
     """
 
     (provider, option, _) = config.get('chosen_provider')
-
     provider_instance = cloudomate_providers['vps'][provider](child_account())
     PlebNetConfig().increment_child_index()
     fake_generator.generate_child_account()
