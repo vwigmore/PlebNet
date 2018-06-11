@@ -12,8 +12,9 @@ import sys
 
 # as the file is loaded separately, the imports have to be fixed
 sys.path.append('./PlebNet')
+from plebnet.agent import dna
 from plebnet.communication import git_issuer
-from plebnet.controllers import wallet_controller
+from plebnet.controllers import wallet_controller, market_controller, tribler_controller
 from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
 
@@ -42,17 +43,21 @@ class Create(object):
 
         # prep reply functions
         self.responses = {}
-        self.add_response("alive",       self.msg_alive)
-        self.add_response("error",       self.msg_error)
-        self.add_response("host",        self.msg_host)
-        self.add_response("init",        self.msg_init)
-        self.add_response("joke",        self.msg_joke)
-        self.add_response("MB_wallet",   self.msg_MB_wallet)
-        self.add_response("BTC_wallet",  self.msg_BTC_wallet)
-        self.add_response("TBTC_wallet", self.msg_TBTC_wallet)
+        self.add_response("alive",        self.msg_alive)
+        self.add_response("error",        self.msg_error)
+        self.add_response("host",         self.msg_host)
+        self.add_response("init",         self.msg_init)
+        self.add_response("joke",         self.msg_joke)
+        self.add_response("MB_wallet",    self.msg_MB_wallet)
+        self.add_response("BTC_wallet",   self.msg_BTC_wallet)
+        self.add_response("TBTC_wallet",  self.msg_TBTC_wallet)
         self.add_response("MB_balance",   self.msg_MB_balance)
         self.add_response("BTC_balance",  self.msg_BTC_balance)
         self.add_response("TBTC_balance", self.msg_TBTC_balance)
+        self.add_response("matchmakers",  self.msg_match_makers)
+        self.add_response("uploaded",     self.msg_uploaded)
+        self.add_response("downloaded",   self.msg_downloaded)
+        self.add_response("dna",          self.msg_dna)
 
         # start running the IRC server
         self.init_irc()
@@ -196,28 +201,35 @@ class Create(object):
         time_str = time.strftime("%j days + %H:%M:%S", time.gmtime(time.time() - self.init_time))
         self.send_msg("I am alive, for %s" % time_str)
 
-    def msg_host(self): self.send_msg("My host is : %s" % plebnet_settings.get_instance().vps_host())
-
-    def msg_init(self): self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
-
     def msg_error(self):
         self.send_msg("Let me create an error ...")
-        self.send_msg("I create an error : %s" % plebnet_settings.get_instance().error())
+        raise Exception('This is an error for testing purposes')
 
-    def msg_joke(self): self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
+    def msg_host(self):         self.send_msg("My host is : %s" % dna.get_host())
 
-    def msg_MB_wallet(self): self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_wallet())
+    def msg_init(self):         self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
-    def msg_BTC_wallet(self): self.send_msg("My BTC wallet is: %s" % wallet_controller.get_BTC_wallet())
+    def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
 
-    def msg_TBTC_wallet(self): self.send_msg("My TBTC wallet is: %s" % wallet_controller.get_TBTC_wallet())
+    def msg_MB_wallet(self):    self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_wallet())
 
-    def msg_MB_balance(self): self.send_msg("My MB balance is: %s" % wallet_controller.get_MB_balance())
+    def msg_BTC_wallet(self):   self.send_msg("My BTC wallet is: %s" % wallet_controller.get_BTC_wallet())
 
-    def msg_BTC_balance(self): self.send_msg("My BTC balance is: %s" % wallet_controller.get_BTC_balance())
+    def msg_TBTC_wallet(self):  self.send_msg("My TBTC wallet is: %s" % wallet_controller.get_TBTC_wallet())
+
+    def msg_MB_balance(self):   self.send_msg("My MB balance is: %s" % wallet_controller.get_MB_balance())
+
+    def msg_BTC_balance(self):  self.send_msg("My BTC balance is:  %s" % wallet_controller.get_BTC_balance())
 
     def msg_TBTC_balance(self): self.send_msg("My TBTC balance is: %s" % wallet_controller.get_TBTC_balance())
 
+    def msg_match_makers(self): self.send_msg("I currently have: %s matchmakers" % market_controller.match_makers())
+
+    def msg_uploaded(self):     self.send_msg("I currently have uploaded: %s" % tribler_controller.get_uploaded())
+
+    def msg_downloaded(self):   self.send_msg("I currently have downloaded: %s" % tribler_controller.get_downloaded())
+
+    def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
 # init the bot when this file is run
 if __name__ == '__main__':

@@ -7,6 +7,9 @@ If Tribler alters its call methods, this should be the only file which needs to 
 
 import os
 import subprocess
+import requests
+
+from requests.exceptions import ConnectionError
 
 from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
@@ -51,3 +54,17 @@ def start():
     except subprocess.CalledProcessError as e:
         logger.error(e.output, "tribler_controller")
         return False
+
+
+def get_uploaded():
+    try:
+        return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_uploaded']
+    except ConnectionError:
+        return "Unable to retrieve amount of uploaded data"
+
+
+def get_downloaded():
+    try:
+        return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_downloaded']
+    except ConnectionError:
+        return "Unable to retrieve amount of downloaded data"
