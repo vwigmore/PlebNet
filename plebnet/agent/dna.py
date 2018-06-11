@@ -28,6 +28,7 @@ class DNA:
 
         if not os.path.exists(filename):
             self.dictionary = self.create_initial_dict(providers)
+            self.write_dictionary()
         else:
             with open(filename) as json_file:
                 data = json.load(json_file)
@@ -36,8 +37,8 @@ class DNA:
 
     @staticmethod
     def create_initial_dict(providers):
-        initial_dict = {'Self': '',
-                        'parent': '',
+        initial_dict = {'Self': 'unknown',
+                        'parent': 'unknown',
                         'transaction_hash': '',
                         'VPS': {provider_class.get_metadata()[0]: 0.5 for
                                 provider_class in providers.values()}}
@@ -145,3 +146,15 @@ class DNA:
             self.positive_evolve(provider)
         else:
             self.negative_evolve(provider)
+
+
+def get_dna():
+    dna = DNA()
+    dna.read_dictionary()
+    return dna.vps
+
+
+def get_host():
+    dna = DNA()
+    dna.read_dictionary()
+    return dna.get_own_provider()
