@@ -41,9 +41,10 @@ def check_asks():
                 quantity_type = tick['quantity_type']
                 assert tick['price_type'].upper() == coin
 
-                logging.info('Asks: %s %s %s %s'%(price, coin, quantity, quantity_type))                    
+                logging.info('[Ask]: %s %s %s %s'%(price, coin, quantity, quantity_type))                    
 
                 make_bid(price, coin, quantity, quantity_type)
+                time.sleep(10)
 
     # _t_check_offers = threading.Timer(__offer_check_time__, check_asks)
     # _t_check_offers.daemon= True
@@ -51,7 +52,7 @@ def check_asks():
 
 
 def make_bid(price, price_type, quantity, quantity_type):
-    logging.info("Making a bid:  %s %s %s %s"%(str(price), price_type, str(quantity), quantity_type))
+    logging.info("[Making a bid]:  %s %s %s %s"%(str(price), price_type, str(quantity), quantity_type))
 
     # make a bid
     data = {
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     '''
     Initializes check asks. Is called once.
     '''
-    logging.basicConfig(format="%(threadName)s:%(message)s", level='NOTSET')
+    logging.basicConfig(format="%(asctime)s:%(message)s", level='NOTSET',datefmt='%d/%m/%Y %H:%M:%S')
 
     tribler_wallet_path = os.path.expanduser('~/.Tribler/wallet')
     if os.path.isfile(os.path.join(tribler_wallet_path, 'tbtc_wallet')):
@@ -79,7 +80,3 @@ if __name__ == "__main__":
     while True:
         check_asks()
         time.sleep(60)
-    # global _t_check_offers
-    # _t_check_offers = threading.Timer(__offer_check_time__, check_asks)
-    # _t_check_offers.daemon = True
-    # _t_check_offers.start()
