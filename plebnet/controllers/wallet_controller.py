@@ -81,14 +81,14 @@ class TriblerWallet(object):
             return False
 
         try:
-           data = {'amount': amount+tx_fee, 'destination': address}
-           r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
-           transaction_hash = r.json()['txid']
-           logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
-           return transaction_hash
+            data = {'amount': amount+tx_fee, 'destination': address}
+            r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
+            transaction_hash = r.json()['txid']
+            logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
+            return transaction_hash
         except ConnectionError:
-           logger.log('Transaction unsuccessfull', 'pay')
-           return False        
+            logger.log('Transaction unsuccessfull', 'pay')
+            return False
 
 
 def get_wallet_address(type):

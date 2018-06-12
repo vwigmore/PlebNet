@@ -28,12 +28,14 @@ def install_available_servers(config, dna):
     for provider, transaction_hash, child_index in list(bought):
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
-            ip = cloudomate_controller.get_ip(provider_class)
+            print("2")
+            ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
+            print("ip: %s" % ip)
         except BaseException as e:
-            logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
+            logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
 
-        logger.log("Installing child on %s with ip %s" % (provider, ip))
+        logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),

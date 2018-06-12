@@ -16,6 +16,7 @@ from cloudomate import wallet as wallet_util
 from cloudomate.cmdline import providers as cloudomate_providers
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
+from cloudomate.hoster.vps.proxhost import ProxHost
 
 from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
@@ -39,7 +40,7 @@ def child_account(index=None):
     if index:
         account = AccountSettings()
         account.read_settings(
-            os.path.join(user_config_dir(), 'child_config' + index + '.cfg'))
+            os.path.join(user_config_dir(), 'child_config' + str(index) + '.cfg'))
     else:
         account = AccountSettings()
         account.read_settings(
@@ -59,11 +60,18 @@ def status(provider):
     return provider.get_status(account)
 
 
-def get_ip(provider):
+def get_ip(provider, account):
     logger.log('get ip: %s' % provider)
-    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), child_account())
-    logger.log('client area: %s' % client_area.get_services())
-    return client_area.get_ip()
+    if provider == ProxHost:
+
+        provider_instance = provider(account)
+        ip = provider_instance.get_configuration().ip
+
+        return ip
+    else:
+        client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), account)
+        logger.log('client area: %s' % client_area.get_services())
+        return client_area.get_ip()
 
 
 def setrootpw(provider, password):
@@ -97,7 +105,6 @@ def pick_option(provider):
     """
     vpsoptions = options(cloudomate_providers['vps'][provider])
     if len(vpsoptions) == 0:
-
         return
 
     cheapest_option = 0

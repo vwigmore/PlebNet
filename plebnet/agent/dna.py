@@ -137,6 +137,7 @@ class DNA:
         self.write_dictionary()
 
     def get_own_provider(self):
+
         return self.dictionary['Self']
 
     def evolve(self, success):
