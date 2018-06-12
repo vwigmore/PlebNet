@@ -46,28 +46,26 @@ def check_asks():
                 make_bid(price, coin, quantity, quantity_type)
                 time.sleep(10)
 
-    # _t_check_offers = threading.Timer(__offer_check_time__, check_asks)
-    # _t_check_offers.daemon= True
-    # _t_check_offers.start()
-
 
 def make_bid(price, price_type, quantity, quantity_type):
+    '''
+    Makes a bid with the same arguments as an ask. 
+    '''
     logging.info("[Making a bid]:  %s %s %s %s"%(str(price), price_type, str(quantity), quantity_type))
 
     # make a bid
     data = {
-        'price': price+0.0000001,
+        'price': price+0.0000001, #up the price a tiny bit
         'price_type': price_type,
         'quantity': quantity,
         'quantity_type': quantity_type
     }
     r = requests.put('http://localhost:8085/market/bids', data=data)
     logging.info(r.json())
-    # return r.json()
 
 if __name__ == "__main__":
     '''
-    Initializes check asks. Is called once.
+    Initializes check asks. 
     '''
     logging.basicConfig(format="%(asctime)s:%(message)s", level='NOTSET',datefmt='%d/%m/%Y %H:%M:%S')
 
