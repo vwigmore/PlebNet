@@ -18,14 +18,8 @@ def check_asks():
     
     logging.info('Coin type is: %s' % coin)
 
-    # create get requests for asks
-        # data = {'amount': amount+tx_fee, 'destination': address}
-        # r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
-        # transaction_hash = r.json()['txid']
-        # logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
         
     r = requests.get('http://localhost:8085/market/asks')
-    # rb = requests.get('http://localhost:8085/market/bids')
 
     # evaluate each
     asks = r.json()['asks']
