@@ -58,6 +58,8 @@ class Create(object):
         self.add_response("uploaded",     self.msg_uploaded)
         self.add_response("downloaded",   self.msg_downloaded)
         self.add_response("dna",          self.msg_dna)
+        self.add_response("helped",       self.msg_helped)
+        self.add_response("helped_by",    self.msg_helped_by)
 
         # start running the IRC server
         self.init_irc()
@@ -225,9 +227,13 @@ class Create(object):
 
     def msg_match_makers(self): self.send_msg("I currently have: %s matchmakers" % market_controller.match_makers())
 
-    def msg_uploaded(self):     self.send_msg("I currently have uploaded: %s" % tribler_controller.get_uploaded())
+    def msg_uploaded(self):     self.send_msg("I currently have uploaded: %s MB" % tribler_controller.get_uploaded())
 
-    def msg_downloaded(self):   self.send_msg("I currently have downloaded: %s" % tribler_controller.get_downloaded())
+    def msg_downloaded(self):   self.send_msg("I currently have downloaded: %s MB" % tribler_controller.get_downloaded())
+
+    def msg_helped(self):       self.send_msg("I currently have helped: %s peers" % tribler_controller.get_helped())
+
+    def msg_helped_by(self):    self.send_msg("I am currently helped by : %s peers" % tribler_controller.get_helped_by())
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
