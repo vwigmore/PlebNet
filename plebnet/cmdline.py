@@ -60,17 +60,8 @@ def execute_test(cmd=None):
     parser = ArgumentParser(description="allows testing certain functionalities")
     subparsers = parser.add_subparsers(dest="command", title="functionality")
 
-    parser_secure = subparsers.add_parser("gitissuer", help='commits an issue to the provided repo')
-    parser_secure.set_defaults(func=test_git_issuer)
-
     args = parser.parse_args(cmd)
     args.func()
-
-
-def test_git_issuer(cmd=None):
-
-    git_issuer.send("This is a test issue", "used to provide test information")
-
 
 def execute_conf(cmd=None):
     if not cmd: cmd = sys.argv[2:3]
