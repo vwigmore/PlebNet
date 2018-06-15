@@ -58,13 +58,35 @@ def start():
 
 def get_uploaded():
     try:
-        return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_uploaded']
+        # return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_uploaded']
+        tu = requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_up']
+        tu = int(tu)/1024.0/1024.0
+        return tu
+        # return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_up']
     except ConnectionError:
         return "Unable to retrieve amount of uploaded data"
 
 
+def get_helped_by():
+    try:
+        return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['peers_that_helped_pk']
+    except ConnectionError:
+        return "Unable to retrieve amount of peers that helped this agent"
+
+
+def get_helped():
+    try:
+        return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['peers_that_pk_helped']
+    except ConnectionError:
+        return "Unable to retrieve amount of peers helped by this agent"
+
+
 def get_downloaded():
     try:
-        return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_downloaded']
+        # return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_downloaded']
+        td = requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_down']
+        td = int(td)/1024.0/1024.0
+        return td
+        # return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_down']
     except ConnectionError:
         return "Unable to retrieve amount of downloaded data"
