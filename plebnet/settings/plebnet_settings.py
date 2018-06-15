@@ -64,6 +64,10 @@ class Init(object):
         str = self.settings.handle("paths", "PLEBNET_HOME", value)
         if not value: return os.path.expanduser(str)
 
+    def vpn_config_path(self, value=None): 
+        str = self.settings.handle("paths", "VPN_CONFIG_PATH", value)
+        if not value: return os.path.expanduser(str)
+
     """ THE ATTRIBUTE METHODS FOR THE PID SECTION """
 
     def tunnelhelper_pid(self, value=None): return self.settings.handle("pids", "TUNNEL_HELPER_PID", value)
@@ -121,6 +125,11 @@ class Init(object):
     def active_verbose(self, value=None): return self.settings.handle("active", "verbose", value) == "1"
 
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
+
+    """The ATTRIBUTE METHODS FOR VPN SECTON"""
+    def vpn_bought(self, value=None): return self.settings.handle("vpn", "bought", value) == "1"
+
+    def vpn_installed(self, value=None): return self.settings.handle("vpn", "installed", value) == "1"
 
 
 def write():

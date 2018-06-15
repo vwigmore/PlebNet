@@ -2,6 +2,8 @@ import sys
 from argparse import ArgumentParser
 
 from plebnet.communication import git_issuer
+from plebnet.utilities import logger
+import traceback
 from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings
 from plebnet.agent import core as agent
@@ -10,31 +12,38 @@ from plebnet.agent import core as agent
 def execute(cmd=None):
     if not cmd : cmd = sys.argv[1:2]
 
-    parser = ArgumentParser(description="Plebnet - a working-class bot")
-    subparsers = parser.add_subparsers(dest="command")
+    try:
+        parser = ArgumentParser(description="Plebnet - a working-class bot")
+        subparsers = parser.add_subparsers(dest="command")
 
-    # create the setup subcommand
-    parser_list = subparsers.add_parser("setup", help="Run the setup of PlebNet")
-    parser_list.set_defaults(func=execute_setup)
+        # create the setup subcommand
+        parser_list = subparsers.add_parser("setup", help="Run the setup of PlebNet")
+        parser_list.set_defaults(func=execute_setup)
 
-    # create the check subcommand
-    parser_list = subparsers.add_parser("check", help="Checks if the plebbot is able to clone")
-    parser_list.set_defaults(func=execute_check)
+        # create the check subcommand
+        parser_list = subparsers.add_parser("check", help="Checks if the plebbot is able to clone")
+        parser_list.set_defaults(func=execute_check)
 
-    # create the conf subcommand
-    parser_list = subparsers.add_parser("conf", help="allows changing the configuration files")
-    parser_list.set_defaults(func=execute_conf)
+        # create the conf subcommand
+        parser_list = subparsers.add_parser("conf", help="allows changing the configuration files")
+        parser_list.set_defaults(func=execute_conf)
 
-    # create the irc subcommand
-    parser_list = subparsers.add_parser("irc", help="Provides access to the IRC client")
-    parser_list.set_defaults(func=execute_irc)
+        # create the irc subcommand
+        parser_list = subparsers.add_parser("irc", help="Provides access to the IRC client")
+        parser_list.set_defaults(func=execute_irc)
 
-    # create the conf subcommand
-    parser_list = subparsers.add_parser("test", help="allows testing certain functionalities")
-    parser_list.set_defaults(func=execute_test)
+        # create the conf subcommand
+        parser_list = subparsers.add_parser("test", help="allows testing certain functionalities")
+        parser_list.set_defaults(func=execute_test)
 
-    args = parser.parse_args(cmd)
-    args.func()
+        args = parser.parse_args(cmd)
+        args.func()
+    except:
+        title = "An error occured!"
+        body = traceback.format_exc()
+        logger.error(title)
+        logger.error(body)
+        git_issuer.handle_error(title, body)
 
 
 def execute_setup(cmd=None):

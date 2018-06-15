@@ -71,6 +71,8 @@ def check():
     dna = DNA()
     dna.read_dictionary()
 
+    check_vpn_install()
+
     # these require time to setup, continue in the next iteration
     if not check_tribler():
         return
@@ -142,6 +144,47 @@ def check_tunnel_helper():
     # TEMP TO SEE EXITNODE PERFORMANCE
 
 
+def check_vpn_install():
+    """
+    Checks the vpn configuration files (.ovpn, credentials.conf).
+    If configuration files exist, no need to purchase VPN configurations.
+    :return: True if installing succeeds, False if installing fails or configs are not found
+    """
+
+    if settings.vpn_installed():
+        return
+
+    credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()), 'credentials.conf')
+    vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()), '.ovpn')
+    if os.path.isfile(credentials) and os.isfile(vpnconfig):
+        settings.vpn_installed("1") if install_vpn() else "0"
+    else:
+        if not settings.vpn_bought():
+            attempt_purchase_vpn()
+        else:
+            try:
+                cloudomate_controller.save_info_vpn(settings.vpn_config_path())
+            except Exception as e:
+                pass
+        return False
+
+
+def attempt_purchase_vpn():
+    provider = cloudomate_controller.get_vpn_providers()['azirevpn']
+    if settings.wallets_testnet():
+        domain = 'TBTC'
+    else:
+        domain = 'BTC'
+    if market_controller.get_balance(domain) >= cloudomate_controller.calculate_price_vpn(provider):
+        logger.log("Try to buy a new VPN from %s" % provider, log_name)
+        success = cloudomate_controller.purchase_choice_vpn(config)
+        if success == plebnet_settings.SUCCESS:
+            # remember succesful purchase
+            settings.vpn_bought("1")
+        elif success == plebnet_settings.FAILURE:
+            logger.error("Error purchasing vpn", log_name)
+
+
 def update_offer():
     """
     check if the stored prices for the selected provider should be updated.
@@ -185,6 +228,28 @@ def install_vps():
     :rtype: None
     """
     server_installer.install_available_servers(config, dna)
+
+
+def install_vpn():
+    """
+    Attempts to install the vpn using the credentials.conf and .ovpn configuration files
+    :return: True if installing succeeded, otherwise it will raise an exception.
+    """
+    # credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()), 'credentials.conf')
+    # vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()), '.ovpn')
+
+    try_install = subprocess.Popen(['openvpn', '.ovpn'],
+                                   cwd=os.path.expanduser(settings.vpn_config_path()),
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    result, error = try_install.communicate()
+    exitcode = try_install.wait()
+
+    if exitcode != 0:
+        if error.decode('ascii') == "":
+            error = result
+        raise Exception("Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
+    else:
+        return True
 
 
 # TODO: dit moet naar agent.DNA, maar die is nu al te groot

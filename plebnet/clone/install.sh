@@ -42,6 +42,9 @@ echo "fixing path"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
 
+# install openvpn
+apt-get install -y openvpn
+
 # Install dependencies
 apt-get install -y \
     python-crypto \

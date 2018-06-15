@@ -8,8 +8,8 @@ If Cloudomate alters its call methods, this should be the only file which needs 
 """
 
 import cloudomate
-import os
-
+import os, io
+from os import path
 from appdirs import user_config_dir
 
 from cloudomate import wallet as wallet_util
@@ -27,6 +27,9 @@ from plebnet.agent.dna import DNA
 def get_vps_providers():
     return cloudomate_providers['vps']
 
+
+def get_vpn_providers():
+    return cloudomate_providers['vpn']
 
 def child_account(index=None):
     """
@@ -128,6 +131,44 @@ def calculate_price(provider, option):
     return btc_price
 
 
+def calculate_price_vpn(vpn_provider):
+    logger.log('vpn provider: %s' % (vpn_provider), "cloudomate_controller")
+    vpn_option = options(get_vpn_providers()[vpn_provider])
+    gateway = get_vpn_providers()[vpn_provider].get_gateway()
+    btc_price = gateway.estimate_price(
+        cloudomate.wallet.get_price(vpn_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
+    return btc_price
+
+def purchase_choice_vpn(config):
+    #TODO: make more general
+    provider = get_vpn_providers()['azirevpn']
+    provider_instance = cloudomate_providers['vpn'][provider](child_account())
+    # child idnex is incremented if no config is present.
+    PlebNetConfig().increment_child_index()
+    fake_generator.generate_child_account()
+
+    wallet = TriblerWallet(plebnet_settings.get_instance().wallets_testnet_created())
+    c = cloudomate_providers['vpn'][provider]
+
+    configurations = c.get_options()
+    option = configurations[0]
+
+    transaction_hash = provider_instance.purchase(wallet, option)
+
+    if not transaction_hash:
+        logger.warning("Failed to purchase vpn")
+        return plebnet_settings.FAILURE
+    if False:
+        logger.warning("Insufficient funds to purchase server")
+        return plebnet_settings.UNKNOWN
+
+    config.get('bought').append((provider, transaction_hash, config.get('child_index')-1))
+    config.get('transactions').append(transaction_hash)
+    config.save()
+
+    return plebnet_settings.SUCCESS
+
+
 def purchase_choice(config):
     """
     Purchase the cheapest provider in chosen_providers. If buying is successful this provider is moved to bought. In any
@@ -189,3 +230,20 @@ def place_offer(chosen_est_price, config):
                                      quantity=available_mb,
                                      quantity_type='MB',
                                      timeout=plebnet_settings.TIME_IN_HOUR)
+
+
+# TODO: add ability to set filename from config
+def save_info_vpn(location):
+    vpn = get_vpn_providers()['AzireVPN']
+    info = vpn.get_configuration()
+
+    dir = path.normpath(location)
+    credentials = 'credentials.conf'
+
+    with io.open(path.join(location, '.ovpn'), 'w', encoding='utf-8') as ovpn_file:
+        ovpn_file.write(info.ovpn + '\nauth-user-pass ' + credentials)
+
+    with io.open(path.join(dir, credentials), 'w', encoding='utf-8') as credentials_file:
+        credentials_file.writelines([info.username + '\n', info.password])
+
+    print("Saved VPN configuration to " + dir)
