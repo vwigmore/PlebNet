@@ -70,6 +70,6 @@ def bids():
 
 
 def has_matchmakers():
-    url = 'http;//localhost:8085/market/matchmakers'
+    url = 'http://localhost:8085/market/matchmakers'
     r = requests.get(url)
     return r.json() != '[]'
