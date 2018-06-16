@@ -72,5 +72,4 @@ def bids():
 def has_matchmakers():
     url = 'http://localhost:8085/market/matchmakers'
     r = requests.get(url)
-    print("matchmakers: %s" % r.json())
-    return r.json()['matchmakers'] != ""
+    return r.json()['matchmakers'] != []
