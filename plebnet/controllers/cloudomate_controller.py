@@ -37,7 +37,7 @@ def child_account(index=None):
     :return: configuration of the child
     :rtype: Config
     """
-    if index:
+    if index > -1:
         account = AccountSettings()
         account.read_settings(
             os.path.join(user_config_dir(), 'child_config' + str(index) + '.cfg'))
@@ -153,7 +153,6 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    # TODO: provider.purchase has to return a value
     transaction_hash = provider_instance.purchase(wallet, option)
 
     if not transaction_hash:
@@ -164,7 +163,7 @@ def purchase_choice(config):
         logger.warning("Insufficient funds to purchase server")
         return plebnet_settings.UNKNOWN
 
-    config.get('bought').append((provider, transaction_hash, config.get('child_index')-1))
+    config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.set('chosen_provider', None)
     config.save()
