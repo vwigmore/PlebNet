@@ -28,12 +28,12 @@ def install_available_servers(config, dna):
     for provider, transaction_hash, child_index in list(bought):
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
-            ip = cloudomate_controller.get_ip(provider_class)
+            ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
         except BaseException as e:
-            logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
+            logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
 
-        logger.log("Installing child on %s with ip %s" % (provider, ip))
+        logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
@@ -61,14 +61,16 @@ def is_valid_ip(ip):
     :return: True/False
     :rtype: Boolean
     """
-    pieces = ip.strip().split('.')
-    if len(pieces) != 4:
-        return False
-    try:
-        if 0 <= int(pieces[1]) < 256:
-            return all(0 <= int(p) < 256 for p in pieces)
-    except ValueError:
-        return False
+    if ip:
+        pieces = ip.strip().split('.')
+        if len(pieces) != 4:
+            return False
+        try:
+            if 0 <= int(pieces[1]) < 256:
+                return all(0 <= int(p) < 256 for p in pieces)
+        except ValueError:
+            return False
+    return False
 
 
 def _install_server(ip, rootpw):
@@ -81,11 +83,16 @@ def _install_server(ip, rootpw):
     :return: The exit status of the installation
     :rtype: Integer
     """
-    script_path = os.path.join(setup.get_plebnet_home(), "/scripts/create-child.sh")
+    settings = setup.get_instance()
+    home = settings.plebnet_home()
+    if settings.wallets_testnet():
+        script_path = os.path.join(home, "plebnet/clone/create-child-testnet.sh")
+    else:
+        script_path = os.path.join(home, "plebnet/clone/create-child.sh")
     logger.log('tot_path: %s' % script_path)
-    command = '%s %s %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
-    print("Running %s" % command)
-    success = subprocess.call(command, shell=True, cwd=setup.get_plebnet_home())
+    command = 'bash %s %s %s' % (script_path, ip.strip(), rootpw.strip())
+    logger.log("Running %s" % command, '_install_server')
+    success = subprocess.call(command, shell=True, cwd=home)
     if success:
         logger.log("Installation successful")
     else:
