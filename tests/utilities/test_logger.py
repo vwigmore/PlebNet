@@ -21,6 +21,7 @@ class TestLogger(unittest.TestCase):
         # logger.reset()
         logger.suppress_print = True
         if os.path.isfile(logfile):
+            print(logfile)
             os.remove(logfile)
         #ensure logging is allowed
         plebnet_settings.get_instance().active_logger("1")
