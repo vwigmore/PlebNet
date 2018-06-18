@@ -7,6 +7,9 @@ If Tribler alters its call methods, this should be the only file which needs to 
 
 import os
 import subprocess
+import requests
+
+from requests.exceptions import ConnectionError
 
 from plebnet.utilities import logger
 from plebnet.settings import plebnet_settings
@@ -34,7 +37,7 @@ def start():
     env['PYTHONPATH'] = setup.tribler_home()
     try:
         if setup.wallets_testnet():
-            success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085' '--testnet'],
+            success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085', '--testnet'],
                                   cwd=setup.tribler_home(), env=env)
         else:
             success = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085'],
@@ -46,7 +49,44 @@ def start():
         logger.success('Tribler is started', "tribler_controller")
 
         logger.log('market running: ' + str(market_controller.is_market_running()))
+        logger.log('testnet: ' + setup.wallets_testnet())
         return True
     except subprocess.CalledProcessError as e:
-        logger.error(e.output, "Tribler starter", "tribler_controller")
+        logger.error(e.output, "tribler_controller")
         return False
+
+
+def get_uploaded():
+    try:
+        # return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_uploaded']
+        tu = requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_up']
+        tu = int(tu)/1024.0/1024.0
+        return tu
+        # return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_up']
+    except ConnectionError:
+        return "Unable to retrieve amount of uploaded data"
+
+
+def get_helped_by():
+    try:
+        return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['peers_that_helped_pk']
+    except ConnectionError:
+        return "Unable to retrieve amount of peers that helped this agent"
+
+
+def get_helped():
+    try:
+        return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['peers_that_pk_helped']
+    except ConnectionError:
+        return "Unable to retrieve amount of peers helped by this agent"
+
+
+def get_downloaded():
+    try:
+        # return requests.get('http://localhost:8085/statistics/dispersy').json()['dispersy_statistics']['total_downloaded']
+        td = requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_down']
+        td = int(td)/1024.0/1024.0
+        return td
+        # return requests.get('http://localhost:8085/trustchain/statistics').json()['statistics']['total_down']
+    except ConnectionError:
+        return "Unable to retrieve amount of downloaded data"

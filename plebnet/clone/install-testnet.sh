@@ -103,13 +103,13 @@ cd $HOME
 [ ! -d "PlebNet" ] && git clone -b master-dev --recurse-submodules https://github.com/vwigmore/PlebNet
 
 python -m pip install --upgrade ./PlebNet
-cd PlebNet
 
+cd PlebNet
 pip install ./cloudomate
 pip install ./tribler/electrum
 
 cd /root
-plebnet setup >> plebnet.log 2>&1
+plebnet setup -test >> plebnet.log 2>&1
 
 cron plebnet check
 echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet

@@ -57,6 +57,13 @@ def _put_request(price, price_type, quantity, quantity_type, timeout, domain):
         return False
 
 
+def match_makers():
+    try:
+        return len(requests.get('http://localhost:8085/market/matchmakers').json()['matchmakers'])
+    except ConnectionError:
+        return "Unable to retrieve amount of "
+
+
 def asks():
     url = 'http://localhost:8085/market/asks'
     r = requests.get(url)

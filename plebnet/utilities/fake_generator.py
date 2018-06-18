@@ -55,11 +55,13 @@ def _generate_user(cp, fake):
     cp.add_section('user')
     firstname = fake.first_name()
     lastname = fake.last_name()
+    username = firstname+lastname
     full_name = firstname + '_' + lastname
     full_name = full_name.replace(' ', '_')
     cp.set('user', 'email', 'authentic8989+' + full_name + '@gmail.com')
     cp.set('user', 'firstname', firstname)
     cp.set('user', 'lastname', lastname)
+    cp.set('user', 'username', username)
     cp.set('user', 'companyname', fake.company())
     cp.set('user', 'phonenumber', fake.numerify('##########'))
     cp.set('user', 'password', fake.password(length=10, special_chars=False))
