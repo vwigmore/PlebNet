@@ -2,6 +2,8 @@
 Plebnet
 *******
 
+|plebnet_logo|
+
 |jenkins_build|
 
 *A self-replicating autonomous Tribler exit-node*
@@ -36,3 +38,6 @@ the community has welcomed a newborn.
 .. |jenkins_build| image:: https://jenkins.tribler.org/job/GH_PlebNet/badge/icon
     :target: https://jenkins.tribler.org/job/GH_PlebNet
     :alt: Build status on Jenkins
+
+.. |plebnet_logo| image:: https://i.imgur.com/CvNho18.png
+    :alt: PlebNet logo
