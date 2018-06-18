@@ -127,9 +127,18 @@ class Init(object):
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
 
     """The ATTRIBUTE METHODS FOR VPN SECTON"""
-    def vpn_bought(self, value=None): return self.settings.handle("vpn", "bought", value) == "1"
 
     def vpn_installed(self, value=None): return self.settings.handle("vpn", "installed", value) == "1"
+
+    def vpn_host(self, value=None): return self.settings.handle("vpn", "host", value)
+
+    def vpn_child_prefix(self, value=None): return self.settings.handle("vpn", "child_prefix", value)
+
+    def vpn_own_prefix(self, value=None): return self.settings.handle("vpn", "own_prefix", value)
+
+    def vpn_config_name(self, value=None): return self.settings.handle("vpn", "config_name", value)
+
+    def vpn_credentials_name(self, value=None): return self.settings.handle("vpn", "credentials_name", value)
 
 
 def write():

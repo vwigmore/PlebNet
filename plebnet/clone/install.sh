@@ -38,7 +38,7 @@ pip install -U wheel setuptools
 #(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
 
 # Fix paths
-echo "fixing path"
+echo "fixing paths"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
 
@@ -112,7 +112,12 @@ pip install ./cloudomate
 pip install ./tribler/electrum
 
 cd /root
-plebnet setup >> plebnet.log 2>&1
 
-cron plebnet check
-echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+if [ $1 == "-testnet" ]; then
+    plebnet setup -testnet >> plebnet.log 2>&1
+    echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
+else
+    plebnet setup >> plebnet.log 2>&1
+    cron plebnet check
+    echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+fi

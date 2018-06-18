@@ -9,6 +9,7 @@ import os
 import random
 import subprocess
 import time
+import re
 
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
@@ -71,7 +72,10 @@ def check():
     dna = DNA()
     dna.read_dictionary()
 
+    # check if own vpn is installed before continuing
     check_vpn_install()
+    if not settings.vpn_installed():
+        logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
     # these require time to setup, continue in the next iteration
     if not check_tribler():
@@ -150,27 +154,46 @@ def check_vpn_install():
     If configuration files exist, no need to purchase VPN configurations.
     :return: True if installing succeeds, False if installing fails or configs are not found
     """
-
+    # chech whether vpn is installed
     if settings.vpn_installed():
         return
 
-    credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()), 'credentials.conf')
-    vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()), '.ovpn')
+    # check OWN configuration files.
+    # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
+    # the prefix needs to be renamed to "own" prefix so that the agent can continue to buy for its children
+    credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()),
+                               settings.vpn_own_prefix()+settings.vpn_credentials_name())
+    vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()),
+                             settings.vpn_own_prefix()+settings.vpn_config_name())
+
+    for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
+        if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name()):
+            # matches child_0_config.ovpn
+            os.rename(f, vpnconfig)
+        elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name()):
+            # matches child_0_credentials.ovpn
+            os.rename(f, credentials)
+
     if os.path.isfile(credentials) and os.isfile(vpnconfig):
-        settings.vpn_installed("1") if install_vpn() else "0"
-    else:
-        if not settings.vpn_bought():
-            attempt_purchase_vpn()
+        # try to install
+        if install_vpn():
+            settings.vpn_installed("1")
+            logger.log("Installing VPN succesful with configurations.")
         else:
-            try:
-                cloudomate_controller.save_info_vpn(settings.vpn_config_path())
-            except Exception as e:
-                pass
-        return False
+            settings.vpn_installed("0")
+            logger.log("Installing VPN failed with configurations!")
+            raise Exception("I can't install VPN with these settings!")
+    else:
+        logger.log("No VPN configurations found!")
+        raise Exception("I can't find VPN configurations: %s,  %s!" % (credentials, vpnconfig))
 
 
 def attempt_purchase_vpn():
-    provider = cloudomate_controller.get_vpn_providers()['azirevpn']
+    """
+    Attempts to purchase a VPN, checks first if balance is sufficient
+    The success message is stored to prevent further unecessary purchases.
+    """
+    provider = cloudomate_controller.get_vpn_providers()[settings.vpn_host()]
     if settings.wallets_testnet():
         domain = 'TBTC'
     else:
@@ -179,8 +202,7 @@ def attempt_purchase_vpn():
         logger.log("Try to buy a new VPN from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice_vpn(config)
         if success == plebnet_settings.SUCCESS:
-            # remember succesful purchase
-            settings.vpn_bought("1")
+            logger.info("Purchasing VPN succesful!", log_name)
         elif success == plebnet_settings.FAILURE:
             logger.error("Error purchasing vpn", log_name)
 
@@ -216,6 +238,10 @@ def attempt_purchase():
         if success == plebnet_settings.SUCCESS:
             # evolve yourself positively if you are successful
             dna.evolve(True)
+
+            # purchase VPN with same config if server allows for it
+            if cloudomate_controller.get_vps_providers()[provider].TUN_TAP_SETTINGS:
+                attempt_purchase_vpn()
         elif success == plebnet_settings.FAILURE:
             # evolve provider negatively if not successful
             dna.evolve(False)
@@ -238,7 +264,7 @@ def install_vpn():
     # credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()), 'credentials.conf')
     # vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()), '.ovpn')
 
-    try_install = subprocess.Popen(['openvpn', '.ovpn'],
+    try_install = subprocess.Popen(['openvpn', settings.vpn_own_prefix()+settings.vpn_config_name()],
                                    cwd=os.path.expanduser(settings.vpn_config_path()),
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     result, error = try_install.communicate()

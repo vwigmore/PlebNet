@@ -133,24 +133,25 @@ def calculate_price(provider, option):
 
 def calculate_price_vpn(vpn_provider):
     logger.log('vpn provider: %s' % (vpn_provider), "cloudomate_controller")
-    vpn_option = options(get_vpn_providers()[vpn_provider])
+    # option is assumed to be the first one
+    vpn_option = options(get_vpn_providers()[vpn_provider])[0]
     gateway = get_vpn_providers()[vpn_provider].get_gateway()
     btc_price = gateway.estimate_price(
         cloudomate.wallet.get_price(vpn_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
     return btc_price
 
 def purchase_choice_vpn(config):
-    #TODO: make more general
-    provider = get_vpn_providers()['azirevpn']
+    provider = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()]
     provider_instance = cloudomate_providers['vpn'][provider](child_account())
-    # child idnex is incremented if no config is present.
-    PlebNetConfig().increment_child_index()
-    fake_generator.generate_child_account()
+
+    # no need to generate new child config
 
     wallet = TriblerWallet(plebnet_settings.get_instance().wallets_testnet_created())
     c = cloudomate_providers['vpn'][provider]
 
     configurations = c.get_options()
+
+    # option is assumbed to be the first vpn provider option
     option = configurations[0]
 
     transaction_hash = provider_instance.purchase(wallet, option)
@@ -162,7 +163,7 @@ def purchase_choice_vpn(config):
         logger.warning("Insufficient funds to purchase server")
         return plebnet_settings.UNKNOWN
 
-    config.get('bought').append((provider, transaction_hash, config.get('child_index')-1))
+    config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.save()
 
@@ -200,7 +201,7 @@ def purchase_choice(config):
         logger.warning("Insufficient funds to purchase server")
         return plebnet_settings.UNKNOWN
 
-    config.get('bought').append((provider, transaction_hash, config.get('child_index')-1))
+    config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.set('chosen_provider', None)
     config.save()
@@ -232,18 +233,31 @@ def place_offer(chosen_est_price, config):
                                      timeout=plebnet_settings.TIME_IN_HOUR)
 
 
-# TODO: add ability to set filename from config
-def save_info_vpn(location):
-    vpn = get_vpn_providers()['AzireVPN']
+def save_info_vpn(config):
+    """
+    Stores the child vpn information
+    :param location: where to store the config
+    :return:
+    """
+    vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](config)
     info = vpn.get_configuration()
+    child_index = config.get('child_index')
+    prefix = plebnet_settings.get_instance().vpn_child_prefix()
 
-    dir = path.normpath(location)
-    credentials = 'credentials.conf'
 
-    with io.open(path.join(location, '.ovpn'), 'w', encoding='utf-8') as ovpn_file:
-        ovpn_file.write(info.ovpn + '\nauth-user-pass ' + credentials)
+    dir = path.expanduser(plebnet_settings.get_instance().vpn_config_path())
+    credentials = prefix + child_index +plebnet_settings.get_instance().vpn_credentials_name()
+    # own_credentials is for when the file is renamed back to me_credentials
+    own_credentials = plebnet_settings.get_instance().vpn_own_prefix() \
+                      + plebnet_settings.get_instance().vpn_credentials_name()
+    ovpn = prefix + child_index +plebnet_settings.get_instance().vpn_config_name()
+
+    with io.open(path.join(dir, ovpn), 'w', encoding='utf-8') as ovpn_file:
+        ovpn_file.write(info.ovpn + '\nauth-user-pass ' + own_credentials)
 
     with io.open(path.join(dir, credentials), 'w', encoding='utf-8') as credentials_file:
         credentials_file.writelines([info.username + '\n', info.password])
 
     print("Saved VPN configuration to " + dir)
+
+    return True

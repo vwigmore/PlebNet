@@ -50,7 +50,7 @@ def execute_setup(cmd=None):
     if not cmd: cmd = sys.argv[2:3]
 
     parser = ArgumentParser(description="setup thingies")
-    parser.add_argument('-test', action='store_true', default=False,
+    parser.add_argument('-testnet', action='store_true', default=False,
                   dest='test_net',
                   help='Use TBTC instead of BTC')
     args = parser.parse_args(cmd)
