@@ -2,6 +2,7 @@ import json
 import subprocess
 import requests
 import unittest
+import responses
 
 import plebnet.controllers.wallet_controller as walletcontroller
 import plebnet.controllers.market_controller as marketcontroller
@@ -82,24 +83,22 @@ class TestWalletController(unittest.TestCase):
 
     def test_tribler_wallet_constructor(self):
         r = walletcontroller.TriblerWallet()
+        r.__init__()
         assert r.coin == 'BTC'
         o = walletcontroller.TriblerWallet(True)
+        o.__init__(True)
         assert o.coin == 'TBTC'
 
     def test_get_balance(self):
-        self.popen = subprocess.Popen.communicate
-        self.json = json.loads
+        self.market = marketcontroller.get_balance
+        marketcontroller.get_balance = MagicMock(return_value=5)
 
-        json.loads = MagicMock()
-        subprocess.Popen.communicate = MagicMock()
         r = walletcontroller.TriblerWallet()
+        r.__init__()
 
-        r.get_balance()
-        json.loads.assert_called_once()
-        subprocess.Popen.communicate.assert_called_once()
+        self.assertEquals(r.get_balance(), 5)
 
-        json.loads = self.json
-        subprocess.Popen.communicate = self.popen
+        marketcontroller.get_balance = self.market
 
     def test_pay_not_enough_balance(self):
         self.balance = walletcontroller.TriblerWallet.get_balance
@@ -108,6 +107,7 @@ class TestWalletController(unittest.TestCase):
         subprocess.Popen.communicate = MagicMock()
 
         r = walletcontroller.TriblerWallet()
+        r.__init__()
         r.pay('address', 30)
         walletcontroller.TriblerWallet.get_balance.assert_called_once()
         subprocess.Popen.communicate.assert_not_called()
@@ -115,57 +115,28 @@ class TestWalletController(unittest.TestCase):
         walletcontroller.TriblerWallet.get_balance = self.balance
         subprocess.Popen.communicate = self.popen
 
-    """
-    class used so that a mocked object returns a MockResponse object with a __getitem__ attribute that returns false
-    """
-    class MockResponse(object):
-
-        def __init__(self, obj):
-            self.x = obj
-
-        def __getitem__(self, item):
-            return self.x
-
-    def test_pay_no_response(self):
+    def test_pay_error(self):
         self.balance = walletcontroller.TriblerWallet.get_balance
-        self.popen = subprocess.Popen.communicate
-        self.json = json.loads
         walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=50)
-        subprocess.Popen.communicate = MagicMock(return_value=self.MockResponse(False))
-        json.loads = MagicMock()
 
         r = walletcontroller.TriblerWallet()
-        r.pay('address', 30)
+        r.__init__()
 
-        walletcontroller.TriblerWallet.get_balance.assert_called_once()
-        subprocess.Popen.communicate.assert_called_once()
-        json.loads.assert_not_called()
-
+        self.assertEquals(r.pay('address', 30), False)
         walletcontroller.TriblerWallet.get_balance = self.balance
-        subprocess.Popen.communicate = self.popen
-        json.loads = self.json
 
+
+    @responses.activate
     def test_pay(self):
-        self.balance = walletcontroller.TriblerWallet.get_balance
-        self.popen = subprocess.Popen.communicate
-        self.json = json.loads
-
-        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=50)
-        subprocess.Popen.communicate = MagicMock()
-        json.loads = MagicMock(returun_value='test')
+        self.true_balance = walletcontroller.TriblerWallet.get_balance
+        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=300)
 
         r = walletcontroller.TriblerWallet()
-        r.pay('address', 30)
+        r.__init__()
 
-        json.loads.assert_called_once()
-
-        walletcontroller.TriblerWallet.get_balance = self.balance
-        subprocess.Popen.communicate = self.popen
-        json.loads = self.json
-
-
-
-
+        responses.add(responses.POST, 'http://localhost:8085/wallets/' + r.coin + '/transfer', json={'txid': 'testID'})
+        self.assertEquals(r.pay('address', 30), 'testID')
+        walletcontroller.TriblerWallet.get_balance = self.true_balance
 
 if __name__ == '__main__':
     unittest.main()

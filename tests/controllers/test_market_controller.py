@@ -45,9 +45,13 @@ class TestMarketController(unittest.TestCase):
 
  def test_get_balance_no_connection(self):
      self.true_logger = logger.log
+     self.true_requests = requests.get
+
      logger.log = MagicMock(return_value='Test')
+     requests.get = MagicMock(side_effect=requests.ConnectionError)
      self.assertFalse(Market.get_balance('MB'))
      logger.log = self.true_logger
+     requests.get = self.true_requests
 
  def test_put_ask(self):
      self.true_put = Market._put_request

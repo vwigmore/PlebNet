@@ -49,7 +49,7 @@ def start():
         logger.success('Tribler is started', "tribler_controller")
 
         logger.log('market running: ' + str(market_controller.is_market_running()))
-        logger.log('testnet: ' + setup.wallets_testnet())
+        logger.log('testnet: ' + str(setup.wallets_testnet()))
         return True
     except subprocess.CalledProcessError as e:
         logger.error(e.output, "tribler_controller")

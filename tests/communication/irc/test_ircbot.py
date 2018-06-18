@@ -3,6 +3,7 @@ import unittest
 from plebnet.communication.irc import ircbot
 from plebnet.settings import plebnet_settings
 from mock.mock import MagicMock
+from plebnet.agent import dna
 
 
 line_join = "376 " + plebnet_settings.get_instance().irc_nick()
@@ -16,6 +17,7 @@ reply_host = "My host is : "
 reply_ping = "PONG 1234"
 reply_alive = "I am alive, for"
 reply_error = "A error occurred in IRCbot"
+reply_error_created = "Let me create an error ..."
 reply_heart = "IRC is still running - alive for"
 
 
@@ -77,19 +79,32 @@ class TestIRCbot(unittest.TestCase):
         self.assertIn(reply_ping, msgs[0])
 
     def test_handle_lines_host(self):
+        self.true_dna = dna.get_host
+        dna.get_host = MagicMock(return_value="Linevast")
+
         self.instance.handle_line(line_host)
         self.assertIn(reply_host, msgs[0])
+        dna.get_host = self.true_dna
 
     def test_keep_running(self):
         msg = "%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
+        self.true_dna = dna.get_host
+
+        dna.get_host = MagicMock(return_value="Linevast")
         self.instance.keep_running(str(msg))
+
         self.assertIn(reply_join, msgs[0])
         self.assertIn(reply_ping, msgs[1])
         self.assertIn(reply_host, msgs[2])
-        self.assertIn(reply_error, msgs[3])
+        self.assertIn(reply_error_created, msgs[3])
+        self.assertIn(reply_error, msgs[4])
         msg = "%s\r\n" % (line_alive)
         self.instance.keep_running(str(msg))
-        self.assertIn(reply_alive, msgs[4])
+        self.assertIn(reply_alive, msgs[5])
+
+
+
+        dna.get_host = self.true_dna
 
     def test_heartbeat(self):
         self.instance.last_beat = 0
