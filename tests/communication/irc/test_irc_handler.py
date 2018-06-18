@@ -1,21 +1,32 @@
 import unittest
 import subprocess
 
+from mock.mock import MagicMock
 from plebnet.communication.irc import irc_handler
 from plebnet.settings import plebnet_settings
 
-plebnet_settings.get_instance().active_logger("0")
-plebnet_settings.get_instance().active_verbose("0")
-plebnet_settings.get_instance().github_active("0")
+
+#plebnet_settings.get_instance().active_logger("0")
+#plebnet_settings.get_instance().active_verbose("0")
+#plebnet_settings.get_instance().github_active("0")
 
 
 class TestIRCbot(unittest.TestCase):
 
     def setUp(self):
         self.original_call = subprocess.call
+        self.active_logger = plebnet_settings.Init.active_logger
+        self.active_verbose = plebnet_settings.Init.active_verbose
+        self.github_active = plebnet_settings.Init.github_active
+        plebnet_settings.Init.active_logger = MagicMock(return_value=False)
+        plebnet_settings.Init.active_verbose = MagicMock(return_value=False)
+        plebnet_settings.Init.github_active = MagicMock(return_value=False)
 
     def tearDown(self):
         subprocess.call == self.original_call
+        plebnet_settings.Init.active_logger = self.active_logger
+        plebnet_settings.Init.active_verbose = self.active_verbose
+        plebnet_settings.Init.github_active = self.github_active
 
     """ USED FOR REPLACEMENTS """
 

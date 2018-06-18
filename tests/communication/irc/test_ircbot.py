@@ -2,6 +2,7 @@ import unittest
 
 from plebnet.communication.irc import ircbot
 from plebnet.settings import plebnet_settings
+from mock.mock import MagicMock
 
 
 line_join = "376 " + plebnet_settings.get_instance().irc_nick()
@@ -21,16 +22,22 @@ reply_heart = "IRC is still running - alive for"
 class TestIRCbot(unittest.TestCase):
 
     msgs = None
-    plebnet_settings.get_instance().active_logger("0")
-    plebnet_settings.get_instance().active_verbose("0")
-    plebnet_settings.get_instance().github_active("0")
+    #plebnet_settings.get_instance().active_logger("0")
+    #plebnet_settings.get_instance().active_verbose("0")
+    #plebnet_settings.get_instance().github_active("0")
 
     def setUp(self):
         global msgs
         # store originals
         self.original_run = ircbot.Create.run
         self.original_init_irc = ircbot.Create.init_irc
+        self.active_logger = plebnet_settings.Init.active_logger
+        self.active_verbose = plebnet_settings.Init.active_verbose
+        self.github_active = plebnet_settings.Init.github_active
         # modify
+        plebnet_settings.Init.active_logger = MagicMock(return_value=False)
+        plebnet_settings.Init.active_verbose = MagicMock(return_value=False)
+        plebnet_settings.Init.github_active = MagicMock(return_value=False)
         ircbot.Create.run = self.skip
         ircbot.Create.init_irc = self.skip
         # create instance with modified properties
@@ -43,6 +50,9 @@ class TestIRCbot(unittest.TestCase):
         # restore originals
         ircbot.Create.send_run = self.original_run
         ircbot.Create.init_irc = self.original_init_irc
+        plebnet_settings.Init.active_logger = self.active_logger
+        plebnet_settings.Init.active_verbose = self.active_verbose
+        plebnet_settings.Init.github_active = self.github_active
 
     """ USED FOR REPLACEMENTS """
 
