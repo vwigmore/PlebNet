@@ -1,0 +1,5 @@
+[
+  "tests/utilities/test_logger.py::TestLogger::test_add_logs", 
+  "tests/utilities/test_logger.py::TestLogger::test_add_multiple_logs", 
+  "tests/utilities/test_logger.py::TestLogger::test_generate_file"
+]
