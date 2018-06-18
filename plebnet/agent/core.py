@@ -86,7 +86,7 @@ def check():
 
     if market_controller.has_matchmakers():
         update_offer()
-        attempt_purchase()
+        # attempt_purchase()
     install_vps()
 
 
