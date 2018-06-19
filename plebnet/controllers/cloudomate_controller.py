@@ -168,6 +168,8 @@ def purchase_choice(config):
         git_issuer.handle_error("Failed to purchase server", sys.exc_info()[0], ['crash'])
         return plebnet_settings.FAILURE
 
+    if not transaction_hash:
+        return plebnet_settings.FAILURE
     config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.set('chosen_provider', None)
