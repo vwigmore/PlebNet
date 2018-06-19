@@ -22,8 +22,6 @@ def running():
     Check if tribler is running.
     :return: True if twistd.pid exists in /root/tribler
     """
-
-    # TODO: kijken of het proces draait ipv het bestand aanwezig is
     path = os.path.join(setup.tribler_home(), setup.tribler_pid())
     return os.path.isfile(path)
 
