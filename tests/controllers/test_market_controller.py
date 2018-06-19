@@ -75,6 +75,24 @@ class TestMarketController(unittest.TestCase):
      responses.add(responses.PUT, 'http://localhost:8085/market/bids', json={'error': {'message': 'test'}})
      self.assertFalse(Market._put_request(10, 'MB', 10, 'BTC', 1000, 'bids'))
 
+ @responses.activate
+ def test_matchmakers(self):
+     responses.add(responses.GET, 'http://localhost:8085/market/matchmakers',
+                   json={'matchmakers': ['test1', 'test2', 'test3']})
+     self.assertEqual(Market.match_makers(), 3)
+
+ def test_matchmakers_error(self):
+     self.requests = requests.get
+     requests.get = MagicMock(side_effect=requests.ConnectionError)
+     self.assertEquals(Market.match_makers(), "Unable to retrieve amount of ")
+     requests.get = self.requests
+
+ @responses.activate
+ def test_has_matchmakers(self):
+     responses.add(responses.GET, 'http://localhost:8085/market/matchmakers',
+                   json={'matchmakers': ['test1', 'test2', 'test3']})
+     assert Market.has_matchmakers()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -41,27 +41,49 @@ class TestWalletController(unittest.TestCase):
         marketcontroller.is_market_running = MagicMock(return_value=False)
         self.assertFalse(walletcontroller.create_wallet('TBTC'))
 
-    # def test_create_wallet_true(self):
-    #     self.popen = subprocess.Popen.communicate
-    #     self.json = json.loads
-    #
-    #     subprocess.Popen.communicate = MagicMock()
-    #
-    #     json.loads = MagicMock(return_value= 'created')
-    #     assert walletcontroller.create_wallet('TBTC')
-    #
-    #     json.loads = self.json
-    #     subprocess.Popen.communicate = self.popen
+    @responses.activate
+    def test_create_wallet(self):
+        responses.add(responses.PUT, 'http://localhost:8085/wallets/BTC',
+                      json={'created': 'true'})
+        assert walletcontroller.create_wallet('BTC')
 
-    # def test_create_wallet_already_created(self):
-    #     self.popen = subprocess.Popen.communicate
-    #     self.json = json.loads
-    #     json.loads = MagicMock(return_value={'error': 'this wallet already exists'})
-    #
-    #     assert walletcontroller.create_wallet('TBTC')
-    #
-    #     json.loads = self.json
-    #     subprocess.Popen.communicate = self.popen
+    @responses.activate
+    def test_create_wallet_already_created(self):
+        responses.add(responses.PUT, 'http://localhost:8085/wallets/BTC',
+                      json={'error': 'this wallet already exists'})
+        assert walletcontroller.create_wallet('BTC')
+
+    @responses.activate
+    def test_create_wallet_unknown_error(self):
+        responses.add(responses.PUT, 'http://localhost:8085/wallets/BTC',
+                      json={'error': 'unknown error'})
+        self.assertFalse(walletcontroller.create_wallet('BTC'))
+
+    @responses.activate
+    def test_get_wallet_address(self):
+        responses.add(responses.GET, 'http://localhost:8085/wallets',
+                      json={'wallets': {'BTC': {'address': 5000}}})
+        self.assertEqual(walletcontroller.get_wallet_address('BTC'), 5000)
+
+    def test_get_wallet_address_error(self):
+        self.requests = requests.get
+        requests.get = MagicMock(side_effect=requests.ConnectionError)
+        self.assertEquals(walletcontroller.get_wallet_address('BTC'), "No %s wallet found" % 'BTC')
+
+        requests.get = self.requests
+
+    @responses.activate
+    def test_get_balance(self):
+        responses.add(responses.GET, 'http://localhost:8085/wallets',
+                      json={'wallets': {'BTC': {'balance': {'available': 5000}}}})
+        self.assertEqual(walletcontroller.get_balance('BTC'), 5000)
+
+    def test_get_balance_error(self):
+        self.requests = requests.get
+        requests.get = MagicMock(side_effect=requests.ConnectionError)
+        self.assertEquals(walletcontroller.get_balance('BTC'), "No %s wallet found" % 'BTC')
+
+        requests.get = self.requests
 
     def test_create_wallet_different_error(self):
         self.popen = subprocess.Popen.communicate
@@ -124,7 +146,6 @@ class TestWalletController(unittest.TestCase):
 
         self.assertEquals(r.pay('address', 30), False)
         walletcontroller.TriblerWallet.get_balance = self.balance
-
 
     @responses.activate
     def test_pay(self):
