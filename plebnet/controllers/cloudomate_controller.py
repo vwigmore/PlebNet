@@ -9,6 +9,8 @@ If Cloudomate alters its call methods, this should be the only file which needs 
 
 import cloudomate
 import os
+import sys
+import traceback
 
 from appdirs import user_config_dir
 
@@ -24,6 +26,8 @@ from plebnet.controllers.wallet_controller import TriblerWallet
 from plebnet.settings import plebnet_settings
 from plebnet.utilities import logger, fake_generator
 from plebnet.agent.dna import DNA
+from plebnet.communication import git_issuer
+
 
 def get_vps_providers():
     return cloudomate_providers['vps']
@@ -153,16 +157,19 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    transaction_hash = provider_instance.purchase(wallet, option)
+    try:
+        transaction_hash = provider_instance.purchase(wallet, option)
+    except:
+        title = "Failed to purchase server: %s" % sys.exc_info()[0]
+        body = traceback.format_exc()
+        logger.error(title)
+        logger.error(body)
+        git_issuer.handle_error(title, body)
+        git_issuer.handle_error("Failed to purchase server", sys.exc_info()[0], ['crash'])
+        return plebnet_settings.FAILURE
 
     if not transaction_hash:
-        logger.warning("Failed to purchase server")
         return plebnet_settings.FAILURE
-    # TODO: how to spot the difference?
-    if False:
-        logger.warning("Insufficient funds to purchase server")
-        return plebnet_settings.UNKNOWN
-
     config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.set('chosen_provider', None)
@@ -171,6 +178,7 @@ def purchase_choice(config):
     return plebnet_settings.SUCCESS
 
 
+# TODO: move to controller
 def place_offer(chosen_est_price, config):
     """
     Sell all available MB for the chosen estimated price on the Tribler market.

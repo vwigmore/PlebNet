@@ -1,5 +1,5 @@
 """
-Store and retrieve the configuration of the agent
+Store and retrieve the configuration of the agent.
 """
 
 import json
@@ -14,11 +14,11 @@ CONFIG_NAME = "plebnet.json"
 
 class PlebNetConfig(object):
     """
-    Store and retrieve the configuration of the agent
+    Store and retrieve the configuration of the agent.
     """
     def __init__(self):
         """
-        The initiator for a PlebNetConfig object
+        The initiator for a PlebNetConfig object.
         """
         self.config = {"child_index": 0,
                        "expiration_date": 0,
@@ -34,8 +34,7 @@ class PlebNetConfig(object):
 
     def load(self):
         """
-        A method to read the config content from a file
-        :return:
+        A method to read the configuration from a file and load it into the PlebNetConfig object.
         """
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, CONFIG_NAME)
@@ -46,8 +45,7 @@ class PlebNetConfig(object):
 
     def save(self):
         """
-        A method to write the config content to a file
-        :return: nothing
+        A method to write the current configuration of the agent to the configuration file.
         """
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, CONFIG_NAME)
@@ -56,20 +54,19 @@ class PlebNetConfig(object):
 
     def get(self, option):
         """
-        A method to retrieve the content of the configurations options
-        :param option: the option which should be returned
-        :type option: String
-        :return: the content of the input
-        :rtype: Generic
+        A method to retrieve the content of the configuration options.
+        :param option: the option which should be returned.
+        :type option: String.
+        :return: the content of the input.
+        :rtype: Generic.
         """
-        #TODO: check if option exists, otherwise raise error and return None
         return self.config[option]
 
     def time_to_expiration(self):
         """
-        Retrieve the amount of time left before the VPS is ended
-        :return: The amount of seconds left to live
-        :rtype: double
+        Retrieve the amount of time left before the VPS rental period ends.
+        :return: The amount of seconds left to live.
+        :rtype: double.
         """
         current_time = time.time()
         expiration = float(self.config['expiration_date'])
@@ -77,9 +74,9 @@ class PlebNetConfig(object):
 
     def time_since_offer(self):
         """
-        Retrieve the amount of seconds since the last offer on the Tribler market was made
-        :return: The amount of seconds since the last offer
-        :rtype: double
+        Retrieve the amount of seconds since the last offer on the Tribler Marketplace was made.
+        :return: The amount of seconds since the last offer.
+        :rtype: double.
         """
         current_time = time.time()
         offer_time = float(self.config['last_offer_date'])
@@ -87,29 +84,27 @@ class PlebNetConfig(object):
 
     def bump_offer_date(self):
         """
-        Reset the last offer time to the current time
-        :return: None
-        :rtype: None
+        Reset the last_offer_date to the current time.
+        :return: None.
+        :rtype: None.
         """
         self.config['last_offer_date'] = time.time()
 
     def set(self, option, value):
         """
-        A function to set the value of the configuration
-        :param option: which config value should be updated
-        :type option: String
-        :param value: The value to put in place of the option
-        :type value: Generic
-        :return: None
-        :rtype: None
+        Function to set the value of the a configuration parameter.
+        :param option: which config value should be updated.
+        :type option: String.
+        :param value: The value to put in place of the option.
+        :type value: Generic.
+        :return: None.
+        :rtype: None.
         """
         self.config[option] = value
 
     def increment_child_index(self):
         """
-        Increment the child index number after a new server is created
-        :return: None
-        :rtype: None
+        Increment the child_index number by one.
         """
         self.config['child_index'] = self.config['child_index'] + 1
         self.save()
