@@ -141,8 +141,9 @@ def calculate_price_vpn(vpn_provider):
     return btc_price
 
 def purchase_choice_vpn(config):
-    provider = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()]
-    provider_instance = cloudomate_providers['vpn'][provider](child_account())
+    provider = plebnet_settings.get_instance().vpn_host()
+
+    provider_instance = get_vpn_providers()[provider](child_account())
 
     # no need to generate new child config
 
@@ -150,7 +151,6 @@ def purchase_choice_vpn(config):
     c = cloudomate_providers['vpn'][provider]
 
     configurations = c.get_options()
-
     # option is assumbed to be the first vpn provider option
     option = configurations[0]
 

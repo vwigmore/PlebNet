@@ -53,7 +53,7 @@ class TestCMDLine(unittest.TestCase):
         self.setup = core.setup
         # modify
         core.setup = Mock()
-        sys.argv = ['plebnet', 'setup', '-test']
+        sys.argv = ['plebnet', 'setup', '-testnet']
         # run
         cmdline.execute()
         # test

@@ -33,7 +33,7 @@ def execute(cmd=None):
         parser_list.set_defaults(func=execute_irc)
 
         # create the conf subcommand
-        parser_list = subparsers.add_parser("test", help="allows testing certain functionalities")
+        parser_list = subparsers.add_parser("testnet", help="allows testing certain functionalities")
         parser_list.set_defaults(func=execute_test)
 
         args = parser.parse_args(cmd)

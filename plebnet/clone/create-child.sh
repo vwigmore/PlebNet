@@ -21,10 +21,10 @@ export DEBIAN_FRONTEND=noninteractive
 
 cd
 
-CHILD_DNA_FILE="~/.config/Child_DNA.json"
-DNA_FILE="~/.config/DNA.json"
-WALLET_FILE="~/.electrum/wallets/default_wallet"
-TESTNET_WALLET_FILE="~/.electrum/testnet/wallets/default_wallet"
+CHILD_DNA_FILE=~/.config/Child_DNA.json
+DNA_FILE=~/.config/DNA.json
+WALLET_FILE=~/.electrum/wallets/default_wallet
+TESTNET_WALLET_FILE=~/.electrum/testnet/wallets/default_wallet
 
 IP=""
 PASSWORD=""
@@ -141,9 +141,9 @@ else
 fi
 
 # Symlinking Tribler wallet to the default electrum wallet, might be usable for other purposes later.
-echo "Symlinking to Tribler wallet"
-sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s .Tribler/wallet/btc_wallet ${WALLET_FILE}"
-sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s .Tribler/wallet/tbtc_wallet ${TESTNET_WALLET_FILE}"
+# echo "Symlinking to Tribler wallet"
+#sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s .Tribler/wallet/btc_wallet ${WALLET_FILE}"
+#sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s .Tribler/wallet/tbtc_wallet ${TESTNET_WALLET_FILE}"
 
 ############################### INSTALL PLEBNET AND SUBMODULES ########################################
 echo "Installing PlebNet"
