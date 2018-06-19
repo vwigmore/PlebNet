@@ -16,6 +16,7 @@ from cloudomate import wallet as wallet_util
 from cloudomate.cmdline import providers as cloudomate_providers
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings as AccountSettings
+from cloudomate.hoster.vps.proxhost import ProxHost
 
 from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
@@ -39,10 +40,10 @@ def child_account(index=None):
     :return: configuration of the child
     :rtype: Config
     """
-    if index:
+    if index > -1:
         account = AccountSettings()
         account.read_settings(
-            os.path.join(user_config_dir(), 'child_config' + index + '.cfg'))
+            os.path.join(user_config_dir(), 'child_config' + str(index) + '.cfg'))
     else:
         account = AccountSettings()
         account.read_settings(
@@ -62,11 +63,18 @@ def status(provider):
     return provider.get_status(account)
 
 
-def get_ip(provider):
+def get_ip(provider, account):
     logger.log('get ip: %s' % provider)
-    client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), child_account())
-    logger.log('client area: %s' % client_area.get_services())
-    return client_area.get_ip()
+    if provider == ProxHost:
+
+        provider_instance = provider(account)
+        ip = provider_instance.get_configuration().ip
+
+        return ip
+    else:
+        client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), account)
+        logger.log('client area: %s' % client_area.get_services())
+        return client_area.get_ip()
 
 
 def setrootpw(provider, password):
@@ -88,7 +96,7 @@ def pick_provider(providers):
     gateway = get_vps_providers()[provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(price, currency)) + cloudomate.wallet.get_network_fee()
+        wallet_util.get_price(price, currency)) + get_network_fee()
     return provider, option, btc_price
 
 
@@ -100,7 +108,6 @@ def pick_option(provider):
     """
     vpsoptions = options(cloudomate_providers['vps'][provider])
     if len(vpsoptions) == 0:
-
         return
 
     cheapest_option = 0
@@ -124,10 +131,9 @@ def update_offer(config):
 def calculate_price(provider, option):
     logger.log('provider: %s option: %s' % (provider, option), "cloudomate_controller")
     vps_option = options(cloudomate_providers['vps'][provider])[option]
-
     gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(vps_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
+        wallet_util.get_price(vps_option.price, 'USD')) + get_network_fee()
     return btc_price
 
 
@@ -179,7 +185,6 @@ def purchase_choice(config):
     """
 
     (provider, option, _) = config.get('chosen_provider')
-
     provider_instance = cloudomate_providers['vps'][provider](child_account())
     PlebNetConfig().increment_child_index()
     fake_generator.generate_child_account()
@@ -190,7 +195,6 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    # TODO: provider.purchase has to return a value
     transaction_hash = provider_instance.purchase(wallet, option)
 
     if not transaction_hash:

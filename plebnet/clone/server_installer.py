@@ -35,9 +35,9 @@ def install_available_servers(config, dna):
 
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
-            ip = cloudomate_controller.get_ip(provider_class)
+            ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
         except BaseException as e:
-            logger.log(str(e) + "%s not ready yet" % provider, "install_available_servers")
+            logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
 
         # VPN configuration, enable tun/tap settings
@@ -49,8 +49,7 @@ def install_available_servers(config, dna):
                 logger.log("VPN not ready yet, can't save ovpn config")
                 return
 
-
-        logger.log("Installing child on %s with ip %s" % (provider, ip))
+        logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
         if is_valid_ip(ip):
             account_settings = cloudomate_controller.child_account(child_index)
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
@@ -78,14 +77,16 @@ def is_valid_ip(ip):
     :return: True/False
     :rtype: Boolean
     """
-    pieces = ip.strip().split('.')
-    if len(pieces) != 4:
-        return False
-    try:
-        if 0 <= int(pieces[1]) < 256:
-            return all(0 <= int(p) < 256 for p in pieces)
-    except ValueError:
-        return False
+    if ip:
+        pieces = ip.strip().split('.')
+        if len(pieces) != 4:
+            return False
+        try:
+            if 0 <= int(pieces[1]) < 256:
+                return all(0 <= int(p) < 256 for p in pieces)
+        except ValueError:
+            return False
+    return False
 
 
 def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
@@ -98,7 +99,9 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
     :return: The exit status of the installation
     :rtype: Integer
     """
-    script_path = os.path.join(setup.get_plebnet_home(), "/scripts/create-child.sh")
+    settings = setup.get_instance()
+    home = settings.plebnet_home()
+    script_path = os.path.join(home, "plebnet/clone/create-child.sh")
     logger.log('tot_path: %s' % script_path)
 
     command = '%s -i %s -p %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
@@ -112,14 +115,14 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
         ovpn = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_config_name())
         command += '-conf %s -cred %s' % (ovpn, credentials)
 
-
     if testnet:
         command += '-t'
 
-    print("Running %s" % command)
-    success = subprocess.call(command, shell=True, cwd=setup.get_plebnet_home())
-    if success:
+    logger.log("Running %s" % command, '_install_server')
+    exitcode = subprocess.call(command, shell=True, cwd=home)
+    if exitcode == 0:
         logger.log("Installation successful")
+        return True
     else:
-        logger.log("Installation unsuccessful")
-    return success
+        logger.log("Installation unsuccessful, error code: %s" % exitcode)
+        return False

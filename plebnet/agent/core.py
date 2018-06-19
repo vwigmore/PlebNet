@@ -32,6 +32,7 @@ def setup(args):
     # handle the DNA
     dna = DNA()
     dna.read_dictionary(cloudomate_controller.get_vps_providers())
+    dna.remove_provider('proxhost')
 
     # Prepare Cloudomate
     if args.test_net:
@@ -88,8 +89,10 @@ def check():
         create_wallet()
 
     select_provider()
-    update_offer()
-    attempt_purchase()
+
+    if market_controller.has_matchmakers():
+        update_offer()
+        attempt_purchase()
     install_vps()
 
 
@@ -109,7 +112,6 @@ def create_wallet():
         if y:
             settings.wallets_initiate_once("1")
             settings.settings.write()
-
 
 
 def check_tribler():

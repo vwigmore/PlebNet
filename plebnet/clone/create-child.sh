@@ -17,6 +17,13 @@
 # the installation script provided by the latests version.
 #
 
+IP=$1
+PASSWORD=$2
+CHILD_DNA_FILE=~/.config/Child_DNA.json
+DNA_FILE=~/.config/DNA.json
+# WALLET_FILE="~/.electrum/wallets/default_wallet"
+
+>>>>>>> master-dev
 export DEBIAN_FRONTEND=noninteractive
 
 cd
