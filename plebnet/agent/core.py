@@ -110,7 +110,6 @@ def create_wallet():
             settings.wallets_initiate_once("1")
             settings.settings.write()
 
-
 def check_tribler():
     """
     Check whether Tribler is running and configured properly, otherwise start Tribler.
