@@ -31,6 +31,7 @@ def setup(args):
     # handle the DNA
     dna = DNA()
     dna.read_dictionary(cloudomate_controller.get_vps_providers())
+    dna.remove_provider('proxhost')
 
     # Prepare Cloudomate
     if args.test_net:

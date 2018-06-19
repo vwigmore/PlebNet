@@ -14,9 +14,9 @@
 
 IP=$1
 PASSWORD=$2
-CHILD_DNA_FILE="~/.config/Child_DNA.json"
-DNA_FILE="~/.config/DNA.json"
-WALLET_FILE="~/.electrum/wallets/default_wallet"
+CHILD_DNA_FILE=~/.config/Child_DNA.json
+DNA_FILE=~/.config/DNA.json
+# WALLET_FILE="~/.electrum/wallets/default_wallet"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -39,8 +39,8 @@ else
     sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${CHILD_DNA_FILE} root@${IP}:${DNA_FILE}
 fi
 
-echo "Symlinking to Tribler wallet"
-sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s ~/${WALLET_FILE} .Tribler/wallet/btc_wallet"
+# echo "Symlinking to Tribler wallet"
+# sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "ln -s ~/${WALLET_FILE} .Tribler/wallet/btc_wallet"
 
 echo "install openssl"
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'apt-get update && \

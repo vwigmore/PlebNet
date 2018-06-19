@@ -92,9 +92,10 @@ def _install_server(ip, rootpw):
     logger.log('tot_path: %s' % script_path)
     command = 'bash %s %s %s' % (script_path, ip.strip(), rootpw.strip())
     logger.log("Running %s" % command, '_install_server')
-    success = subprocess.call(command, shell=True, cwd=home)
-    if success:
+    exitcode = subprocess.call(command, shell=True, cwd=home)
+    if exitcode == 0:
         logger.log("Installation successful")
+        return True
     else:
-        logger.log("Installation unsuccessful")
-    return success
+        logger.log("Installation unsuccessful, error code: %s" % exitcode)
+        return False
