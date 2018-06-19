@@ -37,10 +37,10 @@ def start():
     env['PYTHONPATH'] = setup.tribler_home()
     try:
         if setup.wallets_testnet():
-            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085', '--testnet'],
+            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085', '--testnet', '--exitnode'],
                                   cwd=setup.tribler_home(), env=env)
         else:
-            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085'],
+            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(),'plebnet', '-p', '8085', '--exitnode'],
                                   cwd=setup.tribler_home(), env=env)
 
         if exitcode != 0:

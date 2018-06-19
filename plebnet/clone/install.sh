@@ -100,7 +100,7 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b end2end_btc --recurse-submodules https://github.com/vwigmore/PlebNet
+[ ! -d "PlebNet" ] && git clone -b master-dev --recurse-submodules https://github.com/vwigmore/PlebNet
 
 
 python -m pip install --upgrade ./PlebNet
