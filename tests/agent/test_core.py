@@ -181,6 +181,85 @@ class TestCore(unittest.TestCase):
         Core.attempt_purchase = self.ap
         Core.install_vps = self.iv
 
+    def test_update_offer(self):
+        self.time = PlebNetConfig.time_since_offer
+        self.timep = plebnet_settings.TIME_IN_HOUR
+        self.logger = logger.log
+        self.uo = cloudomate_controller.update_offer
+        self.save = PlebNetConfig.save
+
+        PlebNetConfig.time_since_offer = MagicMock(return_value=300)
+        plebnet_settings.TIME_IN_HOUR = 200
+        logger.log = MagicMock()
+        cloudomate_controller.update_offer = MagicMock()
+        PlebNetConfig.save = MagicMock()
+
+        Core.config = PlebNetConfig
+        Core.update_offer()
+        PlebNetConfig.save.assert_called_once()
+
+        PlebNetConfig.time_since_offer = self.time
+        plebnet_settings.TIME_IN_HOUR = self.timep
+        logger.log = self.logger
+        cloudomate_controller.update_offer = self.uo
+        PlebNetConfig.save = self.save
+
+    def test_attempt_purchase(self):
+        self.log = logger.log
+        self.testnet = plebnet_settings.Init.wallets_testnet
+        self.get = PlebNetConfig.get
+        self.get_balance = market_controller.get_balance
+        self.calculate_price = cloudomate_controller.calculate_price
+        self.purchase_choice = cloudomate_controller.purchase_choice
+        self.evolve = DNA.evolve
+        self.set = PlebNetConfig.set
+        self.save = PlebNetConfig.save
+
+        logger.log = MagicMock()
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=True)
+        PlebNetConfig.get = MagicMock(return_value=[PlebNetConfig, 'test', 0])
+        market_controller.get_balance = MagicMock(return_value=300)
+        cloudomate_controller.calculate_price = MagicMock(return_value=500)
+        cloudomate_controller.purchase_choice = MagicMock(return_value=plebnet_settings.SUCCESS)
+        DNA.evolve = MagicMock()
+        PlebNetConfig.set = MagicMock()
+        PlebNetConfig.save = MagicMock()
+
+        Core.config = PlebNetConfig
+        Core.dna = DNA
+        Core.attempt_purchase()
+
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=False)
+        market_controller.get_balance = MagicMock(return_value=700)
+        Core.attempt_purchase()
+        DNA.evolve.assert_called_with(True)
+
+        cloudomate_controller.purchase_choice = MagicMock(return_value=plebnet_settings.FAILURE)
+        Core.attempt_purchase()
+        DNA.evolve.assert_called_with(False, PlebNetConfig)
+
+        logger.log = self.log
+        plebnet_settings.Init.wallets_testnet = self.testnet
+        PlebNetConfig.get = self.get
+        market_controller.get_balance = self.get_balance
+        cloudomate_controller.calculate_price = self.calculate_price
+        cloudomate_controller.purchase_choice = self.purchase_choice
+        DNA.evolve = self.evolve
+        PlebNetConfig.set = self.set
+        PlebNetConfig.save = self.save
+
+    def test_install_vps(self):
+        self.ias = server_installer.install_available_servers
+
+        server_installer.install_available_servers = MagicMock()
+        Core.install_vps()
+        server_installer.install_available_servers.assert_called_once()
+
+        server_installer.install_available_servers = self.ias
+
+
+
+
 
 
 
