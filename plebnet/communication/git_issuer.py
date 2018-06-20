@@ -1,7 +1,4 @@
 """
-
-FILE: plebnet.communication.git_issuer.py
-
 This file contains methods for communication via Github. It can be used to send
 files (via gist) or to create issues.
 
@@ -28,9 +25,8 @@ def handle_error(title, trace_back=' ', labels=['bug']):
     :param trace_back: The trace back resulting in the error
     :type trace_back: String
     :param labels: the labels to attach to the issue
-    :type labels:
     """
-    # only execute if plebnet is activated
+    # Only execute if PlebNet is activated
     settings = plebnet_settings.get_instance()
     if not settings.github_active(): return
 
@@ -69,26 +65,31 @@ def create_issue(title, body, labels):
     :param labels: The labels which should be attached to the issue
     :type labels: String[]
     """
-    # only execute if plebnet is activated
+    # Only execute if PlebNet is activated
     settings = plebnet_settings.get_instance()
     if not settings.github_active(): return
 
     try:
-        # collect variables
+        # Collect variables
         username = settings.github_username()
         password = settings.github_password()
         repo_owner = settings.github_owner()
         repo_name = settings.github_repo()
+
         # Our url to create issues via POST
         url = 'https://api.github.com/repos/%s/%s/issues' % (repo_owner, repo_name)
+
         # Create an authenticated session to create the issue
         session = requests.Session()
         session.auth = (username, password)
+
         # Create our issue
         issue = {'title': title, 'body': body, 'labels': labels}
+
         # Add the issue to our repository
         r = session.post(url, json.dumps(issue))
-        # inform about the results
+
+        # Inform about the results
         if r.status_code == 201:
             logger.success('Successfully created Issue "%s"' % title)
         else:
@@ -101,27 +102,33 @@ def create_issue(title, body, labels):
 
 def create_gist(filename=None):
     """
-    This method can be used to send a file to github via gist
+    This method can be used to send a file to github via gist.
     :param filename: the file to send, if left empty, the log file is send
     :type filename: String
     """
-    # only execute if plebnet is activated
+    # Only execute if PlebNet is activated
     settings = plebnet_settings.get_instance()
-    if not settings.github_active(): return
-    if not filename: filename = settings.logger_file()
+    if not settings.github_active():
+        return
+    if not filename:
+        filename = settings.logger_file()
 
     try:
-        # collect variables
+        # Collect variables
         username = settings.github_username()
         password = settings.github_password()
         bot_name = settings.irc_nick()
-        # get the log files
+
+        # Get the log files
         content = open(filename, 'r').read()
+
         # Our url to create issues via POST
         url = 'https://api.github.com/gists'
+
         # Create an authenticated session to create the issue
         session = requests.Session()
         session.auth = (username, password)
+
         # Create our issue
         gist = {
             "description": "The logfile for %s" % bot_name,
@@ -132,9 +139,9 @@ def create_gist(filename=None):
                 }
             }
         }
-        # post the gist
         r = session.post(url, json.dumps(gist))
-        # inform about the results
+
+        # Inform about the results
         if r.status_code == 201:
             logger.success('Successfully created gist')
         else:
