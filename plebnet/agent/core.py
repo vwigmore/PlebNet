@@ -169,11 +169,11 @@ def check_vpn_install():
                              settings.vpn_own_prefix()+settings.vpn_config_name())
 
     for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
-        if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name()):
+        if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name(), f):
             # matches child_0_config.openvpn 
             logger.log("DEBUG: config found, renaming")
             os.rename(f, vpnconfig)
-        elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name()):
+        elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name(), f):
             # matches child_0_credentials.conf
             logger.log("DEBUG: credentials found, renaming")
             os.rename(f, credentials)
