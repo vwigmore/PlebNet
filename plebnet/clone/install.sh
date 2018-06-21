@@ -11,6 +11,13 @@
 # for PlebNet.
 #
 
+# branch to install from
+BRANCH=$1
+# expects -testnet, can be extended for more arguments
+ARG=$2
+
+[ -z $BRANCH ] && BRANCH = "master-dev"
+
 # Add locale
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 locale-gen en_US.UTF-8
@@ -103,7 +110,7 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b master-dev --recurse-submodules https://github.com/vwigmore/PlebNet
+[ ! -d "PlebNet" ] && git clone -b $BRANCH --recurse-submodules https://github.com/vwigmore/PlebNet
 
 
 python -m pip install --upgrade ./PlebNet
@@ -114,7 +121,7 @@ pip install ./tribler/electrum
 
 cd /root
 
-if [ $1 == "-testnet" ]; then
+if [ $ARG == "-testnet" ]; then
     plebnet setup -testnet >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else

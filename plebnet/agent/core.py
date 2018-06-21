@@ -269,8 +269,8 @@ def install_vpn():
     logger.log("DEBUG: [install]")
 
     #try_install = subprocess.Popen(['openvpn', settings.vpn_own_prefix()+settings.vpn_config_name()],
-                                   cwd=os.path.expanduser(settings.vpn_config_path()),
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+#                                   cwd=os.path.expanduser(settings.vpn_config_path()),
+#                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     #result, error = try_install.communicate()
     #exitcode = try_install.wait()
 
