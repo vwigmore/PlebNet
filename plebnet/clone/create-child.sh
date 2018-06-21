@@ -142,8 +142,9 @@ fi
 if [[ $VPN_CONFIG == "" ]] || [[ $VPN_CREDENTIALS == "" ]]; then
 	echo "(no VPN configs given)";
 else
-    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CONFIG} root@${IP}:${VPN_CONFIG};
-    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CREDENTIALS} root@${IP}:${VPN_CREDENTIALS};
+    echo "copying VPN configs to child's ~/"
+    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CONFIG} root@${IP}:~/;
+    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CREDENTIALS} root@${IP}:~/;
 fi
 
 # Symlinking Tribler wallet to the default electrum wallet, might be usable for other purposes later.
