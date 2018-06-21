@@ -179,7 +179,7 @@ def check_vpn_install():
             logger.log("DEBUG: credentials found, renaming")
             os.rename(f, credentials)
 
-    if os.path.isfile(credentials) and os.isfile(vpnconfig):
+    if os.path.isfile(credentials) and os.path.isfile(vpnconfig):
         # try to install
         if install_vpn():
             settings.vpn_installed("1")
