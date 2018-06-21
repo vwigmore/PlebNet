@@ -158,7 +158,7 @@ def check_vpn_install():
     """
     # chech whether vpn is installed
     if settings.vpn_installed():
-        return
+        logger.log("DEBUG: vpn is not installed")
 
     # check OWN configuration files.
     # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
@@ -170,10 +170,12 @@ def check_vpn_install():
 
     for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
         if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name()):
-            # matches child_0_config.ovpn
+            # matches child_0_config.openvpn 
+            logger.log("DEBUG: config found, renaming")
             os.rename(f, vpnconfig)
         elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name()):
-            # matches child_0_credentials.ovpn
+            # matches child_0_credentials.conf
+            logger.log("DEBUG: credentials found, renaming")
             os.rename(f, credentials)
 
     if os.path.isfile(credentials) and os.isfile(vpnconfig):
@@ -263,14 +265,16 @@ def install_vpn():
     Attempts to install the vpn using the credentials.conf and .ovpn configuration files
     :return: True if installing succeeded, otherwise it will raise an exception.
     """
-    # credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()), 'credentials.conf')
-    # vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()), '.ovpn')
 
-    try_install = subprocess.Popen(['openvpn', settings.vpn_own_prefix()+settings.vpn_config_name()],
+    logger.log("DEBUG: [install]")
+
+    #try_install = subprocess.Popen(['openvpn', settings.vpn_own_prefix()+settings.vpn_config_name()],
                                    cwd=os.path.expanduser(settings.vpn_config_path()),
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-    result, error = try_install.communicate()
-    exitcode = try_install.wait()
+    #result, error = try_install.communicate()
+    #exitcode = try_install.wait()
+
+    exitcode = 0
 
     if exitcode != 0:
         if error.decode('ascii') == "":

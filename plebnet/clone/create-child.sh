@@ -23,7 +23,6 @@ CHILD_DNA_FILE=~/.config/Child_DNA.json
 DNA_FILE=~/.config/DNA.json
 # WALLET_FILE="~/.electrum/wallets/default_wallet"
 
->>>>>>> master-dev
 export DEBIAN_FRONTEND=noninteractive
 
 cd
@@ -157,4 +156,4 @@ echo "Installing PlebNet"
 echo "Installing from branch: $BRANCH";
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "wget https://raw.githubusercontent.com/vwigmore/plebnet/$BRANCH/plebnet/clone/install.sh && \
     chmod +x install.sh && \
-    ./install.sh $INSTALL_ARG | tee install.log"
+    ./install.sh $INSTALL_ARG | tee plebnet_installation.log"
