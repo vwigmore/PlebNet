@@ -31,14 +31,15 @@ def setup(args):
 
     # handle the DNA
     dna = DNA()
-    dna.read_dictionary(cloudomate_controller.get_vps_providers())
-    dna.remove_provider('proxhost')
 
     # Prepare Cloudomate
     if args.test_net:
         settings.wallets_testnet("1")
         settings.settings.write()
         dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
+    else:
+        dna.read_dictionary(cloudomate_controller.get_vps_providers())
+        dna.remove_provider('proxhost')
 
     dna.write_dictionary()
     fake_generator.generate_child_account()
