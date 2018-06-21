@@ -103,8 +103,10 @@ class TestCore(unittest.TestCase):
         self.init_client = irc_handler.init_irc_client
         self.start_client = irc_handler.start_irc_client
         self.success = logger.success
+        self.dna_remove = DNA.remove_provider
 
         args = MagicMock()
+        DNA.remove_provider = MagicMock()
         args.testnet = True
         logger.log = MagicMock()
         fake_generator.generate_child_account = MagicMock()
@@ -122,6 +124,7 @@ class TestCore(unittest.TestCase):
         logger.success.assert_called_once()
 
         logger.log = self.logger
+        DNA.remove_provider = self.dna_remove
         cloudomate_controller.get_vps_providers = self.provider
         DNA.read_dictionary = self.DNA
         plebnet_settings.Init.wallets_testnet = self.settings

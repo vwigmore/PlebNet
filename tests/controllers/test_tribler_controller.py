@@ -19,7 +19,7 @@ class TestTriblerController(unittest.TestCase):
         logger.log = MagicMock()
         logger.success = MagicMock()
         Settings.Init.wallets_testnet = MagicMock(return_value=True)
-        subprocess.call = MagicMock(return_value=True)
+        subprocess.call = MagicMock(return_value=0)
         assert(Tribler.start())
 
         Settings.Init.wallets_testnet = self.true_setup
@@ -32,7 +32,7 @@ class TestTriblerController(unittest.TestCase):
         self.true_logger_error = logger.error
         self.true_setup = Settings.Init.wallets_testnet
 
-        subprocess.call = MagicMock(return_value=False)
+        subprocess.call = MagicMock(return_value=1)
         Settings.Init.wallets_testnet = MagicMock(return_value=False)
         logger.error = MagicMock()
         self.assertFalse(Tribler.start())
