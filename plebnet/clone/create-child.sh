@@ -156,4 +156,4 @@ echo "Installing PlebNet"
 echo "Installing from branch: $BRANCH";
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "wget https://raw.githubusercontent.com/vwigmore/plebnet/$BRANCH/plebnet/clone/install.sh && \
     chmod +x install.sh && \
-    ./install.sh $INSTALL_ARG | tee plebnet_installation.log"
+    ./install.sh $BRANCH $INSTALL_ARG | tee plebnet_installation.log"
