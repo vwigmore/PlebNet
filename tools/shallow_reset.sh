@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Quickly resetting a server/container by removing configuration folders
+# and uninstalling PlebNet and cloudomate
+
 declare -a files=(~/.Tribler
                     ~/.config
                     ~/PlebNet

@@ -183,13 +183,14 @@ def check_vpn_install():
         if install_vpn():
             settings.vpn_installed("1")
             logger.log("Installing VPN succesful with configurations.")
+            return True
         else:
             settings.vpn_installed("0")
             logger.log("Installing VPN failed with configurations!")
-            raise Exception("I can't install VPN with these settings!")
+            return False
     else:
         logger.log("No VPN configurations found!")
-        raise Exception("I can't find VPN configurations: %s,  %s!" % (credentials, vpnconfig))
+        return False
 
 
 def attempt_purchase_vpn():
