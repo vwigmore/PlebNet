@@ -3,12 +3,14 @@
 """
 This file is used to control all dependencies with Cloudomate.
 
-Other files should never have a direct import from Cloudomate, as the reduces the maintainability of this code.
-If Cloudomate alters its call methods, this should be the only file which needs to be updated in PlebNet.
+Other files should never have a direct import from Cloudomate, as this reduces the maintainability
+of this code. If Cloudomate alters its call methods, this should be the only file which needs
+to be updated in PlebNet.
 """
 
-import cloudomate
 import os
+import sys
+import traceback
 
 from appdirs import user_config_dir
 
@@ -24,18 +26,24 @@ from plebnet.controllers.wallet_controller import TriblerWallet
 from plebnet.settings import plebnet_settings
 from plebnet.utilities import logger, fake_generator
 from plebnet.agent.dna import DNA
+from plebnet.communication import git_issuer
+
 
 def get_vps_providers():
+    """
+    This method returns the list of VPS providers available in Cloudomate.
+    :return: list of VPS providers
+    """
     return cloudomate_providers['vps']
 
 
 def child_account(index=None):
     """
-    This method returns the configuration for a certain child number
+    This method returns the configuration for a certain child number.
     :param index: The number of the child
     :type index: Integer
     :return: configuration of the child
-    :rtype: Config
+    :rtype: Settings
     """
     if index > -1:
         account = AccountSettings()
@@ -50,7 +58,7 @@ def child_account(index=None):
 
 def status(provider):
     """
-    This method returns the status parameters of a provider as specified in cloudomate.
+    This method returns the status parameters of a provider as specified in Cloudomate.
     :param provider: The provider to check
     :type provider: dict
     :return: status
@@ -61,12 +69,16 @@ def status(provider):
 
 
 def get_ip(provider, account):
+    """
+    This method returns the IP address of the specified provider and account.
+    :param provider: The provider
+    :param account: the account information
+    :return: IP address
+    """
     logger.log('get ip: %s' % provider)
     if provider == ProxHost:
-
         provider_instance = provider(account)
         ip = provider_instance.get_configuration().ip
-
         return ip
     else:
         client_area = ClientArea(provider._create_browser(), provider.get_clientarea_url(), account)
@@ -89,6 +101,11 @@ def get_network_fee():
 
 
 def pick_provider(providers):
+    """
+    This method picks a provider based on the DNA o the agent.
+    :param providers:
+    :return:
+    """
     provider = DNA.choose_provider(providers)
     gateway = get_vps_providers()[provider].get_gateway()
     option, price, currency = pick_option(provider)
@@ -99,25 +116,29 @@ def pick_provider(providers):
 
 def pick_option(provider):
     """
-    Pick most favorable option at a provider. For now pick cheapest option
-    :param provider:
+    Pick most favorable option at a provider. For now pick the cheapest option.
+    :param provider: The chosen provider
     :return: (option, price, currency)
     """
-    vpsoptions = options(cloudomate_providers['vps'][provider])
-    if len(vpsoptions) == 0:
+    vps_options = options(cloudomate_providers['vps'][provider])
+    if len(vps_options) == 0:
         return
 
     cheapest_option = 0
-    for item in range(len(vpsoptions)):
-        if vpsoptions[item].price < vpsoptions[cheapest_option].price:
+    for item in range(len(vps_options)):
+        if vps_options[item].price < vps_options[cheapest_option].price:
             cheapest_option = item
 
-    logger.log("cheapest option: %s" % str(vpsoptions[cheapest_option]))
-
-    return cheapest_option, vpsoptions[cheapest_option].price, 'USD'
+    logger.log("cheapest option: %s" % str(vps_options[cheapest_option]))
+    return cheapest_option, vps_options[cheapest_option].price, 'USD'
 
 
 def update_offer(config):
+    """
+    Retrieve the price of the chosen server to buy and make a new offer on the Tribler marketplace.
+    :param config: configuration of the agent
+    :return: None
+    """
     if not config.get('chosen_provider'):
         return
     (provider, option, _) = config.get('chosen_provider')
@@ -126,6 +147,12 @@ def update_offer(config):
 
 
 def calculate_price(provider, option):
+    """
+    Calculate the price of the chosen server to buy.
+    :param provider: the provider chosen
+    :param option: the option at the provider chosen
+    :return: the price
+    """
     logger.log('provider: %s option: %s' % (provider, option), "cloudomate_controller")
     vps_option = options(cloudomate_providers['vps'][provider])[option]
     gateway = cloudomate_providers['vps'][provider].get_gateway()
@@ -136,10 +163,10 @@ def calculate_price(provider, option):
 
 def purchase_choice(config):
     """
-    Purchase the cheapest provider in chosen_providers. If buying is successful this provider is moved to bought. In any
-    case the provider is removed from choices.
+    Purchase the cheapest provider in chosen_providers. If buying is successful this provider is
+    moved to bought. In any case the provider is removed from choices.
     :param config: config
-    :return: success
+    :return: plebnet_settings errorcode
     """
 
     (provider, option, _) = config.get('chosen_provider')
@@ -153,16 +180,19 @@ def purchase_choice(config):
     configurations = c.get_options()
     option = configurations[option]
 
-    transaction_hash = provider_instance.purchase(wallet, option)
+    try:
+        transaction_hash = provider_instance.purchase(wallet, option)
+    except:
+        title = "Failed to purchase server: %s" % sys.exc_info()[0]
+        body = traceback.format_exc()
+        logger.error(title)
+        logger.error(body)
+        git_issuer.handle_error(title, body)
+        git_issuer.handle_error("Failed to purchase server", sys.exc_info()[0], ['crash'])
+        return plebnet_settings.FAILURE
 
     if not transaction_hash:
-        logger.warning("Failed to purchase server")
         return plebnet_settings.FAILURE
-    # TODO: how to spot the difference?
-    if False:
-        logger.warning("Insufficient funds to purchase server")
-        return plebnet_settings.UNKNOWN
-
     config.get('bought').append((provider, transaction_hash, config.get('child_index')))
     config.get('transactions').append(transaction_hash)
     config.set('chosen_provider', None)

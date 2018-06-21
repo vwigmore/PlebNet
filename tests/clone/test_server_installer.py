@@ -63,7 +63,9 @@ class TestServerInstaller(unittest.TestCase):
     @mock.patch('plebnet.controllers.cloudomate_controller.get_ip', return_value='120.21.0.12')
     @mock.patch('plebnet.controllers.cloudomate_controller.child_account', return_value=test_account)
     @mock.patch('cloudomate.util.settings.Settings.get', return_value='Henri')
-    def test_install_available_servers(self, mock1, mock2, mock3, mock4):
+    @mock.patch('plebnet.settings.plebnet_settings.Init.active_logger', return_value=False)
+    @mock.patch('plebnet.settings.plebnet_settings.Init.active_verbose', return_value=False)
+    def test_install_available_servers(self, mock1, mock2, mock3, mock4, mock5, mock6):
         config = PlebNetConfig()
         config.get('bought').append(test_bought)
         config.save()

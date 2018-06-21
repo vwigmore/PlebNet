@@ -1,14 +1,12 @@
 """
-This file is used to handle the commandline input regarding the IRC connection. It tells the IRC-deamon what to do.
+This file is used to handle the commandline input regarding the IRC connection. It tells the IRC-daemon what to do.
 """
 
 import os
 import subprocess
 
 from plebnet.utilities import logger
-from plebnet.communication.irc import ircbot
 
-#TODO alle bestandspaden in 1 file, vanuit daar vervolgens inladen --> improved maintainability
 PLEBNET_HOME = os.path.expanduser("~/PlebNet")
 DEAMON = "plebnet/communication/irc/initIRC.sh"
 CLIENT = "plebnet/communication/irc/ircbot.py"
@@ -16,19 +14,11 @@ PATH_TO_DEAMON = os.path.join(PLEBNET_HOME, DEAMON)
 PATH_TO_CLIENT = os.path.join(PLEBNET_HOME, CLIENT)
 
 
-# TODO: implement send_heartbeat
-
-
-# TODO: implement send_msg(args)
-
-
 def init_irc_client(args=None):
     """
-    This method initializes the IRC client by setting up the proper rights to run the files
+    This method initializes the IRC client by setting up the proper rights to run the files.
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
-    :return: None
-    :rtype: None
     """
 
     logger.log("the IRC client is initializing", "init_irc_client")
@@ -41,7 +31,7 @@ def init_irc_client(args=None):
 
 def start_irc_client(args=None):
     """
-    This method starts the IRC client deamon
+    This method starts the IRC client daemon.
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
     :return: the exitcode of the call
@@ -60,11 +50,11 @@ def start_irc_client(args=None):
 
 def stop_irc_client(args=None):
     """
-    This method stops the IRC client deamon
+    This method stops the IRC client daemon.
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
-    :return: None
-    :rtype: None
+    :return: Errorcode
+    :rtype: Integer
     """
     logger.log("the IRC client is stopping", "stop_irc_client")
 
@@ -79,11 +69,11 @@ def stop_irc_client(args=None):
 
 def restart_irc_client(args=None):
     """
-    This method restarts the IRC client deamon
+    This method restarts the IRC client daemon.
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
-    :return: None
-    :rtype: None
+    :return: Errorcode
+    :rtype: Integer
     """
     stop_irc_client()
     success = start_irc_client()
@@ -95,8 +85,7 @@ def status_irc_client(args=None):
     This method can be used to check if the IRC client is still running.
     :param args: The remaining commands from the commandline, can be neglected.
     :type args: String
-    :return: None
-    :rtype: None
+    :return: Errorcode
+    :rtype: Integer
     """
-
     return subprocess.call('sudo %s status' % PATH_TO_DEAMON, shell=True)

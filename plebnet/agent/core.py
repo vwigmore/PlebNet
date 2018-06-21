@@ -1,13 +1,13 @@
 """
-A package which handles the main behaviour of the plebbot:
-- check if everything is up and running
-- check if the configuration is all set properly
-- check if a new child can be spawned and do so if possible
+A package which handles the main behaviour of the PlebNet agent:
+- Set all configuration files.
+- Check if Tribler and the Tribler Marketplace are running.
+- Create the necessary wallets.
+- Check if a new child agent can be bought and do so if possible.
 """
 
 import os
 import random
-import subprocess
 import time
 
 from plebnet.agent.dna import DNA
@@ -20,28 +20,35 @@ from plebnet.utilities import logger, fake_generator
 
 
 settings = plebnet_settings.get_instance()
-log_name = "agent.core"  # used for identifying the origin of the log message
-config = None  # Used to store the configuration and only load once
-dna = None  # Used to store the DNA of the agent and only load once
+log_name = "agent.core"  # Used for identifying the origin of the log message.
+config = None  # Used to store the configuration and only load once.
+dna = None  # Used to store the DNA of the agent and only load once.
 
 
 def setup(args):
+    """
+    This method should only be called once and is responsible for the initial setup of the PlebNet
+    agent. All necessary configuration files are created and IRC communication is started.
+    :param args: If running in Testnet mode.
+    """
+    global dna, config
     logger.log("Setting up PlebNet")
 
-    # handle the DNA
+    # Prepare the DNA configuration
     dna = DNA()
     dna.read_dictionary(cloudomate_controller.get_vps_providers())
     dna.remove_provider('proxhost')
 
-    # Prepare Cloudomate
     if args.test_net:
         settings.wallets_testnet("1")
         settings.settings.write()
         dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
-
     dna.write_dictionary()
+
+    # Prepare first child configuration
     fake_generator.generate_child_account()
 
+    # Set general info about the PlebNet agent
     settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
@@ -56,34 +63,28 @@ def setup(args):
 
 def check():
     """
-    The main function to run every interval
-    :return: None
-    :rtype: None
+    The method is the main function which should run periodically. It controls the behaviour of the agent,
+    starting Tribler and buying servers.
     """
     global config, dna
-
-    if settings.wallets_testnet_created():
-        os.environ['TESTNET'] = '1'    
-
     logger.log("Checking PlebNet", log_name)
-    config = PlebNetConfig()
 
-    # TODO: DNA static singular maken --> dan kan dit weg
+    # Read general configuration
+    if settings.wallets_testnet_created():
+        os.environ['TESTNET'] = '1'
+    config = PlebNetConfig()
     dna = DNA()
     dna.read_dictionary()
 
-    # these require time to setup, continue in the next iteration
+    # Requires time to setup, continue in the next iteration.
     if not check_tribler():
         return
-    if not check_tunnel_helper():
-        return
 
-    # Prepare Cloudomate
     if not settings.wallets_initiate_once():
         create_wallet()
-
     select_provider()
 
+    # These need a matchmaker, otherwise agent will be stuck waiting.
     if market_controller.has_matchmakers():
         update_offer()
         attempt_purchase()
@@ -91,9 +92,12 @@ def check():
 
 
 def create_wallet():
+    """
+    Checks if a Bitcoin (BTC) wallet or a Testnet Bitcoin (TBTC) wallet needs to be made.
+    """
     if settings.wallets_testnet():
-        # attempt to create testnet wallet
-        logger.log("create Testnet wallet", "setup")
+        # Attempt to create Testnet wallet
+        logger.log("create Testnet wallet")
         x = wallet_controller.create_wallet('TBTC')
         if x:
             settings.wallets_testnet_created("1")
@@ -101,7 +105,8 @@ def create_wallet():
             settings.settings.write()
             os.environ['TESTNET'] = '1'
     else:
-        # attempt to create bitcoin wallet
+        # Attempt to create Bitcoin wallet
+        logger.log("create Bitcoin wallet")
         y = wallet_controller.create_wallet('BTC')
         if y:
             settings.wallets_initiate_once("1")
@@ -110,8 +115,8 @@ def create_wallet():
 
 def check_tribler():
     """
-    Check whether Tribler is running and configured properly
-    :return: True if tribler is running, False otherwise
+    Check whether Tribler is running and configured properly, otherwise start Tribler.
+    :return: True if tribler is running, False otherwise.
     :rtype: Boolean
     """
     if tribler_controller.running():
@@ -122,34 +127,9 @@ def check_tribler():
         return False
 
 
-def check_tunnel_helper():
-    """
-    Temporary function to track the data stream processed by Tribler
-    :return: None
-    :rtype: None
-    """
-    # TEMP TO SEE EXITNODE PERFORMANCE, tunnel_helper should merge with market or other way around
-    if not os.path.isfile(os.path.join(settings.tribler_home(), settings.tunnelhelper_pid())):
-        logger.log("Starting tunnel_helper", log_name)
-        env = os.environ.copy()
-        env['PYTHONPATH'] = settings.tribler_home()
-        try:
-            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m', '0'], #, '-M'],
-                            cwd=settings.tribler_home(), env=env)
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output, log_name)
-            return False
-    return True
-    # TEMP TO SEE EXITNODE PERFORMANCE
-
-
 def update_offer():
     """
-    check if the stored prices for the selected provider should be updated.
-    This does not have to happen every iteration as they do not change that often
-    :return: None
-    :rtype: None
+    Check if an hour as passed since the last offer made, if passed calculate a new offer.
     """
     if config.time_since_offer() > plebnet_settings.TIME_IN_HOUR:
         logger.log("Calculating new offer", log_name)
@@ -159,11 +139,8 @@ def update_offer():
 
 def attempt_purchase():
     """
-    Check if rich enough to buy a server, and if so, do so
-    :return: None
-    :rtype: None
+    Check if enough money to buy a server, and if so, do so,
     """
-    # try to purchase the chosen vps.
     (provider, option, _) = config.get('chosen_provider')
     if settings.wallets_testnet():
         domain = 'TBTC'
@@ -173,32 +150,28 @@ def attempt_purchase():
         logger.log("Try to buy a new server from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice(config)
         if success == plebnet_settings.SUCCESS:
-            # evolve yourself positively if you are successful
+            # Evolve yourself positively if you are successful
             dna.evolve(True)
         elif success == plebnet_settings.FAILURE:
-            # evolve provider negatively if not successful
-            dna.evolve(False)
+            # Evolve provider negatively if not successful
+            dna.evolve(False, provider)
+            config.set('chosen_provider', None)
+            config.save()
 
 
 def install_vps():
     """
-    Tries to install all purchased servers, can be skipped if the server is not configured yet.
-    :return: None
-    :rtype: None
+    Calls the server install for installing all purchased servers.
     """
     server_installer.install_available_servers(config, dna)
 
 
-# TODO: dit moet naar agent.DNA, maar die is nu al te groot
 def select_provider():
     """
-    Check whether a provider is already selected, otherwise select one based on the dna
-    :return: None
-    :rtype: None
+    Check whether a provider is already selected, otherwise select one based on the DNA.
     """
     if not config.get('chosen_provider'):
         logger.log("No provider chosen yet", log_name)
-
         all_providers = dna.vps
         excluded_providers = config.get('excluded_providers')
         available_providers = list(set(all_providers.keys()) - set(excluded_providers))
