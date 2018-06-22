@@ -84,10 +84,20 @@ class TriblerWallet(object):
             data = {'amount': amount+tx_fee, 'destination': address}
             r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
             transaction_hash = r.json()['txid']
-            logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
+
+            if transaction_hash:
+                logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
+            else:
+                if self.coin == 'TBTC':
+                    # in case the testnet servers are acting funky, but transaction actually
+                    # was successful, retrieve the transaction_has from the /transactions route
+                    btx = requests.get('http://localhost:8085/wallets/tbtc/transactions')
+                    jbtx = btx.json()['transactions'][-1]
+                    if address in jbtx['to']:
+                        transaction_hash = jbtx['id']
             return transaction_hash
         except ConnectionError:
-            logger.log('Transaction unsuccessfull', 'pay')
+            logger.log('Transaction unsuccessful', 'pay')
             return False
 
 

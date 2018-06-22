@@ -17,6 +17,8 @@
 # the installation script provided by the latests version.
 #
 
+OWN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/create-child.sh"
+
 IP=$1
 PASSWORD=$2
 CHILD_DNA_FILE=~/.config/Child_DNA.json
@@ -93,6 +95,10 @@ while [ "$1" != "" ]; do
 		-b | --branch)
 		    BRANCH=$VALUE
 		    [ -z $VALUE ] && echo "ERROR: provide branch" && usage && exit;
+		    # when branch is given, this file's default branch value will be updated
+		    #   install.sh does the same for its default branch value, including this file
+		    #   this is because the child's cloned repo also needs these values updated
+		    sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $OWN && echo "Updated branch to $BRANCH in this file ($OWN)";
 		    shift
 		    shift
 		    ;;

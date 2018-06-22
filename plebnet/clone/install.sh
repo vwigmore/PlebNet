@@ -16,6 +16,9 @@ BRANCH=$1
 # expects -testnet, can be extended for more arguments
 ARG=$2
 
+OWN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/install.sh"
+CREATECHILD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/create-child.sh"
+
 [ -z $BRANCH ] && BRANCH = "master-dev"
 
 # Add locale
@@ -48,6 +51,12 @@ pip install -U wheel setuptools
 echo "fixing paths"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
+
+
+# when branch is given, this file's default branch value will be updated, including create-child
+#   this is because the child's cloned repo also needs these values updated
+sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $OWN && echo "Updated branch to $BRANCH in this file ($OWN)";
+sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in this file ($CREATECHILD)";
 
 # install openvpn
 apt-get install -y openvpn
