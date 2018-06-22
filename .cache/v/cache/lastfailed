@@ -1,0 +1,14 @@
+{
+  "tests/clone/test_server_installer.py::TestServerInstaller::test_install_available_servers": true, 
+  "tests/communication/irc/test_ircbot.py::TestIRCbot::test_handle_lines_host": true, 
+  "tests/communication/irc/test_ircbot.py::TestIRCbot::test_keep_running": true, 
+  "tests/controllers/test_cloudomate_controller.py::TestCloudomateController::test_get_ip": true, 
+  "tests/controllers/test_market_controller.py::TestMarketController": true, 
+  "tests/controllers/test_tribler_controller.py::TestTriblerController::test_start": true, 
+  "tests/controllers/test_tribler_controller.py::TestTriblerController::test_start_False": true, 
+  "tests/controllers/test_wallet_controller.py::TestWalletController::test_get_balance": true, 
+  "tests/controllers/test_wallet_controller.py::TestWalletController::test_pay": true, 
+  "tests/controllers/test_wallet_controller.py::TestWalletController::test_pay_no_response": true, 
+  "tests/utilities/test_logger.py::TestLogger::test_add_logs": true, 
+  "tests/utilities/test_logger.py::TestLogger::test_generate_file": true
+}

@@ -130,6 +130,12 @@ class Init(object):
 
     def vpn_installed(self, value=None): return self.settings.handle("vpn", "installed", value) == "1"
 
+    def vpn_running(self, value=None):
+        return self.settings.handle("vpn", "running", value) == "1"
+
+    def vpn_pid(self, value=None):
+        return self.settings.handle("vpn", "pid", value)
+
     def vpn_host(self, value=None): return self.settings.handle("vpn", "host", value)
 
     def vpn_child_prefix(self, value=None): return self.settings.handle("vpn", "child_prefix", value)

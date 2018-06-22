@@ -75,9 +75,9 @@ def check():
     dna.read_dictionary()
 
     # check if own vpn is installed before continuing
-    check_vpn_install()
-    if not settings.vpn_installed():
-        logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
+    if not vpn_is_running():
+        if not check_vpn_install():
+            logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
     # these require time to setup, continue in the next iteration
     if not check_tribler():
@@ -159,7 +159,7 @@ def check_vpn_install():
     """
     # chech whether vpn is installed
     if settings.vpn_installed():
-        logger.log("DEBUG: vpn is not installed")
+        logger.log("VPN is already installed")
 
     # check OWN configuration files.
     # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
@@ -172,11 +172,11 @@ def check_vpn_install():
     for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
         if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name(), f):
             # matches child_0_config.openvpn 
-            logger.log("DEBUG: config found, renaming")
+            logger.log("VPN config found, renaming")
             os.rename(f, vpnconfig)
         elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name(), f):
             # matches child_0_credentials.conf
-            logger.log("DEBUG: credentials found, renaming")
+            logger.log("VPN credentials found, renaming")
             os.rename(f, credentials)
 
     if os.path.isfile(credentials) and os.path.isfile(vpnconfig):
@@ -268,22 +268,39 @@ def install_vpn():
     :return: True if installing succeeded, otherwise it will raise an exception.
     """
 
-    logger.log("DEBUG: [install]")
+    logger.log("Installing VPN")
 
-    #try_install = subprocess.Popen(['openvpn', settings.vpn_own_prefix()+settings.vpn_config_name()],
-#                                   cwd=os.path.expanduser(settings.vpn_config_path()),
-#                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-    #result, error = try_install.communicate()
-    #exitcode = try_install.wait()
-
-    exitcode = 0
+    try_install = subprocess.Popen(['openvpn', '--config', settings.vpn_own_prefix()+settings.vpn_config_name(), '--daemon'],
+                                  cwd=os.path.expanduser(settings.vpn_config_path()),
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    result, error = try_install.communicate()
+    exitcode = try_install.wait()
 
     if exitcode != 0:
         if error.decode('ascii') == "":
             error = result
-        raise Exception("Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
+        logger.log("ERROR installing VPN, Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
+        return False
     else:
+        pid = try_install.pid
+        settings.vpn_pid(pid)
+        settings.vpn_running("1")
         return True
+
+
+def vpn_is_running():
+    """
+    :return: True if vpn is running, else false
+    """
+    pid = settings.vpn_pid()
+    check = subprocess.call(['ps', '-p', str(pid)])
+    if check == 0:
+        settings.vpn_running("1")
+        return True
+    else:
+        settings.vpn_running("0")
+        settings.vpn_pid(0)
+        return False
 
 
 # TODO: dit moet naar agent.DNA, maar die is nu al te groot

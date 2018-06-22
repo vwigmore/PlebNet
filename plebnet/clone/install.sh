@@ -51,11 +51,6 @@ echo "fixing paths"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
 
-
-# when branch is given, this create-child.sh's default branch value will be updated
-#   this is because the child's cloned repo also needs these values updated
-sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in this file ($CREATECHILD)";
-
 # install openvpn
 apt-get install -y openvpn
 
@@ -119,6 +114,9 @@ apt-get install -y libsodium-dev;
 cd $HOME
 [ ! -d "PlebNet" ] && git clone -b $BRANCH --recurse-submodules https://github.com/vwigmore/PlebNet
 
+# when branch is given, this create-child.sh's default branch value will be updated
+#   this is because the child's cloned repo also needs these values updated
+sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in this file ($CREATECHILD)";
 
 python -m pip install --upgrade ./PlebNet
 cd PlebNet
