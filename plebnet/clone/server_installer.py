@@ -45,7 +45,7 @@ def install_available_servers(config, dna):
             vpn_child_index = child_index
             tun_succes = provider_class.enable_tun_tap()
             logger.log("Enabling %s tun/tap: %s"%(provider, tun_succes))
-            if not cloudomate_controller.save_info_vpn(config):
+            if not cloudomate_controller.save_info_vpn():
                 logger.log("VPN not ready yet, can't save ovpn config")
                 return
 

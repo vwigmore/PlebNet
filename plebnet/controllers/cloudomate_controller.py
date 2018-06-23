@@ -237,15 +237,15 @@ def place_offer(chosen_est_price, config):
                                      timeout=plebnet_settings.TIME_IN_HOUR)
 
 
-def save_info_vpn(config):
+def save_info_vpn():
     """
     Stores the child vpn information
     :param location: where to store the config
     :return:
     """
-    vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](config)
+    vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](child_account())
     info = vpn.get_configuration()
-    child_index = config.get('child_index')
+    child_index = PlebNetConfig().get('child_index')
     prefix = plebnet_settings.get_instance().vpn_child_prefix()
 
 
