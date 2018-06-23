@@ -245,7 +245,7 @@ def save_info_vpn():
     """
     vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](child_account())
     info = vpn.get_configuration()
-    child_index = PlebNetConfig().get('child_index')
+    child_index = str(PlebNetConfig().get('child_index'))
     prefix = plebnet_settings.get_instance().vpn_child_prefix()
 
 
