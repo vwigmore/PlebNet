@@ -1,7 +1,7 @@
 """
-This file is used to setup a new PlebNet agent on a remote server.
+This file contains all code used to setup a new PlebNet agent on a remote server.
 
-It used the available servers in the configuration and tries to install
+It used the available servers listed in the configuration and tries to install
 the latest version of PlebNet on these servers.
 """
 
@@ -14,7 +14,8 @@ from plebnet.utilities import logger
 
 def install_available_servers(config, dna):
     """
-    This function checks if there are any servers ready to be installed and installs PlebNet on them.
+    This function checks if any of the bought servers are ready to be installed and installs
+    PlebNet on them.
     :param config: The configuration of this Plebbot
     :type config: dict
     :param dna: The DNA of this Plebbot
@@ -71,7 +72,7 @@ def install_available_servers(config, dna):
 
 def is_valid_ip(ip):
     """
-    This methods checks if the provided ip-address is valid
+    This methods checks if the provided ip-address is valid.
     :param ip: The ipadress to check
     :type ip: String
     :return: True/False

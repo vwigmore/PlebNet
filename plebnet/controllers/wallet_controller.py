@@ -1,13 +1,11 @@
 """
 This file is used to control all dependencies of the Electrum wallet using the Tribler API.
 
-Other files should never have a direct import from Electrum, as the reduces the maintainability of this code.
-If Electrum alters its call methods, this should be the only file which needs to be updated in PlebNet.
+Other files should never have a direct import from Tribler, as this reduces the maintainability of
+this code. If Tribler alters its web API, this should be the only file which needs to be updated
+in PlebNet.
 """
 
-import os
-import json
-import subprocess
 import market_controller as marketcontroller
 import plebnet.settings.plebnet_settings as plebnet_settings
 import requests
@@ -18,6 +16,11 @@ settings = plebnet_settings.get_instance()
 
 
 def create_wallet(wallet_type):
+    """
+    Create a BTC or TBTC wallet using the Tribler web API.
+    :param wallet_type: BTC or TBTC
+    :return: boolean representing success
+    """
     if wallet_type == 'TBTC' and settings.wallets_testnet_created():
         logger.log("Testnet wallet already created", "create_wallet")
         return True
@@ -48,7 +51,8 @@ def create_wallet(wallet_type):
 
 class TriblerWallet(object):
     """
-    This class expects Tribler to be running and uses the wallet created via Tribler.
+    This class expects Tribler to be running and uses the wallet created via Tribler. This object is
+    used the send to Cloudomate and has its own get_balance and pay method.
     Either a TBTC or a BTC wallet.
     """
 
@@ -60,14 +64,14 @@ class TriblerWallet(object):
 
     def get_balance(self):
         """
-        Returns the balance of the current wallet
+        Returns the balance of the current wallet.
         :return: the balance
         """
         return marketcontroller.get_balance(self.coin)
 
     def pay(self, address, amount, fee=None):
         """
-
+        Send a post request to the Tribler web API for making a transaction.
         :param address: the address of the receiver
         :param amount: the amount to be sent excluding fee
         :param fee: the fee to be used, 0 if None

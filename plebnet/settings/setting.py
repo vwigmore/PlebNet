@@ -21,13 +21,8 @@ their specific getters and setters and prevent other direct access to values.
 This way the exact section name and variable name only have to be declared once.
 """
 
-# Total imports
 import os
-# Partial imports
-from configparser import ConfigParser, SafeConfigParser
-from appdirs import *
-# Local imports
-# from plebnet.utilities import logger
+from configparser import SafeConfigParser
 
 
 class Settings(object):

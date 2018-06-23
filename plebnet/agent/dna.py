@@ -1,5 +1,8 @@
 """
-Contains the DNA of the agent, which is used for the genetic decision making
+Contains the DNA of the agent, which is used for the genetic decision making. It stores provider-value pairs
+which indicate the preference towards each provider. Decisions are made by choosing uniformly between all
+preferences. Updating DNA works by normalising all values, increasing/decreasing a value by the rate and
+then denormalising all values again.
 """
 
 import copy
@@ -15,7 +18,7 @@ class DNA:
     Class for the DNA of the agent
     """
     rate = 0.005  # the update rate to change the genes
-    length = 0.0  # total length of DNA values
+    length = 0.0  # sum of all DNA values
     dictionary = {}  # contains all DNA data
     vps = {}  # contains the probabilities for each option
 
@@ -23,6 +26,11 @@ class DNA:
         pass
 
     def read_dictionary(self, providers=None):
+        """
+        Reads DNA configuration from file if the file exists, otherwise creates new DNA configuration with
+        the providers given.
+        :param providers: dictionary of providers to include in DNA.
+        """
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, 'DNA.json')
 
@@ -37,6 +45,11 @@ class DNA:
 
     @staticmethod
     def create_initial_dict(providers):
+        """
+        Creates the DNA configuration for the first agent, where the host is unknown and the parents do not exist.
+        :param providers: dictionary of providers to use in DNA.
+        :return: the created DNA configuration.
+        """
         initial_dict = {'Self': 'unknown',
                         'parent': 'unknown',
                         'transaction_hash': '',
@@ -45,19 +58,26 @@ class DNA:
         return initial_dict
 
     def write_dictionary(self):
+        """
+        Writes the DNA configuration to the DNA.json file.
+        """
         config_dir = user_config_dir()
         filename = os.path.join(config_dir, 'DNA.json')
         with open(filename, 'w') as json_file:
             json.dump(self.dictionary, json_file)
 
     def create_child_dna(self, provider, parent_name, transaction_hash):
+        """
+        Creates the DNA configuration for the child agent. This is done by copying the own DNA configuration
+        and including the new host provider, the parent name and the transaction hash.
+        :param provider: the provider the child will be installed on.
+        :param parent_name: the name of the parent agent.
+        :param transaction_hash: the transaction hash the child is bought with.
+        """
         dictionary = copy.deepcopy(self.dictionary)
         dictionary['Self'] = provider
         dictionary['parent'] = parent_name
         dictionary['transaction_hash'] = transaction_hash
-        # TODO
-        # raise NotImplementedError('RESET ALL VARIABLES EXCEPT VPS')
-        # TODO
         filename = os.path.join(user_config_dir(), 'Child_DNA.json')
         with open(filename, 'w') as json_file:
             json.dump(dictionary, json_file)
@@ -110,17 +130,6 @@ class DNA:
             dictionary[item] /= length
         return dictionary
 
-    # def choose(self):
-    #     self.normalize()
-    #     provider = self.choose_provider(self.vps)
-    #     self.denormalize()
-    #     dictionary = self.exclude(provider)
-    #     dictionary = self.normalize_excluded(dictionary)
-    #     provider2 = None
-    #     while not provider2:
-    #         provider2 = self.choose_provider(dictionary)
-    #     return provider, provider2
-
     def positive_evolve(self, provider):
         self.normalize()
         self.mutate(provider)
@@ -138,13 +147,17 @@ class DNA:
         self.write_dictionary()
 
     def get_own_provider(self):
-
         return self.dictionary['Self']
 
-    def evolve(self, success):
-        provider = self.get_own_provider()
+    def evolve(self, success, provider=None):
+        """
+        Evolves the DNA of the agent. If successful, increase value of own provider, if not successful
+        decrease value of chosen option.
+        :param success: boolean if purchase successful.
+        :param provider: the provider to change the value of.
+        """
         if success:
-            self.positive_evolve(provider)
+            self.positive_evolve(self.get_own_provider())
         else:
             self.negative_evolve(provider)
 

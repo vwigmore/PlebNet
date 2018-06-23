@@ -85,7 +85,7 @@ class TestCloudomateController(unittest.TestCase):
         ClientArea.get_services = MagicMock()
         ClientArea.get_ip = MagicMock()
 
-        cloudomate.get_ip(blueAngel.BlueAngelHost)
+        cloudomate.get_ip(blueAngel.BlueAngelHost, 'testaccount')
         ClientArea.get_ip.assert_called_once()
 
         ClientArea.__init__ = self.clientarea
@@ -237,10 +237,12 @@ class TestCloudomateController(unittest.TestCase):
         self.mb = market.get_balance
         self.logger = Logger.log
         self.put = market.put_ask
+        self.true_settings = plebnet_settings.Init.wallets_testnet
 
         Logger.log = MagicMock()
         market.get_balance = MagicMock(return_value=56)
         market.put_ask = MagicMock()
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=False)
 
         cloudomate.place_offer(5, PlebNetConfig())
         market.put_ask.assert_called_once()

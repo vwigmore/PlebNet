@@ -10,7 +10,7 @@ import random
 import time
 import sys
 
-# as the file is loaded separately, the imports have to be fixed
+# as the file is loaded separately, the imports have to be adjusted.
 sys.path.append('./PlebNet')
 from plebnet.agent import dna
 from plebnet.communication import git_issuer
@@ -72,8 +72,6 @@ class Create(object):
         :type command: String
         :param response: The method to call as the command is received
         :type response: a method
-        :return: None
-        :rtype: None
         """
         self.responses[":!" + command] = response
 
@@ -92,11 +90,8 @@ class Create(object):
 
     def run(self):
         """
-        This method keeps listening to the server for incomming messages and processes them.
-        :return:
-        :rtype:
+        This method keeps listening to the server for incoming messages and processes them.
         """
-
         self.send("NICK %s" % self.nick)
         self.send("USER %s %s %s : %s" % (self.nick, self.nick, self.nick, self.gecos))
         self.heartbeat()
@@ -107,7 +102,7 @@ class Create(object):
 
     def keep_running(self, buffer):
         try:
-            buffer = buffer + self.irc.recv(2048)
+            buffer += self.irc.recv(2048)
             lines = str.split(buffer, "\r\n")
             buffer = lines.pop()
 
@@ -133,14 +128,11 @@ class Create(object):
 
     def heartbeat(self):
         """
-        This method sends a heartbeat to the IRC server when it is called
-        :return: None
-        :rtype: None
+        This method sends a heartbeat to the IRC server when it is called.
+
         """
         timer = time.time()
         elapsed_time = timer - self.last_beat
-        print(elapsed_time, self.timeout)
-
 
         if elapsed_time > self.timeout:
             self.last_beat = timer
@@ -150,18 +142,15 @@ class Create(object):
 
     def handle_line(self, line):
         """
-        This method handles a line received from the IRC server
+        This method handles a line received from the IRC server.
         :param line: The line to process
         :type line: String
-        :return: None
-        :rtype: None
         """
 
         line = str.rstrip(line)
         words = str.split(line)
 
         # playing ping-pong with a key (words[1])
-        # TODO: reply to private pings: <user> PRIVMSG <botnick> :_PING 12345667_
         if words[0] == "PING":
             st = "PONG %s" % words[1]
             self.send(st)
@@ -211,7 +200,7 @@ class Create(object):
 
     def msg_init(self):         self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
 
-    def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: he ate the pizza before it was cool")
+    def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: He ate the pizza before it was cool.")
 
     def msg_MB_wallet(self):    self.send_msg("My MB wallet is: %s" % wallet_controller.get_MB_wallet())
 
@@ -237,6 +226,6 @@ class Create(object):
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
-# init the bot when this file is run
+
 if __name__ == '__main__':
     Create()
