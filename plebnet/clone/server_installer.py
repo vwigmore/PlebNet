@@ -44,22 +44,25 @@ def install_available_servers(config, dna):
         # VPN configuration, enable tun/tap settings
         if provider_class.TUN_TAP_SETTINGS:
             vpn_child_index = child_index
-            tun_succes = provider_class.enable_tun_tap()
-            logger.log("Enabling %s tun/tap: %s"%(provider, tun_succes))
+            tun_success = provider_class.enable_tun_tap()
+            logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
             if not cloudomate_controller.save_info_vpn():
                 logger.log("VPN not ready yet, can't save ovpn config")
                 return
 
         logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
-        if is_valid_ip(ip):
-            account_settings = cloudomate_controller.child_account(child_index)
+
+        account_settings = cloudomate_controller.child_account(child_index)
+        rootpw = account_settings.get('server', 'root_password', vpn_child_index,
+                                      setup.get_instance().wallets_testnet())
+        if check_access(ip, rootpw):
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
                                           account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
 
             # Save config before entering possibly long lasting process
             config.save()
-            rootpw = account_settings.get('server', 'root_password', vpn_child_index, setup.get_instance().wallets_testnet())
+
             success = _install_server(ip, rootpw)
 
             # Reload config in case install takes a long time
@@ -68,6 +71,10 @@ def install_available_servers(config, dna):
             if [provider, transaction_hash, child_index] in config.get('bought'):
                 config.get('bought').remove([provider, transaction_hash, child_index])
             config.save()
+        else:
+            logger.log("Something went wrong with installing on server "
+                       "maybe the rootpassword on the server is not correct. Trying to change it...")
+            provider_class.change_root_password(rootpw)
 
 
 def is_valid_ip(ip):
@@ -90,6 +97,14 @@ def is_valid_ip(ip):
     return False
 
 
+def check_access(ip, rootpw):
+    check = subprocess.call(['sshpass', '-p', rootpw, 'ssh',
+                             '-o', 'UserKnownHostsFile=/dev/null',
+                             '-o', 'StrictHostKeyChecking=no', 'root@'+ip,
+                             'exit'])
+    return is_valid_ip(ip) and check == 0
+
+
 def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
     """
     This function starts the actual installation routine.
@@ -105,7 +120,7 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
     script_path = os.path.join(home, "plebnet/clone/create-child.sh")
     logger.log('tot_path: %s' % script_path)
 
-    command = '%s -i %s -p %s' % ("scripts/create-child.sh", ip.strip(), rootpw.strip())
+    command = ["bash", "scripts/create-child.sh", "-i", ip.strip(), "-p", rootpw.strip()]
 
     # additional VPN arguments
     if vpn_child_index:
@@ -114,12 +129,12 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
         dir = os.path.expanduser(setup.get_instance().vpn_config_path())
         credentials = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_credentials_name())
         ovpn = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_config_name())
-        command += '-conf %s -cred %s' % (ovpn, credentials)
+        command += ["-conf", ovpn, "-cred", credentials]
 
     if testnet:
-        command += '-t'
+        command += "-t"
 
-    logger.log("Running %s" % command, '_install_server')
+    logger.log("Running %s" % ' '.join(command), '_install_server')
     exitcode = subprocess.call(command, shell=True, cwd=home)
     if exitcode == 0:
         logger.log("Installation successful")

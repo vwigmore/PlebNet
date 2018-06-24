@@ -10,6 +10,7 @@ import os
 import random
 import time
 import re
+import subprocess
 
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
@@ -42,13 +43,10 @@ def setup(args):
         settings.wallets_testnet("1")
         settings.settings.write()
         dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
-<<<<<<< HEAD
     else:
         dna.read_dictionary(cloudomate_controller.get_vps_providers())
         dna.remove_provider('proxhost')
 
-=======
->>>>>>> master-dev
     dna.write_dictionary()
 
     # Prepare first child configuration
@@ -82,16 +80,12 @@ def check():
     dna = DNA()
     dna.read_dictionary()
 
-<<<<<<< HEAD
     # check if own vpn is installed before continuing
     if not vpn_is_running():
         if not check_vpn_install():
             logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
-    # these require time to setup, continue in the next iteration
-=======
     # Requires time to setup, continue in the next iteration.
->>>>>>> master-dev
     if not check_tribler():
         return
 
@@ -142,7 +136,6 @@ def check_tribler():
         return False
 
 
-<<<<<<< HEAD
 def check_tunnel_helper():
     """
     Temporary function to track the data stream processed by Tribler
@@ -226,9 +219,6 @@ def attempt_purchase_vpn():
         elif success == plebnet_settings.FAILURE:
             logger.error("Error purchasing vpn", log_name)
 
-
-=======
->>>>>>> master-dev
 def update_offer():
     """
     Check if an hour as passed since the last offer made, if passed calculate a new offer.
@@ -272,7 +262,6 @@ def install_vps():
     server_installer.install_available_servers(config, dna)
 
 
-<<<<<<< HEAD
 def install_vpn():
     """
     Attempts to install the vpn using the credentials.conf and .ovpn configuration files
@@ -315,8 +304,6 @@ def vpn_is_running():
 
 
 # TODO: dit moet naar agent.DNA, maar die is nu al te groot
-=======
->>>>>>> master-dev
 def select_provider():
     """
     Check whether a provider is already selected, otherwise select one based on the DNA.
