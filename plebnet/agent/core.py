@@ -11,6 +11,7 @@ import random
 import time
 import re
 import subprocess
+import shutil
 
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
@@ -271,7 +272,12 @@ def install_vpn():
     logger.log("Installing VPN")
 
     # configuring nameservers, if the server uses a local nameserver
-    ns = subprocess.call(['sed', 'i', 'E', '"s/(\s*nameserver)\s*(.*)/\1 1.1.1.1/"', '/etc/resolv.conf'])
+    # either 1.1.1.1/1.0.0.1 or 8.8.8.8/8.8.4.4 work
+    resolv = """nameserver 1.1.1.1
+    nameserver 1.0.0.1"""
+
+    with open(os.path.expanduser('/etc/resolv.conf'), 'w') as dnsfile:
+        dnsfile.write(resolv)
 
     try_install = subprocess.Popen(['openvpn', '--config', settings.vpn_own_prefix()+settings.vpn_config_name(), '--daemon'],
                                   cwd=os.path.expanduser(settings.vpn_config_path()),
