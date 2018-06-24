@@ -285,7 +285,7 @@ def install_vpn():
     result, error = try_install.communicate()
     exitcode = try_install.wait()
 
-    if exitcode != 0 or ns != 0:
+    if exitcode != 0:
         if error.decode('ascii') == "":
             error = result
         logger.log("ERROR installing VPN, Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
