@@ -270,13 +270,16 @@ def install_vpn():
 
     logger.log("Installing VPN")
 
+    # configuring nameservers, if the server uses a local nameserver
+    ns = subprocess.call(['sed', 'i', 'E', '"s/(\s*nameserver)\s*(.*)/\1 1.1.1.1/"', '/etc/resolv.conf'])
+
     try_install = subprocess.Popen(['openvpn', '--config', settings.vpn_own_prefix()+settings.vpn_config_name(), '--daemon'],
                                   cwd=os.path.expanduser(settings.vpn_config_path()),
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     result, error = try_install.communicate()
     exitcode = try_install.wait()
 
-    if exitcode != 0:
+    if exitcode != 0 or ns != 0:
         if error.decode('ascii') == "":
             error = result
         logger.log("ERROR installing VPN, Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
