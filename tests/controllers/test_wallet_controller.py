@@ -159,5 +159,22 @@ class TestWalletController(unittest.TestCase):
         self.assertEquals(r.pay('address', 30), 'testID')
         walletcontroller.TriblerWallet.get_balance = self.true_balance
 
+    @responses.activate
+    def test_pay_transactions(self):
+        self.true_balance = walletcontroller.TriblerWallet.get_balance
+        walletcontroller.TriblerWallet.get_balance = MagicMock(return_value=300)
+
+        r = walletcontroller.TriblerWallet(True)
+        r.__init__(True)
+        print(r.coin)
+
+        responses.add(responses.POST, 'http://localhost:8085/wallets/' + r.coin + '/transfer', json={'txid': None})
+        responses.add(responses.GET, 'http://localhost:8085/wallets/tbtc/transactions', json={"transactions": [{
+                        "id": "testID",
+                        "to": 'address'}]})
+
+        self.assertEquals(r.pay('address', 30), 'testID')
+        walletcontroller.TriblerWallet.get_balance = self.true_balance
+
 if __name__ == '__main__':
     unittest.main()
