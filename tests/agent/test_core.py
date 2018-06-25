@@ -1,4 +1,5 @@
 import unittest
+from unittest import skip
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
 from plebnet.clone import server_installer
@@ -8,7 +9,7 @@ from plebnet.settings import plebnet_settings
 from mock.mock import MagicMock
 from plebnet.utilities import logger, fake_generator
 import plebnet.agent.core as Core
-import mock
+import subprocess
 import os
 from appdirs import user_config_dir
 
@@ -273,6 +274,65 @@ class TestCore(unittest.TestCase):
         server_installer.install_available_servers.assert_called_once()
 
         server_installer.install_available_servers = self.ias
+
+
+    def test_attempt_purchase_vpn(self):
+        self.vpnset = plebnet_settings.Init.vpn_host
+        self.vpnpro = cloudomate_controller.get_vpn_providers
+        self.wall = plebnet_settings.Init.wallets_testnet
+        self.bal = market_controller.get_balance
+        self.price = cloudomate_controller.calculate_price_vpn
+        self.pur = cloudomate_controller.purchase_choice_vpn
+        self.suc = logger.success
+        self.log = logger.log
+        self.err = logger.error
+
+        cloudomate_controller.purchase_choice_vpn = MagicMock(return_value=plebnet_settings.SUCCESS)
+        plebnet_settings.Init.vpn_host = MagicMock()
+        cloudomate_controller.get_vpn_providers = MagicMock(return_value='String')
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=True)
+        market_controller.get_balance = MagicMock(return_value=800)
+        cloudomate_controller.calculate_price_vpn = MagicMock(return_value=500)
+        logger.success = MagicMock()
+        logger.log = MagicMock()
+        logger.error = MagicMock()
+
+        Core.attempt_purchase_vpn()
+        logger.success.assert_called_once()
+
+        cloudomate_controller.purchase_choice_vpn = MagicMock(return_value=plebnet_settings.FAILURE)
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=False)
+        Core.attempt_purchase_vpn()
+        logger.error.assert_called_once()
+
+        plebnet_settings.Init.vpn_host = self.vpnset
+        cloudomate_controller.get_vpn_providers = self.vpnpro
+        plebnet_settings.Init.wallets_testnet = self.wall
+        market_controller.get_balance = self.bal
+        cloudomate_controller.calculate_price_vpn = self.price
+        cloudomate_controller.purchase_choice_vpn = self.pur
+        logger.success = self.suc
+        logger.log = self.log
+        logger.error = self.err
+
+    def test_vpn_is_running(self):
+        self.pid = plebnet_settings.Init.vpn_pid
+        self.run = plebnet_settings.Init.vpn_running
+        self.call = subprocess.call
+
+        plebnet_settings.Init.vpn_pid = MagicMock(return_value='String')
+        plebnet_settings.Init.vpn_running = MagicMock()
+        subprocess.call = MagicMock(return_value=0)
+
+        assert Core.vpn_is_running()
+
+        subprocess.call = MagicMock(return_value=1)
+
+        self.assertFalse(Core.vpn_is_running())
+
+        plebnet_settings.Init.vpn_pid = self.pid
+        plebnet_settings.Init.vpn_running = self.run
+        subprocess.call = self.call
 
 
 
