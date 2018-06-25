@@ -64,6 +64,10 @@ class Init(object):
         str = self.settings.handle("paths", "PLEBNET_HOME", value)
         if not value: return os.path.expanduser(str)
 
+    def vpn_config_path(self, value=None): 
+        str = self.settings.handle("paths", "VPN_CONFIG_PATH", value)
+        if not value: return os.path.expanduser(str)
+
     """ THE ATTRIBUTE METHODS FOR THE PID SECTION """
 
     def tunnelhelper_pid(self, value=None): return self.settings.handle("pids", "TUNNEL_HELPER_PID", value)
@@ -122,6 +126,30 @@ class Init(object):
 
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
 
+    """The ATTRIBUTE METHODS FOR VPN SECTON"""
+
+    def vpn_installed(self, value=None): return self.settings.handle("vpn", "installed", value) == "1"
+
+    def vpn_running(self, value=None):
+        return self.settings.handle("vpn", "running", value) == "1"
+
+    def vpn_pid(self, value=None):
+        return self.settings.handle("vpn", "pid", value)
+
+    def vpn_host(self, value=None): return self.settings.handle("vpn", "host", value)
+
+    def vpn_child_prefix(self, value=None): return self.settings.handle("vpn", "child_prefix", value)
+
+    def vpn_own_prefix(self, value=None): return self.settings.handle("vpn", "own_prefix", value)
+
+    def vpn_config_name(self, value=None): return self.settings.handle("vpn", "config_name", value)
+
+    def vpn_credentials_name(self, value=None): return self.settings.handle("vpn", "credentials_name", value)
+
+
+def write():
+    get_instance()
+    instance.settings.write()
 
 
 def store(args):

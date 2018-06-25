@@ -11,6 +11,15 @@
 # for PlebNet.
 #
 
+# branch to install from
+BRANCH=$1
+# expects -testnet, can be extended for more arguments
+ARG=$2
+
+CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
+
+[ -z $BRANCH ] && BRANCH = "master"
+
 # Add locale
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 locale-gen en_US.UTF-8
@@ -29,7 +38,7 @@ apt-get update
 apt-get install -y python
 
 # Reinstall pip
-apt-get remove --purge python-pip
+apt-get remove --purge -y python-pip
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
@@ -38,9 +47,12 @@ pip install -U wheel setuptools
 #(echo "alias pip='python -m pip'" | tee -a ~/.bashrc) && source ~/.bashrc
 
 # Fix paths
-echo "fixing path"
+echo "fixing paths"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
+
+# install openvpn
+apt-get install -y openvpn
 
 # Install dependencies
 apt-get install -y \
@@ -100,15 +112,26 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
-[ ! -d "PlebNet" ] && git clone -b master https://github.com/vwigmore/PlebNet
-[ ! -d "cloudomate" ] && git clone -b master https://github.com/codesalad/cloudomate
-python -m pip install --upgrade ./cloudomate
+[ ! -d "PlebNet" ] && git clone -b $BRANCH --recurse-submodules https://github.com/vwigmore/PlebNet
+
+# when branch is given, this create-child.sh's default branch value will be updated
+#   this is because the child's cloned repo also needs these values updated
+sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in this file ($CREATECHILD)";
+
 python -m pip install --upgrade ./PlebNet
 cd PlebNet
-git submodule update --init --recursive tribler
-pip install ./tribler/electrum
-cd /root
-plebnet setup >> plebnet.log 2>&1
 
-cron plebnet check
-echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+pip install ./cloudomate
+pip install ./tribler/electrum
+
+cd /root
+
+if [ $ARG == "-testnet" ]; then
+    plebnet setup -testnet >> plebnet.log 2>&1
+    echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
+else
+    plebnet setup >> plebnet.log 2>&1
+    cron plebnet check
+    echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+    echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"
+fi

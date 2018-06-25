@@ -1,24 +1,26 @@
 """
 This file is used to control all dependencies of the Electrum wallet using the Tribler API.
 
-Other files should never have a direct import from Electrum, as the reduces the maintainability of this code.
-If Electrum alters its call methods, this should be the only file which needs to be updated in PlebNet.
+Other files should never have a direct import from Tribler, as this reduces the maintainability of
+this code. If Tribler alters its web API, this should be the only file which needs to be updated
+in PlebNet.
 """
 
-import os
-import json
-import subprocess
 import market_controller as marketcontroller
 import plebnet.settings.plebnet_settings as plebnet_settings
 import requests
 from requests.exceptions import ConnectionError
 from plebnet.utilities import logger
 
-WALLET_FILE = os.path.expanduser("~/.electrum/wallets/default_wallet")
 settings = plebnet_settings.get_instance()
 
 
 def create_wallet(wallet_type):
+    """
+    Create a BTC or TBTC wallet using the Tribler web API.
+    :param wallet_type: BTC or TBTC
+    :return: boolean representing success
+    """
     if wallet_type == 'TBTC' and settings.wallets_testnet_created():
         logger.log("Testnet wallet already created", "create_wallet")
         return True
@@ -30,10 +32,9 @@ def create_wallet(wallet_type):
         logger.log("The marketplace can't be started", "create_wallet")
         return False
     try:
-        data = ['curl', '-X', 'PUT', 'http://localhost:8085/wallets/' + wallet_type, '--data', '\"password=' + settings.wallets_password() + '\"']
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-        message = json.loads(response)
-
+        data = {'password': settings.wallets_password()}
+        r = requests.put('http://localhost:8085/wallets/' + wallet_type, data=data)
+        message = r.json()
         if 'created' in message:
             logger.log("Wallet created successfully", "create_wallet")
             return True
@@ -50,7 +51,8 @@ def create_wallet(wallet_type):
 
 class TriblerWallet(object):
     """
-    This class expects Tribler to be running and uses the wallet created via Tribler.
+    This class expects Tribler to be running and uses the wallet created via Tribler. This object is
+    used the send to Cloudomate and has its own get_balance and pay method.
     Either a TBTC or a BTC wallet.
     """
 
@@ -62,18 +64,14 @@ class TriblerWallet(object):
 
     def get_balance(self):
         """
-        Returns the balance of the current wallet
+        Returns the balance of the current wallet.
         :return: the balance
         """
-        data = ['curl', '-X', 'GET', 'http://localhost:8085/wallets/' + self.coin + '/balance']
-
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-        available = json.loads(response)['balance']['available']
-        return float(available)
+        return marketcontroller.get_balance(self.coin)
 
     def pay(self, address, amount, fee=None):
         """
-
+        Send a post request to the Tribler web API for making a transaction.
         :param address: the address of the receiver
         :param amount: the amount to be sent excluding fee
         :param fee: the fee to be used, 0 if None
@@ -83,18 +81,59 @@ class TriblerWallet(object):
         tx_fee = 0 if fee is None else fee
 
         if self.get_balance() < amount + tx_fee:
-            print('Not enough funds')
-            return
+            logger.log('Not enough funds', 'wallet_controller.pay')
+            return False
 
-        data = ['curl', '-X', 'POST', 'http://localhost:8085/wallets/' + self.coin + '/transfer',
-                '--data', 'amount=' + str(amount + tx_fee) + '&destination=' + address]
+        try:
+            data = {'amount': amount+tx_fee, 'destination': address}
+            r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
+            transaction_hash = r.json()['txid']
 
-        response = subprocess.Popen(data, stdout=subprocess.PIPE).communicate()[0]
-
-        if not response:
-            print('Transaction unsuccessfull')
-        else:
-            print('Transaction successful')
-            transaction_hash = json.loads(response)['txid']
-            print(transaction_hash)
+            if transaction_hash:
+                logger.log('Transaction successful. transaction_hash: %s' % transaction_hash, 'wallet_controller.pay')
+            else:
+                if self.coin == 'TBTC':
+                    # in case the testnet servers are acting funky, but transaction actually
+                    # was successful, retrieve the transaction_has from the /transactions route
+                    btx = requests.get('http://localhost:8085/wallets/tbtc/transactions')
+                    jbtx = btx.json()['transactions'][-1]
+                    if address in jbtx['to']:
+                        transaction_hash = jbtx['id']
             return transaction_hash
+        except ConnectionError:
+            logger.log('Transaction unsuccessful', 'pay')
+            return False
+
+
+def get_wallet_address(type):
+    try:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['address']
+    except:
+        return "No %s wallet found" % type
+
+
+def get_TBTC_wallet(): return get_wallet_address('TBTC')
+
+
+def get_BTC_wallet(): return get_wallet_address('BTC')
+
+
+def get_MB_wallet(): return get_wallet_address('MB')
+
+
+def get_balance(type):
+    try:
+        return requests.get('http://localhost:8085/wallets').json()['wallets'][type]['balance']['available']
+    except:
+        return "No %s wallet found" % type
+
+
+def get_TBTC_balance(): return get_balance('TBTC')
+
+
+def get_BTC_balance(): return get_balance('BTC')
+
+
+def get_MB_balance(): return get_balance('MB')
+
+

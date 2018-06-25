@@ -129,8 +129,8 @@ class TestDna(unittest.TestCase):
         self.test_dna.set_own_provider("provider2")
 
         self.test_dna.rate = 0.5
-        self.test_dna.evolve(False)
-        self.assertEqual({'provider1': 1.0, 'provider2': 0.0}, self.test_dna.vps)
+        self.test_dna.evolve(False, "provider1")
+        self.assertEqual({'provider1': 0.0, 'provider2': 1.0}, self.test_dna.vps)
 
 
 if __name__ == '__main__':

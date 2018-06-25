@@ -4,6 +4,7 @@ import unittest
 import cloudomate.hoster.vps.blueangelhost as blueAngel
 import cloudomate.hoster.vps.linevast as linevast
 import cloudomate.gateway.coinbase as Coinbase
+import cloudomate.hoster.vpn.azirevpn as azirevpn
 from cloudomate import wallet as wallet_util
 from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings
@@ -84,7 +85,7 @@ class TestCloudomateController(unittest.TestCase):
         ClientArea.get_services = MagicMock()
         ClientArea.get_ip = MagicMock()
 
-        cloudomate.get_ip(blueAngel.BlueAngelHost)
+        cloudomate.get_ip(blueAngel.BlueAngelHost, 'testaccount')
         ClientArea.get_ip.assert_called_once()
 
         ClientArea.__init__ = self.clientarea
@@ -204,6 +205,23 @@ class TestCloudomateController(unittest.TestCase):
         Logger.log = self.logger
         cloudomate_providers.__init__ = self.providers
 
+
+    def test_calculate_price_vpn(self):
+        self.options = cloudomate.options
+        self.logger = Logger.log
+        self.providers = cloudomate_providers.__init__
+
+        cloudomate.options = MagicMock()
+        Logger.log = MagicMock()
+        cloudomate_providers.__init__ = MagicMock()
+
+        cloudomate.calculate_price_vpn('azirevpn')
+        cloudomate.options.assert_called_once()
+
+        self.options = cloudomate.options = self.options
+        Logger.log = self.logger
+        cloudomate_providers.__init__ = self.providers
+
     def test_place_offer_zero_mb(self):
         self.mb = market.get_balance
         self.logger = Logger.log
@@ -219,10 +237,12 @@ class TestCloudomateController(unittest.TestCase):
         self.mb = market.get_balance
         self.logger = Logger.log
         self.put = market.put_ask
+        self.true_settings = plebnet_settings.Init.wallets_testnet
 
         Logger.log = MagicMock()
         market.get_balance = MagicMock(return_value=56)
         market.put_ask = MagicMock()
+        plebnet_settings.Init.wallets_testnet = MagicMock(return_value=False)
 
         cloudomate.place_offer(5, PlebNetConfig())
         market.put_ask.assert_called_once()
@@ -241,7 +261,7 @@ class TestCloudomateController(unittest.TestCase):
         PlebNetConfig.get = MagicMock(side_effect=self.side_effect)
         plebnet_settings.Init.wallets_testnet_created = MagicMock(return_value=None)
         TriblerWallet.__init__ = MagicMock(return_value=None)
-        blueAngel.BlueAngelHost.purchase = MagicMock(return_value=(None, 0))
+        blueAngel.BlueAngelHost.purchase = MagicMock(return_value=None)
         Logger.warning = MagicMock()
 
         self.assertEquals(cloudomate.purchase_choice(PlebNetConfig()), plebnet_settings.FAILURE)
@@ -273,6 +293,38 @@ class TestCloudomateController(unittest.TestCase):
         blueAngel.BlueAngelHost.purchase = self.purchase
         Logger.warning = self.logger
 
+    def test_purchase_choice_vpn(self):
+        self.config = PlebNetConfig.get
+        self.triblerwallet = TriblerWallet.__init__
+        self.settings = plebnet_settings.Init.wallets_testnet_created
+        self.purchase = azirevpn.AzireVpn.purchase
+        self.logger = Logger.warning
+
+        PlebNetConfig.get = MagicMock(side_effect=self.side_effect)
+        plebnet_settings.Init.wallets_testnet_created = MagicMock(return_value=None)
+        TriblerWallet.__init__ = MagicMock(return_value=None)
+        azirevpn.AzireVpn.purchase = MagicMock(return_value=('Hash', 0))
+        Logger.warning = MagicMock()
+
+        self.assertEquals(cloudomate.purchase_choice_vpn(PlebNetConfig()), plebnet_settings.SUCCESS)
+
+        PlebNetConfig.get = self.config
+        TriblerWallet.__init__ = self.triblerwallet
+        plebnet_settings.Init.wallets_testnet_created = self.settings
+        azirevpn.AzireVpn.purchase = self.purchase
+        Logger.warning = self.logger
+
+    # def test_save_info_vpn(self):
+    #     self.config = PlebNetConfig.get
+    #     self.settings = plebnet_settings.Init
+    #
+    #     PlebNetConfig.get = MagicMock(side_effect=self.side_effect)
+    #
+    #     self.assertTrue(cloudomate.save_info_vpn(PlebNetConfig()))
+    #
+    #     PlebNetConfig.get = self.config
+    #     plebnet_settings.init = self.settings
+    #
     def side_effect(type, value):
         if value == 'child_index':
             return 2

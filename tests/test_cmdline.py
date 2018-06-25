@@ -53,7 +53,7 @@ class TestCMDLine(unittest.TestCase):
         self.setup = core.setup
         # modify
         core.setup = Mock()
-        sys.argv = ['plebnet', 'setup', '-test']
+        sys.argv = ['plebnet', 'setup', '-testnet']
         # run
         cmdline.execute()
         # test
@@ -115,23 +115,6 @@ class TestCMDLine(unittest.TestCase):
         plebnet_settings.Init.irc_nick = self.original_4
         plebnet_settings.Init.irc_nick_def = self.original_5
         plebnet_settings.Init.irc_timeout = self.original_5
-
-
-    # #irc section
-    # parser.add_argument('-ic', '--irc_channel', help='Set the irc channel to use')
-    # parser.add_argument('-is', '--irc_server',  help='Set the irc server to use')
-    # parser.add_argument('-ip', '--irc_port',    help='Set the irc server port to use')
-    # parser.add_argument('-in', '--irc_nick',    help='Set the irc nickname to use')
-    # parser.add_argument('-it', '--irc_timeout', help='Set the irc heartbeat timeout to use')
-    # #github section
-    # parser.add_argument('-gu', '--github_username', help='Set this username')
-    # parser.add_argument('-gp', '--github_password', help='Set this password')
-    # parser.add_argument('-go', '--github_owner', help='Set this password')
-    # parser.add_argument('-gr', '--github_repo', help='Set this password')
-    # parser.add_argument('-ga', '--github_active', help='(De)activate the github issuer', choices=["0", "1"])
-    # # active section
-    # parser.add_argument('-l', '--active_logger', help='(De)activate the logger', choices=["0", "1"])
-    # parser.add_argument('-v', '--active_verbose', help='(De)activate the printer', choices=["0", "1"])
 
 
 if __name__ == '__main__':
