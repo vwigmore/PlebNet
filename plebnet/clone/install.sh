@@ -18,7 +18,7 @@ ARG=$2
 
 CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
 
-[ -z $BRANCH ] && BRANCH = "master-dev"
+[ -z $BRANCH ] && BRANCH = "master"
 
 # Add locale
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf

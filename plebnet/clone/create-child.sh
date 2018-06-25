@@ -38,7 +38,7 @@ IP=""
 PASSWORD=""
 VPN_CONFIG=""
 VPN_CREDENTIALS=""
-BRANCH="plebvpn_tests"
+BRANCH="master"
 TESTNET=0
 
 ############################### PARSING ########################################
