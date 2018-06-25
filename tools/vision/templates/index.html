@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+    <title>ProxHost</title>
+    <!--meta http-equiv="refresh" content="30"-->
+    <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="/static/css/vis.min.css">
+<style>
+	body {
+		background-color: #1d1d1d;
+		font-family: Helvetica, Arial, sans-serif !important;
+	}
+
+	.container {
+		padding-left: 55px;
+		padding-right: 55px;
+		padding-top: 50px;
+	}
+
+	h1 {
+		color: #fff;
+		margin-top:50px !important;
+		margin-bottom:20px !important;
+		display: inline;
+		font-size: 40px;
+	}
+
+	h2 {
+		color: #fff;
+		margin-top:50px !important;
+		margin-bottom:20px !important;
+		display: inline;
+		font-size: 18px;
+		font-family: helvetica;
+	}
+
+	hr {
+		margin-bottom: 50px;
+		color: #ff4800 !important;
+	}	
+
+	.orange {
+		color: #ff4800;
+	}
+
+	.ob {
+		margin: 10px;
+		border-style: solid;
+		border-color: #ccc;
+		border-width: 1px;
+	}
+
+	.networkview {
+		width: 500px;
+		height: 500px;
+	}
+	.shadow {
+  		-webkit-box-shadow: 3px 3px 5px 6px #ccc;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+  		-moz-box-shadow:    3px 3px 5px 6px #ccc;  /* Firefox 3.5 - 3.6 */
+		box-shadow:         3px 3px 5px 6px #ccc;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+	}
+</style>
+</head>
+
+<body>
+<div class="container">
+	<h1 class="orange">PLEBNET</h1></h1><h2>vision</h2>
+		<hr>
+		<div id="networkview" class="ob networkview "></div>
+</div>
+<script src="/static/js/vis.min.js"></script>
+<script>
+var container = document.getElementById('networkview');
+fetch('/network').then((res) => {
+	res.json().then((data) => {
+   		var options = {
+			nodes: {
+				shape: 'dot',
+				size: 30,
+				font: {
+					size: 22,
+					color: '#fffffff'
+				},
+				borderWidth: 2
+			},
+			edges: {
+				width: 2
+			}
+		};	
+		network = new vis.Network(container, data, options);
+	});
+});
+
+</script>
+</body>
+</html>
