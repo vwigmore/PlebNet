@@ -8,16 +8,13 @@ of this code. If Cloudomate alters its call methods, this should be the only fil
 to be updated in PlebNet.
 """
 
-<<<<<<< HEAD
 import cloudomate
-import os, io
-from os import path
-=======
+import io
 import os
 import sys
 import traceback
 
->>>>>>> master-dev
+from os import path
 from appdirs import user_config_dir
 
 from cloudomate import wallet as wallet_util
@@ -171,7 +168,7 @@ def calculate_price(provider, option):
 
 
 def calculate_price_vpn(vpn_provider):
-    logger.log('vpn provider: %s' % (vpn_provider), "cloudomate_controller")
+    logger.log('vpn provider: %s' % vpn_provider, "cloudomate_controller")
     # option is assumed to be the first one
     vpn_option = options(get_vpn_providers()[vpn_provider])[0]
     gateway = get_vpn_providers()[vpn_provider].get_gateway()
