@@ -8,10 +8,13 @@ of this code. If Cloudomate alters its call methods, this should be the only fil
 to be updated in PlebNet.
 """
 
+import cloudomate
+import io
 import os
 import sys
 import traceback
 
+from os import path
 from appdirs import user_config_dir
 
 from cloudomate import wallet as wallet_util
@@ -36,6 +39,9 @@ def get_vps_providers():
     """
     return cloudomate_providers['vps']
 
+
+def get_vpn_providers():
+    return cloudomate_providers['vpn']
 
 def child_account(index=None):
     """
@@ -161,6 +167,45 @@ def calculate_price(provider, option):
     return btc_price
 
 
+def calculate_price_vpn(vpn_provider):
+    logger.log('vpn provider: %s' % vpn_provider, "cloudomate_controller")
+    # option is assumed to be the first one
+    vpn_option = options(get_vpn_providers()[vpn_provider])[0]
+    gateway = get_vpn_providers()[vpn_provider].get_gateway()
+    btc_price = gateway.estimate_price(
+        cloudomate.wallet.get_price(vpn_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
+    return btc_price
+
+def purchase_choice_vpn(config):
+    provider = plebnet_settings.get_instance().vpn_host()
+
+    provider_instance = get_vpn_providers()[provider](child_account())
+
+    # no need to generate new child config
+
+    wallet = TriblerWallet(plebnet_settings.get_instance().wallets_testnet_created())
+    c = cloudomate_providers['vpn'][provider]
+
+    configurations = c.get_options()
+    # option is assumbed to be the first vpn provider option
+    option = configurations[0]
+
+    transaction_hash = provider_instance.purchase(wallet, option)
+
+    if not transaction_hash:
+        logger.warning("Failed to purchase vpn")
+        return plebnet_settings.FAILURE
+    if False:
+        logger.warning("Insufficient funds to purchase server")
+        return plebnet_settings.UNKNOWN
+
+    config.get('bought').append((provider, transaction_hash, config.get('child_index')))
+    config.get('transactions').append(transaction_hash)
+    config.save()
+
+    return plebnet_settings.SUCCESS
+
+
 def purchase_choice(config):
     """
     Purchase the cheapest provider in chosen_providers. If buying is successful this provider is
@@ -223,3 +268,33 @@ def place_offer(chosen_est_price, config):
                                      quantity=available_mb,
                                      quantity_type='MB',
                                      timeout=plebnet_settings.TIME_IN_HOUR)
+
+
+def save_info_vpn():
+    """
+    Stores the child vpn information
+    :param location: where to store the config
+    :return:
+    """
+    vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](child_account())
+    info = vpn.get_configuration()
+    child_index = str(PlebNetConfig().get('child_index'))
+    prefix = plebnet_settings.get_instance().vpn_child_prefix()
+
+
+    dir = path.expanduser(plebnet_settings.get_instance().vpn_config_path())
+    credentials = prefix + child_index +plebnet_settings.get_instance().vpn_credentials_name()
+    # own_credentials is for when the file is renamed back to me_credentials
+    own_credentials = plebnet_settings.get_instance().vpn_own_prefix() \
+                      + plebnet_settings.get_instance().vpn_credentials_name()
+    ovpn = prefix + child_index +plebnet_settings.get_instance().vpn_config_name()
+
+    with io.open(path.join(dir, ovpn), 'w', encoding='utf-8') as ovpn_file:
+        ovpn_file.write(info.ovpn + '\nauth-user-pass ' + own_credentials)
+
+    with io.open(path.join(dir, credentials), 'w', encoding='utf-8') as credentials_file:
+        credentials_file.writelines([info.username + '\n', info.password])
+
+    print("Saved VPN configuration to " + dir)
+
+    return True

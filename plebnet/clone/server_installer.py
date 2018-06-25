@@ -12,7 +12,6 @@ from plebnet.controllers import cloudomate_controller
 from plebnet.settings import plebnet_settings as setup
 from plebnet.utilities import logger
 
-
 def install_available_servers(config, dna):
     """
     This function checks if any of the bought servers are ready to be installed and installs
@@ -26,7 +25,15 @@ def install_available_servers(config, dna):
     """
     bought = config.get('bought')
     logger.log("install: %s" % bought, "install_available_servers")
+
     for provider, transaction_hash, child_index in list(bought):
+
+        # skip vpn providers as they show up as 'bought' as well
+        if provider in cloudomate_controller.get_vpn_providers():
+            return
+
+        vpn_child_index = None
+
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
             ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
@@ -34,16 +41,28 @@ def install_available_servers(config, dna):
             logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
 
+        # VPN configuration, enable tun/tap settings
+        if provider_class.TUN_TAP_SETTINGS:
+            vpn_child_index = child_index
+            tun_success = provider_class.enable_tun_tap()
+            logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
+            if not cloudomate_controller.save_info_vpn():
+                logger.log("VPN not ready yet, can't save ovpn config")
+                return
+
         logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
-        if is_valid_ip(ip):
-            account_settings = cloudomate_controller.child_account(child_index)
+
+        account_settings = cloudomate_controller.child_account(child_index)
+        rootpw = account_settings.get('server', 'root_password', vpn_child_index,
+                                      setup.get_instance().wallets_testnet())
+        if check_access(ip, rootpw):
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
                                           account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
 
             # Save config before entering possibly long lasting process
             config.save()
-            rootpw = account_settings.get('server', 'root_password')
+
             success = _install_server(ip, rootpw)
 
             # Reload config in case install takes a long time
@@ -52,6 +71,10 @@ def install_available_servers(config, dna):
             if [provider, transaction_hash, child_index] in config.get('bought'):
                 config.get('bought').remove([provider, transaction_hash, child_index])
             config.save()
+        else:
+            logger.log("Something went wrong with installing on server "
+                       "maybe the rootpassword on the server is not correct. Trying to change it...")
+            provider_class.change_root_password(rootpw)
 
 
 def is_valid_ip(ip):
@@ -74,7 +97,15 @@ def is_valid_ip(ip):
     return False
 
 
-def _install_server(ip, rootpw):
+def check_access(ip, rootpw):
+    check = subprocess.call(['sshpass', '-p', rootpw, 'ssh',
+                             '-o', 'UserKnownHostsFile=/dev/null',
+                             '-o', 'StrictHostKeyChecking=no', 'root@'+ip,
+                             'exit'])
+    return is_valid_ip(ip) and check == 0
+
+
+def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
     """
     This function starts the actual installation routine.
     :param ip: The ip-address of the remote server
@@ -86,13 +117,24 @@ def _install_server(ip, rootpw):
     """
     settings = setup.get_instance()
     home = settings.plebnet_home()
-    if settings.wallets_testnet():
-        script_path = os.path.join(home, "plebnet/clone/create-child-testnet.sh")
-    else:
-        script_path = os.path.join(home, "plebnet/clone/create-child.sh")
+    script_path = os.path.join(home, "plebnet/clone/create-child.sh")
     logger.log('tot_path: %s' % script_path)
-    command = 'bash %s %s %s' % (script_path, ip.strip(), rootpw.strip())
-    logger.log("Running %s" % command, '_install_server')
+
+    command = ["bash", "scripts/create-child.sh", "-i", ip.strip(), "-p", rootpw.strip()]
+
+    # additional VPN arguments
+    if vpn_child_index:
+        prefix = setup.get_instance().vpn_child_prefix()
+
+        dir = os.path.expanduser(setup.get_instance().vpn_config_path())
+        credentials = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_credentials_name())
+        ovpn = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_config_name())
+        command += ["-conf", ovpn, "-cred", credentials]
+
+    if testnet:
+        command += "-t"
+
+    logger.log("Running %s" % ' '.join(command), '_install_server')
     exitcode = subprocess.call(command, shell=True, cwd=home)
     if exitcode == 0:
         logger.log("Installation successful")

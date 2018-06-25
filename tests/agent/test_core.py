@@ -104,6 +104,7 @@ class TestCore(unittest.TestCase):
         self.start_client = irc_handler.start_irc_client
         self.success = logger.success
         self.dna_remove = DNA.remove_provider
+        self.load = PlebNetConfig.load
 
         args = MagicMock()
         DNA.remove_provider = MagicMock()
@@ -116,6 +117,7 @@ class TestCore(unittest.TestCase):
         plebnet_settings.Init.irc_nick = MagicMock()
         plebnet_settings.Init.irc_nick_def = MagicMock()
         PlebNetConfig.save = MagicMock()
+        PlebNetConfig.load = MagicMock()
         irc_handler.init_irc_client = MagicMock()
         irc_handler.start_irc_client = MagicMock()
         logger.success = MagicMock()
@@ -132,6 +134,7 @@ class TestCore(unittest.TestCase):
         plebnet_settings.Init.irc_nick = self.irc_nic
         plebnet_settings.Init.irc_nick_def = self.irc_def
         PlebNetConfig.save = self.save
+        PlebNetConfig.load = self.load
         irc_handler.init_irc_client = self.init_client
         irc_handler.start_irc_client = self.start_client
         logger.success = self.success
@@ -148,10 +151,15 @@ class TestCore(unittest.TestCase):
         self.uo = Core.update_offer
         self.ap = Core.attempt_purchase
         self.iv = Core.install_vps
+        self.load = PlebNetConfig.load
+        self.vpn_running = Core.vpn_is_running
 
         logger.log = MagicMock()
         plebnet_settings.Init.wallets_testnet_created = MagicMock(return_value=True)
+
+        PlebNetConfig.load = MagicMock(return_value=False)
         Core.check_tribler = MagicMock(return_value=False)
+        Core.vpn_is_running = MagicMock(return_value=True)
         DNA.read_dictionary = MagicMock()
         plebnet_settings.Init.wallets_initiate_once = MagicMock(return_value=False)
         Core.create_wallet = MagicMock()
@@ -173,6 +181,7 @@ class TestCore(unittest.TestCase):
         Core.create_wallet.assert_called_once()
 
         logger.log = self.logger
+        Core.vpn_is_running = self.vpn_running
         plebnet_settings.Init.wallets_testnet_created = self.wallet_created
         Core.check_tribler = self.tribler
         DNA.read_dictionary = self.DNA
@@ -183,6 +192,7 @@ class TestCore(unittest.TestCase):
         Core.update_offer = self.uo
         Core.attempt_purchase = self.ap
         Core.install_vps = self.iv
+        PlebNetConfig.load = self.load
 
     def test_update_offer(self):
         self.time = PlebNetConfig.time_since_offer
@@ -217,11 +227,14 @@ class TestCore(unittest.TestCase):
         self.evolve = DNA.evolve
         self.set = PlebNetConfig.set
         self.save = PlebNetConfig.save
+        self.vpn = Core.attempt_purchase_vpn
 
         logger.log = MagicMock()
         plebnet_settings.Init.wallets_testnet = MagicMock(return_value=True)
-        PlebNetConfig.get = MagicMock(return_value=[PlebNetConfig, 'test', 0])
+        PlebNetConfig.get = MagicMock(return_value=['ccihosting', 'test', 0])
         market_controller.get_balance = MagicMock(return_value=300)
+
+        Core.attempt_purchase_vpn = MagicMock(return_value=False)
         cloudomate_controller.calculate_price = MagicMock(return_value=500)
         cloudomate_controller.purchase_choice = MagicMock(return_value=plebnet_settings.SUCCESS)
         DNA.evolve = MagicMock()
@@ -239,7 +252,7 @@ class TestCore(unittest.TestCase):
 
         cloudomate_controller.purchase_choice = MagicMock(return_value=plebnet_settings.FAILURE)
         Core.attempt_purchase()
-        DNA.evolve.assert_called_with(False, PlebNetConfig)
+        DNA.evolve.assert_called_with(False, 'ccihosting')
 
         logger.log = self.log
         plebnet_settings.Init.wallets_testnet = self.testnet
@@ -248,6 +261,7 @@ class TestCore(unittest.TestCase):
         cloudomate_controller.calculate_price = self.calculate_price
         cloudomate_controller.purchase_choice = self.purchase_choice
         DNA.evolve = self.evolve
+        Core.attempt_purchase_vpn = self.vpn
         PlebNetConfig.set = self.set
         PlebNetConfig.save = self.save
 

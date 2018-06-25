@@ -3,4 +3,4 @@
 	url = https://github.com/HvanVeltom/tribler.git
 [submodule "cloudomate"]
 	path = cloudomate
-	url = https://github.com/codesalad/cloudomate
+	url = https://github.com/codesalad/cloudomate.git

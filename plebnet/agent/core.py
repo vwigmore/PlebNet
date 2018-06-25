@@ -9,6 +9,9 @@ A package which handles the main behaviour of the PlebNet agent:
 import os
 import random
 import time
+import re
+import subprocess
+import shutil
 
 from plebnet.agent.dna import DNA
 from plebnet.agent.config import PlebNetConfig
@@ -36,13 +39,15 @@ def setup(args):
 
     # Prepare the DNA configuration
     dna = DNA()
-    dna.read_dictionary(cloudomate_controller.get_vps_providers())
-    dna.remove_provider('proxhost')
 
     if args.test_net:
         settings.wallets_testnet("1")
         settings.settings.write()
         dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
+    else:
+        dna.read_dictionary(cloudomate_controller.get_vps_providers())
+        dna.remove_provider('proxhost')
+
     dna.write_dictionary()
 
     # Prepare first child configuration
@@ -75,6 +80,11 @@ def check():
     config = PlebNetConfig()
     dna = DNA()
     dna.read_dictionary()
+
+    # check if own vpn is installed before continuing
+    if not vpn_is_running():
+        if not check_vpn_install():
+            logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
     # Requires time to setup, continue in the next iteration.
     if not check_tribler():
@@ -127,6 +137,89 @@ def check_tribler():
         return False
 
 
+def check_tunnel_helper():
+    """
+    Temporary function to track the data stream processed by Tribler
+    :return: None
+    :rtype: None
+    """
+    # TEMP TO SEE EXITNODE PERFORMANCE, tunnel_helper should merge with market or other way around
+    if not os.path.isfile(os.path.join(settings.tribler_home(), settings.tunnelhelper_pid())):
+        logger.log("Starting tunnel_helper", log_name)
+        env = os.environ.copy()
+        env['PYTHONPATH'] = settings.tribler_home()
+        try:
+            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m', '0'], #, '-M'],
+                            cwd=settings.tribler_home(), env=env)
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(e.output, log_name)
+            return False
+    return True
+    # TEMP TO SEE EXITNODE PERFORMANCE
+
+
+def check_vpn_install():
+    """
+    Checks the vpn configuration files (.ovpn, credentials.conf).
+    If configuration files exist, no need to purchase VPN configurations.
+    :return: True if installing succeeds, False if installing fails or configs are not found
+    """
+    # chech whether vpn is installed
+    if settings.vpn_installed():
+        logger.log("VPN is already installed")
+
+    # check OWN configuration files.
+    # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
+    # the prefix needs to be renamed to "own" prefix so that the agent can continue to buy for its children
+    credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()),
+                               settings.vpn_own_prefix()+settings.vpn_credentials_name())
+    vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()),
+                             settings.vpn_own_prefix()+settings.vpn_config_name())
+
+    for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
+        if re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_config_name(), f):
+            # matches child_0_config.openvpn 
+            logger.log("VPN config found, renaming")
+            os.rename(f, vpnconfig)
+        elif re.match(settings.vpn_child_prefix()+'[0-9]'+settings.vpn_credentials_name(), f):
+            # matches child_0_credentials.conf
+            logger.log("VPN credentials found, renaming")
+            os.rename(f, credentials)
+
+    if os.path.isfile(credentials) and os.path.isfile(vpnconfig):
+        # try to install
+        if install_vpn():
+            settings.vpn_installed("1")
+            logger.log("Installing VPN succesful with configurations.")
+            return True
+        else:
+            settings.vpn_installed("0")
+            logger.log("Installing VPN failed with configurations!")
+            return False
+    else:
+        logger.log("No VPN configurations found!")
+        return False
+
+
+def attempt_purchase_vpn():
+    """
+    Attempts to purchase a VPN, checks first if balance is sufficient
+    The success message is stored to prevent further unecessary purchases.
+    """
+    provider = cloudomate_controller.get_vpn_providers()[settings.vpn_host()]
+    if settings.wallets_testnet():
+        domain = 'TBTC'
+    else:
+        domain = 'BTC'
+    if market_controller.get_balance(domain) >= cloudomate_controller.calculate_price_vpn(provider):
+        logger.log("Try to buy a new VPN from %s" % provider, log_name)
+        success = cloudomate_controller.purchase_choice_vpn(config)
+        if success == plebnet_settings.SUCCESS:
+            logger.info("Purchasing VPN succesful!", log_name)
+        elif success == plebnet_settings.FAILURE:
+            logger.error("Error purchasing vpn", log_name)
+
 def update_offer():
     """
     Check if an hour as passed since the last offer made, if passed calculate a new offer.
@@ -152,6 +245,10 @@ def attempt_purchase():
         if success == plebnet_settings.SUCCESS:
             # Evolve yourself positively if you are successful
             dna.evolve(True)
+
+            # purchase VPN with same config if server allows for it
+            if cloudomate_controller.get_vps_providers()[provider].TUN_TAP_SETTINGS:
+                attempt_purchase_vpn()
         elif success == plebnet_settings.FAILURE:
             # Evolve provider negatively if not successful
             dna.evolve(False, provider)
@@ -166,6 +263,56 @@ def install_vps():
     server_installer.install_available_servers(config, dna)
 
 
+def install_vpn():
+    """
+    Attempts to install the vpn using the credentials.conf and .ovpn configuration files
+    :return: True if installing succeeded, otherwise it will raise an exception.
+    """
+
+    logger.log("Installing VPN")
+
+    # configuring nameservers, if the server uses a local nameserver
+    # either 1.1.1.1/1.0.0.1 or 8.8.8.8/8.8.4.4 work
+    resolv = """nameserver 1.1.1.1
+    nameserver 1.0.0.1"""
+
+    with open(os.path.expanduser('/etc/resolv.conf'), 'w') as dnsfile:
+        dnsfile.write(resolv)
+
+    try_install = subprocess.Popen(['openvpn', '--config', settings.vpn_own_prefix()+settings.vpn_config_name(), '--daemon'],
+                                  cwd=os.path.expanduser(settings.vpn_config_path()),
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    result, error = try_install.communicate()
+    exitcode = try_install.wait()
+
+    if exitcode != 0:
+        if error.decode('ascii') == "":
+            error = result
+        logger.log("ERROR installing VPN, Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
+        return False
+    else:
+        pid = try_install.pid
+        settings.vpn_pid(pid)
+        settings.vpn_running("1")
+        return True
+
+
+def vpn_is_running():
+    """
+    :return: True if vpn is running, else false
+    """
+    pid = settings.vpn_pid()
+    check = subprocess.call(['ps', '-p', str(pid)])
+    if check == 0:
+        settings.vpn_running("1")
+        return True
+    else:
+        settings.vpn_running("0")
+        settings.vpn_pid(0)
+        return False
+
+
+# TODO: dit moet naar agent.DNA, maar die is nu al te groot
 def select_provider():
     """
     Check whether a provider is already selected, otherwise select one based on the DNA.
