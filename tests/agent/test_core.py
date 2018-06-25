@@ -347,6 +347,7 @@ class TestCore(unittest.TestCase):
         self.civ = Core.install_vpn
         self.cpr = plebnet_settings.Init.vpn_child_prefix
         self.orn = os.rename
+        self.usr = os.path.expanduser
 
         plebnet_settings.Init.vpn_installed = MagicMock(return_value=True)
         logger.log = MagicMock()
@@ -358,6 +359,7 @@ class TestCore(unittest.TestCase):
         plebnet_settings.Init.vpn_config_name = MagicMock(return_value='config_name')
         os.listdir = MagicMock(return_value=[])
         os.path.isfile = MagicMock(return_value=False)
+        os.path.expanduser = MagicMock()
 
         self.assertFalse(Core.check_vpn_install())
 
@@ -388,6 +390,7 @@ class TestCore(unittest.TestCase):
         Core.install_vpn = self.civ
         plebnet_settings.Init.vpn_child_prefix = self.cpr
         os.rename = self.orn
+        os.path.expanduser = self.usr
 
 
 
