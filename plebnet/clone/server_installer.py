@@ -44,7 +44,7 @@ def install_available_servers(config, dna):
         # VPN configuration, enable tun/tap settings
         if provider_class.TUN_TAP_SETTINGS:
             vpn_child_index = child_index
-            tun_success = provider_class.enable_tun_tap()
+            tun_success = provider_class(cloudomate_controller.child_account()).enable_tun_tap()
             logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
             if not cloudomate_controller.save_info_vpn():
                 logger.log("VPN not ready yet, can't save ovpn config")
@@ -53,8 +53,7 @@ def install_available_servers(config, dna):
         logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
 
         account_settings = cloudomate_controller.child_account(child_index)
-        rootpw = account_settings.get('server', 'root_password', vpn_child_index,
-                                      setup.get_instance().wallets_testnet())
+        rootpw = account_settings.get('server', 'root_password')
         if check_access(ip, rootpw):
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
                                           account_settings.get('user', 'lastname'))
@@ -63,7 +62,7 @@ def install_available_servers(config, dna):
             # Save config before entering possibly long lasting process
             config.save()
 
-            success = _install_server(ip, rootpw)
+            success = _install_server(ip, rootpw, vpn_child_index, setup.get_instance().wallets_testnet())
 
             # Reload config in case install takes a long time
             config.load()
@@ -124,12 +123,23 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
 
     # additional VPN arguments
     if vpn_child_index:
-        prefix = setup.get_instance().vpn_child_prefix()
+        prefix = settings.vpn_child_prefix()
 
-        dir = os.path.expanduser(setup.get_instance().vpn_config_path())
-        credentials = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_credentials_name())
-        ovpn = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_config_name())
-        command += ["-conf", ovpn, "-cred", credentials]
+        dir = os.path.expanduser(settings.vpn_config_path())
+        
+        # vpn credentials: ~/child_INT_credentials.conf
+        credentials = os.path.join(dir, prefix + vpn_child_index + settings.vpn_credentials_name())
+        # vpn credentials destination: own_config.ovpn
+        dest_credentials = settings.vpn_own_prefix() + settings.vpn_credentials_name()
+
+        # vpn config: ~/child_INT_config.ovpn
+        ovpn = os.path.join(dir, prefix + vpn_child_index + settings.vpn_config_name())
+        # vpn config destination: own_credentials.conf
+        dest_config = settings.vpn_own_prefix() + settings.vpn_config_name()
+
+        # the current child config is given as arguments, the destination is so that the
+        # agent knows it's its own configuration, and not a child's config.
+        command += ["-conf", ovpn, dest_config, "-cred", credentials, dest_credentials]
 
     if testnet:
         command += "-t"

@@ -38,6 +38,8 @@ IP=""
 PASSWORD=""
 VPN_CONFIG=""
 VPN_CREDENTIALS=""
+DEST_VPN_CONFIG=""
+DEST_VPN_CREDENTIALS=""
 BRANCH="master"
 TESTNET=0
 
@@ -51,7 +53,11 @@ Usage: ./create-child.sh <parameter> <value>
 -p --password \t\t Root password of the server
 -t --testnet \t\t Install agent in testnet mode (default 0)
 -conf --config \t\t (optional) VPN configuration file (.ovpn)
+	Requires the destination config name.
+	Example: -conf source_config.ovpn dest_config.ovpn
 -cred --credentials \t (optional) VPN credentials file (.conf)
+	requires the destination credentials name.
+	Example -cred source_credentials.conf dest_credentials.conf
 -b --branch \t\t (optional) Branch of code to install from (default master-dev)  << change this when merged with master
 \n
 "
@@ -60,6 +66,7 @@ Usage: ./create-child.sh <parameter> <value>
 while [ "$1" != "" ]; do
 	PARAM=$1
 	VALUE=$2
+	MORE=$3
 
 	case $PARAM in
 		-h | --help)
@@ -78,13 +85,19 @@ while [ "$1" != "" ]; do
 			;;
 		-conf | --config)
 			VPN_CONFIG=$VALUE
+			DEST_VPN_CONFIG=$MORE
 			[ -z $VALUE ] && echo "ERROR: provide VPN config (.ovpn)" && usage && exit;
+			[ -z $MORE ] && echo "ERROR: provide VPN config destination name (.ovpn)" && usage && exit;
+			shift
 			shift
 			shift
 			;;
 		-cred | --credentials)
 			VPN_CREDENTIALS=$VALUE
+			DEST_VPN_CREDENTIALS=$MORE
 			[ -z $VALUE ] && echo "ERROR: provide VPN credentials (.conf)" && usage && exit;
+			[ -z $MORE ] && echo "ERROR: provide VPN credentials destination name (.ovpn)" && usage && exit;
+			shift
 			shift
 			shift
 			;;
@@ -149,8 +162,8 @@ if [[ $VPN_CONFIG == "" ]] || [[ $VPN_CREDENTIALS == "" ]]; then
 	echo "(no VPN configs given)";
 else
     echo "copying VPN configs to child's ~/"
-    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CONFIG} root@${IP}:~/;
-    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CREDENTIALS} root@${IP}:~/;
+    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CONFIG} root@${IP}:~/${DEST_VPN_CONFIG};
+    sshpass -p${PASSWORD} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${VPN_CREDENTIALS} root@${IP}:~/${DEST_VPN_CREDENTIALS};
 fi
 
 # Symlinking Tribler wallet to the default electrum wallet, might be usable for other purposes later.

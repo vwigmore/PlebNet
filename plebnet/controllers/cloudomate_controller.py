@@ -284,14 +284,18 @@ def save_info_vpn():
 
     dir = path.expanduser(plebnet_settings.get_instance().vpn_config_path())
     credentials = prefix + child_index +plebnet_settings.get_instance().vpn_credentials_name()
-    # own_credentials is for when the file is renamed back to me_credentials
-    own_credentials = plebnet_settings.get_instance().vpn_own_prefix() \
-                      + plebnet_settings.get_instance().vpn_credentials_name()
+        
     ovpn = prefix + child_index +plebnet_settings.get_instance().vpn_config_name()
 
+    # the .ovpn file contains the line auth-user-pass so that it knows which credentials file to use
+    # when the child config and credentials are passed to create-child, it is placed on the server as "own" 
+    # so the reference to "own" is put in the .ovpn file.
+    own_credentials = plebnet_settings.get_instance().vpn_own_prefix() \
+                      + plebnet_settings.get_instance().vpn_credentials_name()
     with io.open(path.join(dir, ovpn), 'w', encoding='utf-8') as ovpn_file:
         ovpn_file.write(info.ovpn + '\nauth-user-pass ' + own_credentials)
 
+    # write the ovpn file to vpn dir
     with io.open(path.join(dir, credentials), 'w', encoding='utf-8') as credentials_file:
         credentials_file.writelines([info.username + '\n', info.password])
 

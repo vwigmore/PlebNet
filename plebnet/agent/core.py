@@ -171,8 +171,6 @@ def check_vpn_install():
         return True
 
     # check OWN configuration files.
-    # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
-    # the prefix needs to be renamed to "own" prefix so that the agent can continue to buy for its children
     credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()),
                                settings.vpn_own_prefix()+settings.vpn_credentials_name())
     vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()),
@@ -186,23 +184,7 @@ def check_vpn_install():
             return True
         else:
             settings.vpn_installed("0")
-            logger.log("Installing VPN failed with configurations!")
-
-            vpn_config_found = False
-            vpn_cred_found = False
-            for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
-                if re.match(settings.vpn_child_prefix()+'[0-9]{1,5}'+settings.vpn_config_name(), f):
-                    # matches child_0_config.ovpn
-                    if not vpn_config_found:
-                        logger.log("VPN config found, renaming")
-                        os.rename(f, vpnconfig)
-                        vpn_config_found = True
-                elif re.match(settings.vpn_child_prefix()+'[0-9]{1,5}'+settings.vpn_credentials_name(), f):
-                    # matches child_0_credentials.conf
-                    if not vpn_cred_found:
-                        logger.log("VPN credentials found, renaming")
-                        os.rename(f, credentials)
-                        vpn_cred_found = True
+            logger.log("Installing VPN failed with configurations. Subscription passed?")
             return False
     else:
         logger.log("No VPN configurations found!")
