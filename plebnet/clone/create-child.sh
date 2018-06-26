@@ -53,12 +53,14 @@ Usage: ./create-child.sh <parameter> <value>
 -p --password \t\t Root password of the server
 -t --testnet \t\t Install agent in testnet mode (default 0)
 -conf --config \t\t (optional) VPN configuration file (.ovpn)
-	Requires the destination config name.
-	Example: -conf source_config.ovpn dest_config.ovpn
+Requires the destination config name.
+Example: -conf source_config.ovpn dest_config.ovpn
+
 -cred --credentials \t (optional) VPN credentials file (.conf)
-	requires the destination credentials name.
-	Example -cred source_credentials.conf dest_credentials.conf
--b --branch \t\t (optional) Branch of code to install from (default master-dev)  << change this when merged with master
+Requires the destination credentials name.
+Example -cred source_credentials.conf dest_credentials.conf
+
+-b --branch \t\t (optional) Branch of code to install from (default master)
 \n
 "
 }
