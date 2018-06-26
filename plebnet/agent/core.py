@@ -137,28 +137,6 @@ def check_tribler():
         return False
 
 
-def check_tunnel_helper():
-    """
-    Temporary function to track the data stream processed by Tribler
-    :return: None
-    :rtype: None
-    """
-    # TEMP TO SEE EXITNODE PERFORMANCE, tunnel_helper should merge with market or other way around
-    if not os.path.isfile(os.path.join(settings.tribler_home(), settings.tunnelhelper_pid())):
-        logger.log("Starting tunnel_helper", log_name)
-        env = os.environ.copy()
-        env['PYTHONPATH'] = settings.tribler_home()
-        try:
-            subprocess.call(['twistd', '--pidfile='+settings.tunnelhelper_pid(), 'tunnel_helper', '-x', '-m', '0'], #, '-M'],
-                            cwd=settings.tribler_home(), env=env)
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.error(e.output, log_name)
-            return False
-    return True
-    # TEMP TO SEE EXITNODE PERFORMANCE
-
-
 def check_vpn_install():
     """
     Checks the vpn configuration files (.ovpn, credentials.conf).
@@ -223,7 +201,7 @@ def attempt_purchase_vpn():
         logger.log("Try to buy a new VPN from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice_vpn(config)
         if success == plebnet_settings.SUCCESS:
-            logger.info("Purchasing VPN succesful!", log_name)
+            logger.success("Purchasing VPN succesful!", log_name)
         elif success == plebnet_settings.FAILURE:
             logger.error("Error purchasing vpn", log_name)
 

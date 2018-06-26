@@ -1,6 +1,7 @@
 import unittest
 import mock
 import os
+import subprocess
 
 from appdirs import user_config_dir
 
@@ -9,6 +10,9 @@ from plebnet.agent.config import PlebNetConfig
 from plebnet.agent.dna import DNA
 from plebnet.utilities import fake_generator
 from cloudomate.util.settings import Settings
+from plebnet.settings import plebnet_settings as setup
+from mock.mock import MagicMock
+from plebnet.utilities import logger as Logger
 
 test_log_path = os.path.join(user_config_dir(), 'tests_logs')
 test_log_file = os.path.join(user_config_dir(), 'tests_logs/plebnet.logs')
@@ -77,6 +81,44 @@ class TestServerInstaller(unittest.TestCase):
 
         self.assertEqual(config.get('installed'), [{'linevast': False}])
         self.assertEqual(config.get('bought'), [])
+
+    def test_install_server(self):
+        self.logger = Logger.log
+        self.instance = setup.get_instance
+        self.home = setup.Init.plebnet_home
+        self.subprocess = subprocess.call
+
+        Logger.log = MagicMock()
+        setup.Init.plebnet_home = MagicMock(return_value='test\path')
+        subprocess.call = MagicMock(return_value=0)
+
+        assert server_installer._install_server('IPFakeAddress', 'ROOTPWD')
+
+        self.vpnpre = setup.Init.vpn_child_prefix
+        self.vpncon = setup.Init.vpn_config_path
+        self.osex = os.path.expanduser
+        self.cred = setup.Init.vpn_credentials_name
+        self.name = setup.Init.vpn_config_name
+
+        setup.Init.vpn_child_prefix = MagicMock(return_value='String')
+        setup.Init.vpn_config_path = MagicMock(return_value='String')
+        os.path.expanduser = MagicMock(return_value='String')
+        setup.Init.vpn_credentials_name = MagicMock(return_value='String')
+        setup.Init.vpn_config_name = MagicMock(return_value='String')
+        subprocess.call = MagicMock(return_value=1)
+
+        self.assertFalse(server_installer._install_server('IPFakeAddress', 'ROOTPWD', 'testVPN', True))
+
+        Logger.log = self.logger
+        setup.get_instance = self.instance
+        setup.Init.plebnet_home = self.home
+        subprocess.call = self.subprocess
+
+        setup.Init.vpn_child_prefix = self.vpnpre
+        setup.Init.vpn_config_path = self.vpncon
+        os.path.expanduser = self.osex
+        setup.Init.vpn_credentials_name = self.cred
+        setup.Init.vpn_config_name = self.name
 
 
 if __name__ == '__main__':
