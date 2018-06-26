@@ -1,64 +1,63 @@
+#! /usr/bin/env python
+
 import sys
 import os
-sys.path.append(os.path.abspath('../tracker'))
-
-import tracker_bot as tbot 
 import socket 
 import logging
 import random 
 
-from threading import Thread 
+import threading
 from time import sleep
 from appdirs import user_config_dir
 
-version = tbot.version
-timeout = tbot.timeout 
-patience = tbot.patience 
+# load defaults
+version = "0.1"
+timeout = 60*10
+patience = 2 # waiting time between asks, for order, prevent flooding
 
-channel = tbot.channel 
-nick = tbot.nick 
-server = tbot.server 
-port = tbot.port 
-ask = tbot.ask 
+channel = "#plebnet123"
+nick = "watcher"
+server = "irc.undernet.org"
+port = 6669
+ask = True
 
-commands = tbot.commands 
+commands = ["!MB_balance", "!BTC_balance", "!TBTC_balance", "!matchmakers", "!uploaded", "!downloaded"]
 
-log_file_name = tbot.log_file_name 
-log_data_name = tbot.log_data_name
-log_file_path = tbot.log_file_path 
+log_file_name = "tracker.log"
+log_data_name = "tracker.data"
+log_file_path = user_config_dir()
 
 
-class Watcher(Thread):
-
+class Watcher:
     def __init__(self, nickname = None):
-        self.channel = channel
-        self.server = server
-        self.timeout = timeout
-        self.channel = channel
-        self.port = port
+        self.name = nickname 
 
-        self.nick = nickname or nick
-        self.ident = self.nick
-        self.gecos = "%s version %s" % (self.nick, version)
+        logging.basicConfig(format="%(threadName)s:%(message)s", level='NOTSET')        
 
-        self.irc = None
+        global t
+        t = threading.Timer(1, self.listen)
+        t.daemon = True
+        t.start()
 
-        Thread.__init__(self)
+        global tt
+        tt = threading.Timer(1, self.ask)
+        tt.daemon = True
+        tt.start()        
 
-    def run(self):
-        try:
-            self.init_irc()
-        except Exception, e:
-            self.log("failed to start running an tracker bot  on " + self.server + " " + self.channel)
-            self.log(e)            
+        while True:
+            sleep(1)
 
-        thread_listen = Thread(target=self.listen)
-        thread_listen.start()
-        sleep(20)
-        thread_asking = Thread(target=self.ask)
-        thread_asking.start()
+    def listen(self):
+        logging.info("listening! %d" % threading.active_count())
+        t = threading.Timer(1, self.listen)
+        t.daemon = True
+        t.start()
 
+    def ask(self):
+        logging.info("ask! %d" % threading.active_count())
+        tt = threading.Timer(5, self.ask)
+        tt.daemon = True
+        tt.start()        
+ 
 if __name__ == '__main__':
-    w = Watcher('wing')
-    w.daemon = True
-    w.start()
+    Watcher()

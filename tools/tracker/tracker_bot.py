@@ -51,18 +51,26 @@ class TrackerBot(object):
         # start running the IRC server
         try:
             self.init_irc()
+
+            thread_listen = Thread(target=self.listen)
+            thread_listen.setDaemon(True)
+            thread_listen.start()
+            sleep(20)
+            thread_asking = Thread(target=self.ask)
+            thread_asking.setDaemon(True)
+            thread_asking.start()
+
+            while True:
+                sleep(1)
+            
         except KeyboardInterrupt:
             st = "QUIT :I have to go for now!"
             self.irc.send(st)
+            sys.exit()
         except Exception, e:
             self.log("failed to start running an tracker bot  on " + self.server + " " + self.channel)
             self.log(e)
 
-        thread_listen = Thread(target=self.listen)
-        thread_listen.start()
-        sleep(20)
-        thread_asking = Thread(target=self.ask)
-        thread_asking.start()
 
     def init_irc(self):
         self.log("start running an tracker bot  on " + self.server + " " + self.channel)
