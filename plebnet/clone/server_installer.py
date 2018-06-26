@@ -53,8 +53,7 @@ def install_available_servers(config, dna):
         logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
 
         account_settings = cloudomate_controller.child_account(child_index)
-        rootpw = account_settings.get('server', 'root_password', vpn_child_index,
-                                      setup.get_instance().wallets_testnet())
+        rootpw = account_settings.get('server', 'root_password')
         if check_access(ip, rootpw):
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
                                           account_settings.get('user', 'lastname'))
@@ -63,7 +62,8 @@ def install_available_servers(config, dna):
             # Save config before entering possibly long lasting process
             config.save()
 
-            success = _install_server(ip, rootpw)
+            success = _install_server(ip, rootpw, vpn_child_index,
+                                      setup.get_instance().wallets_testnet()))
 
             # Reload config in case install takes a long time
             config.load()
