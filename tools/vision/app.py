@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath('../tracker'))
 import tracker_bot as tbot
+import pandas as pd
 
 from flask import Flask, render_template
 
@@ -25,7 +26,7 @@ nodes = [{'id': 0, 'label': "0", 'group': 0},
         {'id': 11, 'label': "11", 'group': 3},
         {'id': 12, 'label': "12", 'group': 4},
         {'id': 13, 'label': "13", 'group': 4},
-        {'id': 14, 'label': "14", 'group': 4},
+        {'id': 14, 'label': "fourteen", 'group': 4},
         {'id': 15, 'label': "15", 'group': 5},
         {'id': 16, 'label': "16", 'group': 5},
         {'id': 17, 'label': "17", 'group': 5},
@@ -75,6 +76,47 @@ edges = [{'from': 1, 'to': 0},
     ]
 
 _data_network = {'nodes':nodes, 'edges': edges}
+
+#########################################
+## Initialize the data                 ##
+#########################################
+
+data_path = "~/.config/"
+data_name = "tracker.data"
+data_file = os.path.join(data_path, data_name)
+
+cols = ['timestamp', 'nick', 'type', 'value']
+data = pd.read_csv(data_file,
+                   skipinitialspace=True,
+                   delimiter=';',
+                   error_bad_lines=False,
+                   names=cols,
+                   parse_dates=[0])
+
+# remove null values
+data = data.dropna(subset=['value'])
+data = data[pd.to_numeric(data['value'], errors='coerce').notnull()]
+data.value = data.value.astype(float)
+# set index col properly
+data = data.set_index('timestamp')
+# restore faults
+data.type[data.type == 'BM_balance'] = 'MB_balance'
+
+units = {
+    'MB_balance' : 'MBs',
+    'downloaded' : 'MBs',
+    'uploaded' : 'MBs',
+    'matchmakers' : 'matchmakers'
+}
+
+#########################################
+## more prepping                       ##
+#########################################
+u_nicks = data.nick.unique().tolist()
+
+print u_nicks
+
+print data
 
 @app.route('/')
 def root():

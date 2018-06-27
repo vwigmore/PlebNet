@@ -36,7 +36,7 @@
 
 	hr {
 		margin-bottom: 50px;
-		color: #ff4800 !important;
+		background-color: #ff4800 !important;
 	}	
 
 	.orange {
@@ -67,30 +67,10 @@
 	<h1 class="orange">PLEBNET</h1></h1><h2>vision</h2>
 		<hr>
 		<div id="networkview" class="ob networkview "></div>
+		<div id="plebgraphs" class="ob plebgraphs"></div>
 </div>
 <script src="/static/js/vis.min.js"></script>
-<script>
-var container = document.getElementById('networkview');
-fetch('/network').then((res) => {
-	res.json().then((data) => {
-   		var options = {
-			nodes: {
-				shape: 'dot',
-				size: 30,
-				font: {
-					size: 22,
-					color: '#fffffff'
-				},
-				borderWidth: 2
-			},
-			edges: {
-				width: 2
-			}
-		};	
-		network = new vis.Network(container, data, options);
-	});
-});
-
-</script>
+<script src="/static/js/network.js"></script>
+<script src="/static/js/graphs.js"></script>
 </body>
 </html>

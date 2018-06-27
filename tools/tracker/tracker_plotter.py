@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
@@ -16,10 +17,9 @@ warnings.filterwarnings('ignore')
 ## Initialize the data                 ##
 #########################################
 
-data_path = ".config/"
+data_path = "~/.config/"
 data_name = "tracker.data"
-data_file = data_path + data_name
-
+data_file = os.path.join(data_path, data_name)
 cols = ['timestamp', 'nick', 'type', 'value']
 data = pd.read_csv(data_file,
                    skipinitialspace=True,
