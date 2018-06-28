@@ -53,6 +53,7 @@ echo "fixing paths"
 
 # install openvpn
 apt-get install -y openvpn
+ln -s "$(which openvpn)" /usr/bin/openvpn
 
 # Install dependencies
 apt-get install -y \
