@@ -266,7 +266,7 @@ def install_vpn():
         logger.log("ERROR installing VPN, Code: " + str(exitcode) + " - Message: " + error.decode('ascii'))
         return False
     else:
-        pid = try_install.pid
+        pid = str(try_install.pid)
         settings.vpn_pid(pid)
         settings.vpn_running("1")
         return True
