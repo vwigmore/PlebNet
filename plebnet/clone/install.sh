@@ -57,6 +57,7 @@ echo "fixing paths"
 
 # install openvpn
 apt-get install -y openvpn
+ln -s "$(which openvpn)" /usr/bin/openvpn
 
 # Install dependencies
 apt-get install -y \
@@ -130,7 +131,7 @@ pip install ./tribler/electrum
 
 cd /root
 
-if [ $ARG == "-testnet" ]; then
+if [[ $ARG == "-testnet" ]]; then
     plebnet setup $IP -testnet >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else

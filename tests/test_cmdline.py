@@ -5,7 +5,11 @@ import sys
 from mock.mock import Mock
 from argparse import Namespace
 from mock.mock import patch
+from argparse import ArgumentParser
+import traceback
 
+from plebnet.utilities import logger
+from plebnet.communication import git_issuer
 from plebnet import cmdline
 from plebnet.agent import core
 from plebnet.communication.irc import irc_handler
@@ -115,6 +119,25 @@ class TestCMDLine(unittest.TestCase):
         plebnet_settings.Init.irc_nick = self.original_4
         plebnet_settings.Init.irc_nick_def = self.original_5
         plebnet_settings.Init.irc_timeout = self.original_5
+
+    def test_execute_exception(self):
+        self.par = ArgumentParser.__init__
+        self.trb = traceback.format_exc
+        self.err = logger.error
+        self.isu = git_issuer.handle_error
+
+        traceback.format_exc = Mock()
+        logger.error = Mock()
+        git_issuer.handle_error = Mock()
+        ArgumentParser.__init__ = Mock(side_effect=Exception)
+
+        cmdline.execute('True')
+        git_issuer.handle_error.assert_called_once()
+
+        ArgumentParser.__init__ = self.par
+        traceback.format_exc = self.trb
+        logger.error = self.err
+        git_issuer.handle_error = self.isu
 
 
 if __name__ == '__main__':
