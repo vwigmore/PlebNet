@@ -57,6 +57,10 @@ def setup(args):
     settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
+
+    if args.self_ip:
+        config.set('self_ip', args.self_ip)
+
     config.save()
 
     # Prepare the IRC Client

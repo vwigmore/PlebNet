@@ -33,20 +33,24 @@
             start: data[0].x,
             end: data[data.length-1].x,         
             dataAxis: {
-                showMinorLabels: true,
+                showMinorLabels: false,
                 left: {
                     title: {
                         text: key + ' (' + grapher.units[key] + ')'
+                    },
+                    range: {
+                        min: 0,
+                        max: data[data.length-1].y * 1.5 
                     }
                 }
             },
-            drawPoints: false,
+            drawPoints: true,
             shaded: {
                 orientation: 'zero' // top, bottom
             },        
             autoResize: true,
             moveable: false,
-            graphHeight: '395px'
+            graphHeight: '395px',
         }
 
         if (grapher.lastGraph) {

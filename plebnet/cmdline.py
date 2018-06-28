@@ -56,9 +56,13 @@ def execute_setup(cmd=None):
         cmd = sys.argv[2:3]
 
     parser = ArgumentParser(description="setup thingies")
+
+    parser.add_argument('-self_ip', type=str, help='The agent\'s own IP address for monitoring')
+
     parser.add_argument('-testnet', action='store_true', default=False,
                   dest='test_net',
                   help='Use TBTC instead of BTC')
+
     args = parser.parse_args(cmd)
 
     agent.setup(args)

@@ -13,6 +13,7 @@ import sys
 # as the file is loaded separately, the imports have to be adjusted.
 sys.path.append('./PlebNet')
 from plebnet.agent import dna
+from plebnet.agent import config as PlebnetConfig
 from plebnet.communication import git_issuer
 from plebnet.controllers import wallet_controller, market_controller, tribler_controller
 from plebnet.utilities import logger
@@ -35,7 +36,7 @@ class Create(object):
 
         self.nick = settings.irc_nick()
         self.ident = "plebber"
-        self.gecos = "Plebbot version 2.14"
+        self.gecos = "Plebbot version 2.15"
 
         self.irc = None
         self.init_time = time.time()
@@ -44,8 +45,10 @@ class Create(object):
         # prep reply functions
         self.responses = {}
         self.add_response("alive",        self.msg_alive)
+        self.add_response("children",     self.msg_children)
         self.add_response("error",        self.msg_error)
         self.add_response("host",         self.msg_host)
+        self.add_response("ip",           self.msg_ip)
         self.add_response("init",         self.msg_init)
         self.add_response("joke",         self.msg_joke)
         self.add_response("MB_wallet",    self.msg_MB_wallet)
@@ -225,6 +228,14 @@ class Create(object):
     def msg_helped_by(self):    self.send_msg("I am currently helped by : %s peers" % tribler_controller.get_helped_by())
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
+
+    def msg_ip(self):
+        config = PlebnetConfig()
+        self.send_msg("My IP is: %s" % config.get('self_ip'))
+
+    def msg_children(self):
+        config = PlebnetConfig()
+        self.send_msg("My children IPs are: %s" % ','.join(config.get('children_ips')))
 
 
 if __name__ == '__main__':

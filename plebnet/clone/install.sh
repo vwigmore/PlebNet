@@ -13,8 +13,12 @@
 
 # branch to install from
 BRANCH=$1
+
+# own ip for monitoring (from create-child)
+IP=$2
+
 # expects -testnet, can be extended for more arguments
-ARG=$2
+ARG=$3
 
 CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
 
@@ -127,10 +131,10 @@ pip install ./tribler/electrum
 cd /root
 
 if [ $ARG == "-testnet" ]; then
-    plebnet setup -testnet >> plebnet.log 2>&1
+    plebnet setup $IP -testnet >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else
-    plebnet setup >> plebnet.log 2>&1
+    plebnet setup $IP >> plebnet.log 2>&1
     cron plebnet check
     echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
     echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"

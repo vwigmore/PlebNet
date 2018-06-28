@@ -63,7 +63,10 @@ def install_available_servers(config, dna):
             config.save()
 
             success = _install_server(ip, rootpw, vpn_child_index,
-                                      setup.get_instance().wallets_testnet()))
+                                      setup.get_instance().wallets_testnet())
+
+            # add child ip to config for monitoring
+            config.get('children_ips').append(ip)
 
             # Reload config in case install takes a long time
             config.load()
