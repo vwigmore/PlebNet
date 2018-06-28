@@ -1,18 +1,73 @@
 (function() {
-    var graph_container = document.getElementById('plebgraphs');
-    var items = [
-        {x: '2014-06-11', y: 10},
-        {x: '2014-06-12', y: 25},
-        {x: '2014-06-13', y: 30},
-        {x: '2014-06-14', y: 10},
-        {x: '2014-06-15', y: 15},
-        {x: '2014-06-16', y: 30}
-        ];
+    window.grapher = window.grapher || {};
+    var grapher = window.grapher;
 
-    var dataset = new vis.DataSet(items);
-    var options = {
-    start: '2014-06-10',
-    end: '2014-06-18'
+    grapher.lastGraph = undefined;
+    grapher.units = {
+        'MB_balance' : 'MBs',
+        'downloaded' : 'MBs',
+        'uploaded' : 'MBs',
+        'matchmakers' : 'matchmakers'
     };
-    var graph2d = new vis.Graph2d(graph_container, dataset, options);
-})();
+    grapher.defaultSelection = 'uploaded';
+    grapher.selected = grapher.defaultSelection;
+
+    grapher.graphData = function(node, key) {
+        if (typeof key === 'undefined') {
+            key = grapher.selected;
+        } else {
+            grapher.selected = key;
+        }
+
+        fetch('/node/'+node+'/'+key).then((nodeRes) => {
+            nodeRes.json().then((nodeData) => {
+                window.grapher.graph(key, nodeData)
+            });
+        });        
+    };
+
+    grapher.graph = function(key, data) {
+        var graph_container = document.getElementById('plebgraphs');
+        var dataset = new vis.DataSet(data);
+        var options = {
+            start: data[0].x,
+            end: data[data.length-1].x,         
+            dataAxis: {
+                showMinorLabels: true,
+                left: {
+                    title: {
+                        text: key + ' (' + grapher.units[key] + ')'
+                    }
+                }
+            },
+            drawPoints: false,
+            shaded: {
+                orientation: 'zero' // top, bottom
+            },        
+            autoResize: true,
+            moveable: false,
+            graphHeight: '395px'
+        }
+
+        if (grapher.lastGraph) {
+            grapher.lastGraph.destroy();
+        }
+
+
+        var groups = new vis.DataSet();
+        groups.add({
+            id: 0,
+            content: 'namess',
+            className: 'custom-style1',
+            options: {
+                drawPoints: {
+                    style: 'square' // square, circle
+                },
+                shaded: {
+                    orientation: 'bottom' // top, bottom
+                }
+            }});        
+
+        grapher.lastGraph = new vis.Graph2d(graph_container, dataset, groups, options);          
+    }
+}) ();
