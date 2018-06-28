@@ -2,7 +2,10 @@ import unittest
 import mock
 import os
 from appdirs import user_config_dir
+from mock.mock import MagicMock
+import json
 
+from plebnet.agent import dna
 from plebnet.agent.dna import DNA
 
 class TestDna(unittest.TestCase):
@@ -131,6 +134,28 @@ class TestDna(unittest.TestCase):
         self.test_dna.rate = 0.5
         self.test_dna.evolve(False, "provider1")
         self.assertEqual({'provider1': 0.0, 'provider2': 1.0}, self.test_dna.vps)
+
+    def test_read_dictionary(self):
+        initial_dict = {'Self': 'unknown',
+                        'parent': 'unknown',
+                        'transaction_hash': '',
+                        'VPS': 'TEST'}
+
+        self.ex = os.path.exists
+        self.ini = DNA.create_initial_dict
+        self.wri = DNA.write_dictionary
+
+        os.path.exists = MagicMock(return_value=None)
+        DNA.create_initial_dict = MagicMock(return_value=initial_dict)
+        DNA.write_dictionary = MagicMock()
+
+        dna = DNA()
+        dna.read_dictionary()
+        self.assertEqual(dna.vps, 'TEST')
+
+        os.path.exists = self.ex
+        DNA.create_initial_dict = self.ini
+        DNA.write_dictionary = self.wri
 
 
 if __name__ == '__main__':

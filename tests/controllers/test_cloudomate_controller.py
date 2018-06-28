@@ -10,6 +10,7 @@ from cloudomate.hoster.vps.clientarea import ClientArea
 from cloudomate.util.settings import Settings
 from cloudomate.cmdline import providers as cloudomate_providers
 from mock.mock import MagicMock
+from plebnet.communication import git_issuer
 
 
 import plebnet.controllers.cloudomate_controller as cloudomate
@@ -292,6 +293,34 @@ class TestCloudomateController(unittest.TestCase):
         plebnet_settings.Init.wallets_testnet_created = self.settings
         blueAngel.BlueAngelHost.purchase = self.purchase
         Logger.warning = self.logger
+
+    def test_purchase_choice_error(self):
+        self.config = PlebNetConfig.get
+        self.triblerwallet = TriblerWallet.__init__
+        self.settings = plebnet_settings.Init.wallets_testnet_created
+        self.purchase = blueAngel.BlueAngelHost.purchase
+        self.logger = Logger.warning
+
+        self.error = Logger.error
+        self.issue = git_issuer.handle_error
+
+        PlebNetConfig.get = MagicMock(side_effect=self.side_effect)
+        plebnet_settings.Init.wallets_testnet_created = MagicMock(return_value=None)
+        TriblerWallet.__init__ = MagicMock(return_value=None)
+        blueAngel.BlueAngelHost.purchase = MagicMock(side_effect=Exception)
+        Logger.warning = MagicMock()
+        Logger.error = MagicMock()
+        git_issuer.handle_error = MagicMock()
+
+        self.assertEquals(cloudomate.purchase_choice(PlebNetConfig()), plebnet_settings.FAILURE)
+
+        PlebNetConfig.get = self.config
+        TriblerWallet.__init__ = self.triblerwallet
+        plebnet_settings.Init.wallets_testnet_created = self.settings
+        blueAngel.BlueAngelHost.purchase = self.purchase
+        Logger.warning = self.logger
+        Logger.error = self.error
+        git_issuer.handle_error = self.issue
 
     def test_purchase_choice_vpn(self):
         self.config = PlebNetConfig.get
