@@ -46,7 +46,8 @@ def setup(args):
         dna.read_dictionary({'proxhost': cloudomate_controller.get_vps_providers()['proxhost']})
     else:
         dna.read_dictionary(cloudomate_controller.get_vps_providers())
-        dna.remove_provider('proxhost')
+        if 'proxhost' in dna.vps.keys():
+            dna.remove_provider('proxhost')
 
     dna.write_dictionary()
 
