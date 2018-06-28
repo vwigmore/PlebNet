@@ -8,7 +8,6 @@ of this code. If Cloudomate alters its call methods, this should be the only fil
 to be updated in PlebNet.
 """
 
-import cloudomate
 import io
 import os
 import sys
@@ -27,7 +26,7 @@ from plebnet.agent.config import PlebNetConfig
 from plebnet.controllers import market_controller
 from plebnet.controllers.wallet_controller import TriblerWallet
 from plebnet.settings import plebnet_settings
-from plebnet.utilities import logger, fake_generator
+from plebnet.utilities import logger
 from plebnet.agent.dna import DNA
 from plebnet.communication import git_issuer
 
@@ -42,6 +41,7 @@ def get_vps_providers():
 
 def get_vpn_providers():
     return cloudomate_providers['vpn']
+
 
 def child_account(index=None):
     """
@@ -95,7 +95,7 @@ def get_ip(provider, account):
 def setrootpw(provider, password):
     settings = child_account()
     settings.put('server', 'root_password', password)
-    return #provider.set_rootpw(settings)
+    return # provider.set_rootpw(settings)
 
 
 def options(provider):
@@ -116,7 +116,7 @@ def pick_provider(providers):
     gateway = get_vps_providers()[provider].get_gateway()
     option, price, currency = pick_option(provider)
     btc_price = gateway.estimate_price(
-        wallet_util.get_price(price, currency)) + get_network_fee()
+        wallet_util.get_price(price, currency))
     return provider, option, btc_price
 
 
@@ -163,18 +163,19 @@ def calculate_price(provider, option):
     vps_option = options(cloudomate_providers['vps'][provider])[option]
     gateway = cloudomate_providers['vps'][provider].get_gateway()
     btc_price = gateway.estimate_price(
-        wallet_util.get_price(vps_option.price, 'USD')) + get_network_fee()
+        wallet_util.get_price(vps_option.price, 'USD'))
     return btc_price
 
 
-def calculate_price_vpn(vpn_provider):
+def calculate_price_vpn(vpn_provider='azirevpn'):
     logger.log('vpn provider: %s' % vpn_provider, "cloudomate_controller")
     # option is assumed to be the first one
     vpn_option = options(get_vpn_providers()[vpn_provider])[0]
     gateway = get_vpn_providers()[vpn_provider].get_gateway()
     btc_price = gateway.estimate_price(
-        cloudomate.wallet.get_price(vpn_option.price, 'USD')) + cloudomate.wallet.get_network_fee()
+        wallet_util.get_price(vpn_option.price, 'EUR'))
     return btc_price
+
 
 def purchase_choice_vpn(config):
     provider = plebnet_settings.get_instance().vpn_host()
@@ -216,8 +217,6 @@ def purchase_choice(config):
 
     (provider, option, _) = config.get('chosen_provider')
     provider_instance = cloudomate_providers['vps'][provider](child_account())
-    PlebNetConfig().increment_child_index()
-    fake_generator.generate_child_account()
 
     wallet = TriblerWallet(plebnet_settings.get_instance().wallets_testnet_created())
     c = cloudomate_providers['vps'][provider]
@@ -270,7 +269,7 @@ def place_offer(chosen_est_price, config):
                                      timeout=plebnet_settings.TIME_IN_HOUR)
 
 
-def save_info_vpn():
+def save_info_vpn(child_index):
     """
     Stores the child vpn information
     :param location: where to store the config
@@ -278,14 +277,13 @@ def save_info_vpn():
     """
     vpn = get_vpn_providers()[plebnet_settings.get_instance().vpn_host()](child_account())
     info = vpn.get_configuration()
-    child_index = str(PlebNetConfig().get('child_index'))
     prefix = plebnet_settings.get_instance().vpn_child_prefix()
 
 
     dir = path.expanduser(plebnet_settings.get_instance().vpn_config_path())
-    credentials = prefix + child_index +plebnet_settings.get_instance().vpn_credentials_name()
+    credentials = prefix + str(child_index) +plebnet_settings.get_instance().vpn_credentials_name()
         
-    ovpn = prefix + child_index +plebnet_settings.get_instance().vpn_config_name()
+    ovpn = prefix + str(child_index) +plebnet_settings.get_instance().vpn_config_name()
 
     # the .ovpn file contains the line auth-user-pass so that it knows which credentials file to use
     # when the child config and credentials are passed to create-child, it is placed on the server as "own" 
