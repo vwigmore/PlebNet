@@ -6,11 +6,13 @@ the latest version of PlebNet on these servers.
 """
 
 import os
+import time
 import subprocess
 
 from plebnet.controllers import cloudomate_controller
 from plebnet.settings import plebnet_settings as setup
 from plebnet.utilities import logger
+
 
 def install_available_servers(config, dna):
     """
@@ -32,8 +34,6 @@ def install_available_servers(config, dna):
         if provider in cloudomate_controller.get_vpn_providers():
             return
 
-        vpn_child_index = None
-
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
             ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
@@ -43,19 +43,19 @@ def install_available_servers(config, dna):
 
         # VPN configuration, enable tun/tap settings
         if provider_class.TUN_TAP_SETTINGS:
-            vpn_child_index = child_index
-            tun_success = provider_class.enable_tun_tap()
+            tun_success = provider_class(cloudomate_controller.child_account(child_index)).enable_tun_tap()
             logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
-            if not cloudomate_controller.save_info_vpn():
+            if not cloudomate_controller.save_info_vpn(child_index):
                 logger.log("VPN not ready yet, can't save ovpn config")
                 return
 
         logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
 
         account_settings = cloudomate_controller.child_account(child_index)
-        rootpw = account_settings.get('server', 'root_password', vpn_child_index,
-                                      setup.get_instance().wallets_testnet())
-        if check_access(ip, rootpw):
+        rootpw = account_settings.get('server', 'root_password')
+        if is_valid_ip(ip):
+            provider_class(cloudomate_controller.child_account(child_index)).change_root_password(rootpw)
+            time.sleep(5)
             parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
                                           account_settings.get('user', 'lastname'))
             dna.create_child_dna(provider, parentname, transaction_hash)
@@ -63,7 +63,7 @@ def install_available_servers(config, dna):
             # Save config before entering possibly long lasting process
             config.save()
 
-            success = _install_server(ip, rootpw)
+            success = _install_server(ip, rootpw, child_index, setup.get_instance().wallets_testnet())
 
             # Reload config in case install takes a long time
             config.load()
@@ -72,9 +72,7 @@ def install_available_servers(config, dna):
                 config.get('bought').remove([provider, transaction_hash, child_index])
             config.save()
         else:
-            logger.log("Something went wrong with installing on server "
-                       "maybe the rootpassword on the server is not correct. Trying to change it...")
-            provider_class.change_root_password(rootpw)
+            logger.log("Server not ready")
 
 
 def is_valid_ip(ip):
@@ -120,22 +118,33 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
     script_path = os.path.join(home, "plebnet/clone/create-child.sh")
     logger.log('tot_path: %s' % script_path)
 
-    command = ["bash", "scripts/create-child.sh", "-i", ip.strip(), "-p", rootpw.strip()]
+    command = ["bash", script_path, "-i", ip.strip(), "-p", rootpw.strip()]
 
     # additional VPN arguments
-    if vpn_child_index:
-        prefix = setup.get_instance().vpn_child_prefix()
+    if vpn_child_index > -1:
+        prefix = settings.vpn_child_prefix()
 
-        dir = os.path.expanduser(setup.get_instance().vpn_config_path())
-        credentials = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_credentials_name())
-        ovpn = os.path.join(dir, prefix + vpn_child_index + setup.get_instance().vpn_config_name())
-        command += ["-conf", ovpn, "-cred", credentials]
+        dir = os.path.expanduser(settings.vpn_config_path())
+        
+        # vpn credentials: ~/child_INT_credentials.conf
+        credentials = os.path.join(dir, prefix + str(vpn_child_index) + settings.vpn_credentials_name())
+        # vpn credentials destination: own_config.ovpn
+        dest_credentials = settings.vpn_own_prefix() + settings.vpn_credentials_name()
+
+        # vpn config: ~/child_INT_config.ovpn
+        ovpn = os.path.join(dir, prefix + str(vpn_child_index) + settings.vpn_config_name())
+        # vpn config destination: own_credentials.conf
+        dest_config = settings.vpn_own_prefix() + settings.vpn_config_name()
+
+        # the current child config is given as arguments, the destination is so that the
+        # agent knows it's its own configuration, and not a child's config.
+        command += ["-conf", ovpn, dest_config, "-cred", credentials, dest_credentials]
 
     if testnet:
         command += "-t"
 
     logger.log("Running %s" % ' '.join(command), '_install_server')
-    exitcode = subprocess.call(command, shell=True, cwd=home)
+    exitcode = subprocess.call(command, cwd=home)
     if exitcode == 0:
         logger.log("Installation successful")
         return True

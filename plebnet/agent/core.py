@@ -149,8 +149,6 @@ def check_vpn_install():
         return True
 
     # check OWN configuration files.
-    # the vpn configuration given has the "child" prefix (see plebnet_setup.cfg)
-    # the prefix needs to be renamed to "own" prefix so that the agent can continue to buy for its children
     credentials = os.path.join(os.path.expanduser(settings.vpn_config_path()),
                                settings.vpn_own_prefix()+settings.vpn_credentials_name())
     vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()),
@@ -164,23 +162,7 @@ def check_vpn_install():
             return True
         else:
             settings.vpn_installed("0")
-            logger.log("Installing VPN failed with configurations!")
-
-            vpn_config_found = False
-            vpn_cred_found = False
-            for f in os.listdir(os.path.expanduser(settings.vpn_config_path())):
-                if re.match(settings.vpn_child_prefix()+'[0-9]{1,5}'+settings.vpn_config_name(), f):
-                    # matches child_0_config.ovpn
-                    if not vpn_config_found:
-                        logger.log("VPN config found, renaming")
-                        os.rename(f, vpnconfig)
-                        vpn_config_found = True
-                elif re.match(settings.vpn_child_prefix()+'[0-9]{1,5}'+settings.vpn_credentials_name(), f):
-                    # matches child_0_credentials.conf
-                    if not vpn_cred_found:
-                        logger.log("VPN credentials found, renaming")
-                        os.rename(f, credentials)
-                        vpn_cred_found = True
+            logger.log("Installing VPN failed with configurations. Subscription passed?")
             return False
     else:
         logger.log("No VPN configurations found!")
@@ -192,7 +174,7 @@ def attempt_purchase_vpn():
     Attempts to purchase a VPN, checks first if balance is sufficient
     The success message is stored to prevent further unecessary purchases.
     """
-    provider = cloudomate_controller.get_vpn_providers()[settings.vpn_host()]
+    provider = settings.vpn_host()
     if settings.wallets_testnet():
         domain = 'TBTC'
     else:
@@ -204,6 +186,7 @@ def attempt_purchase_vpn():
             logger.success("Purchasing VPN succesful!", log_name)
         elif success == plebnet_settings.FAILURE:
             logger.error("Error purchasing vpn", log_name)
+
 
 def update_offer():
     """
@@ -224,7 +207,8 @@ def attempt_purchase():
         domain = 'TBTC'
     else:
         domain = 'BTC'
-    if market_controller.get_balance(domain) >= cloudomate_controller.calculate_price(provider, option):
+    if market_controller.get_balance(domain) >= (cloudomate_controller.calculate_price(provider, option) +
+                                                 cloudomate_controller.calculate_price_vpn()):
         logger.log("Try to buy a new server from %s" % provider, log_name)
         success = cloudomate_controller.purchase_choice(config)
         if success == plebnet_settings.SUCCESS:
@@ -237,8 +221,11 @@ def attempt_purchase():
         elif success == plebnet_settings.FAILURE:
             # Evolve provider negatively if not successful
             dna.evolve(False, provider)
-            config.set('chosen_provider', None)
-            config.save()
+
+        config.increment_child_index()
+        fake_generator.generate_child_account()
+        config.set('chosen_provider', None)
+        config.save()
 
 
 def install_vps():
@@ -263,10 +250,12 @@ def install_vpn():
 
     with open(os.path.expanduser('/etc/resolv.conf'), 'w') as dnsfile:
         dnsfile.write(resolv)
+    vpnconfig = os.path.join(os.path.expanduser(settings.vpn_config_path()),
+                             settings.vpn_own_prefix() + settings.vpn_config_name())
+    try_install = subprocess.Popen('openvpn --config ' + vpnconfig + ' --daemon',
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
+                                   cwd=os.path.expanduser('~/'))
 
-    try_install = subprocess.Popen(['openvpn', '--config', settings.vpn_own_prefix()+settings.vpn_config_name(), '--daemon'],
-                                  cwd=os.path.expanduser(settings.vpn_config_path()),
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     result, error = try_install.communicate()
     exitcode = try_install.wait()
 
