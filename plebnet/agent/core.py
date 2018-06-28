@@ -164,6 +164,8 @@ def check_vpn_install():
         if install_vpn():
             settings.vpn_installed("1")
             logger.log("Installing VPN succesful with configurations.")
+            if irc_handler.restart_irc_client():
+                logger.log("Restarted IRC because VPN was installed.")
             return True
         else:
             settings.vpn_installed("0")

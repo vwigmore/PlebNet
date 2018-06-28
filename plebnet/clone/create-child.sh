@@ -40,7 +40,7 @@ VPN_CONFIG=""
 VPN_CREDENTIALS=""
 DEST_VPN_CONFIG=""
 DEST_VPN_CREDENTIALS=""
-BRANCH="master"
+BRANCH="vision"
 TESTNET=0
 
 ############################### PARSING ########################################

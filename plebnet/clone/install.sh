@@ -132,10 +132,10 @@ pip install ./tribler/electrum
 cd /root
 
 if [[ $ARG == "-testnet" ]]; then
-    plebnet setup $IP -testnet >> plebnet.log 2>&1
+    plebnet setup -self_ip $IP -testnet >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else
-    plebnet setup $IP >> plebnet.log 2>&1
+    plebnet setup -self_ip $IP >> plebnet.log 2>&1
     cron plebnet check
     echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
     echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"
