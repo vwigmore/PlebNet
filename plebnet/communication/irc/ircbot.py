@@ -13,7 +13,7 @@ import sys
 # as the file is loaded separately, the imports have to be adjusted.
 sys.path.append('./PlebNet')
 from plebnet.agent import dna
-from plebnet.agent import config as PlebnetConfig
+from plebnet.agent.config import PlebNetConfig
 from plebnet.communication import git_issuer
 from plebnet.controllers import wallet_controller, market_controller, tribler_controller
 from plebnet.utilities import logger
@@ -230,11 +230,11 @@ class Create(object):
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
     def msg_ip(self):
-        config = PlebnetConfig()
+        config = PlebNetConfig()
         self.send_msg("My IP is: %s" % config.get('self_ip'))
 
     def msg_children(self):
-        config = PlebnetConfig()
+        config = PlebNetConfig()
         self.send_msg("My children IPs are: %s" % ','.join(config.get('children_ips')))
 
 

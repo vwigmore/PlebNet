@@ -53,7 +53,7 @@ def execute(cmd=None):
 
 def execute_setup(cmd=None):
     if not cmd:
-        cmd = sys.argv[2:3]
+        cmd = sys.argv[2:4]
 
     parser = ArgumentParser(description="setup thingies")
 
