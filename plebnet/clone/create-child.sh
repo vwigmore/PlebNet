@@ -137,16 +137,15 @@ done
 # if testnet (-t) is set, install.sh is called with additional "-test" argument
 if [[ $TESTNET -eq 1 ]]; then
 	echo "(testnet is ON)";
-	INSTALL_ARG="-testnet";
 else
 	echo "(testnet is OFF)";
-	INSTALL_ARG="";
 fi
 
 # if exitnode (-e) is set, install.sh is called with additional "--exitnode" argument
 if [[ $EXITNODE -eq 1 ]]; then
 	echo "(exitnode is ON)";
-	INSTALL_ARG = "${INSTALL_ARG} --exitnode";
+else
+    echo "(exitnode is OFF)";
 fi
 
 ############################### INSTALL REQUIREMENTS ########################################
@@ -191,4 +190,4 @@ echo "Installing PlebNet"
 echo "Installing from branch: $BRANCH";
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "wget https://raw.githubusercontent.com/vwigmore/plebnet/$BRANCH/plebnet/clone/install.sh && \
     chmod +x install.sh && \
-    ./install.sh $BRANCH $INSTALL_ARG | tee plebnet_installation.log"
+    ./install.sh $BRANCH $EXITNODE $TESTNET | tee plebnet_installation.log"
