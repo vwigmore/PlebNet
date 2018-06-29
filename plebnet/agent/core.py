@@ -48,8 +48,11 @@ def setup(args):
         dna.read_dictionary(cloudomate_controller.get_vps_providers())
         if 'proxhost' in dna.vps.keys():
             dna.remove_provider('proxhost')
-
     dna.write_dictionary()
+
+    if args.exit_node:
+        logger.log("Running as exitnode")
+        settings.tribler_exitnode('1')
 
     # Prepare first child configuration
     fake_generator.generate_child_account()
