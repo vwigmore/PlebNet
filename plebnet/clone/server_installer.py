@@ -65,8 +65,8 @@ def install_available_servers(config, dna):
             # Save config before entering possibly long lasting process
             config.save()
 
-            # add child ip to config for monitoring
-            config.get('children_ips').append(ip)
+            # add child index to tree to config for monitoring
+            config.set('tree', config.get('tree')+'.'+child_index)
 
             success = _install_server(ip, rootpw, child_index, setup.get_instance().wallets_testnet())
 

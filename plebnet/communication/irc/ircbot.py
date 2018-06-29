@@ -45,10 +45,9 @@ class Create(object):
         # prep reply functions
         self.responses = {}
         self.add_response("alive",        self.msg_alive)
-        self.add_response("children",     self.msg_children)
         self.add_response("error",        self.msg_error)
         self.add_response("host",         self.msg_host)
-        self.add_response("ip",           self.msg_ip)
+        self.add_response("tree",         self.msg_tree)
         self.add_response("init",         self.msg_init)
         self.add_response("joke",         self.msg_joke)
         self.add_response("MB_wallet",    self.msg_MB_wallet)
@@ -229,13 +228,9 @@ class Create(object):
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
-    def msg_ip(self):
+    def msg_tree(self):
         config = PlebNetConfig()
-        self.send_msg("My IP is: %s" % config.get('self_ip'))
-
-    def msg_children(self):
-        config = PlebNetConfig()
-        self.send_msg("My children IPs are: %s" % ','.join(config.get('children_ips')))
+        self.send_msg("My tree is: %s" % config.get('tree'))
 
 
 if __name__ == '__main__':

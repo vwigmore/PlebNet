@@ -59,14 +59,14 @@ def setup(args):
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
 
-    if args.self_ip:
-        config.set('self_ip', args.self_ip)
-
     config.save()
 
     # Prepare the IRC Client
     irc_handler.init_irc_client()
     irc_handler.start_irc_client()
+
+    if config.get('tree') == '':
+        config.set('tree', settings.irc_nick)
 
     logger.success("PlebNet is ready to roll!")
 
