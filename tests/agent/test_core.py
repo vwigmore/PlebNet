@@ -230,10 +230,13 @@ class TestCore(unittest.TestCase):
         self.set = PlebNetConfig.set
         self.save = PlebNetConfig.save
         self.vpn = Core.attempt_purchase_vpn
+        self.new = PlebNetConfig.increment_child_index
+        self.provider = cloudomate_controller.get_vps_providers
+        self.fg = fake_generator.generate_child_account
 
         logger.log = MagicMock()
         plebnet_settings.Init.wallets_testnet = MagicMock(return_value=True)
-        PlebNetConfig.get = MagicMock(return_value=['ccihosting', 'test', 0])
+        PlebNetConfig.get = MagicMock(return_value=['linevast', 'test', 0])
         market_controller.get_balance = MagicMock(return_value=300)
 
         Core.attempt_purchase_vpn = MagicMock(return_value=False)
@@ -242,6 +245,9 @@ class TestCore(unittest.TestCase):
         DNA.evolve = MagicMock()
         PlebNetConfig.set = MagicMock()
         PlebNetConfig.save = MagicMock()
+        PlebNetConfig.increment_child_index = MagicMock()
+        cloudomate_controller.get_vps_providers = MagicMock()
+        fake_generator.generate_child_account = MagicMock()
 
         Core.config = PlebNetConfig
         Core.dna = DNA
@@ -254,7 +260,7 @@ class TestCore(unittest.TestCase):
 
         cloudomate_controller.purchase_choice = MagicMock(return_value=plebnet_settings.FAILURE)
         Core.attempt_purchase()
-        DNA.evolve.assert_called_with(False, 'ccihosting')
+        DNA.evolve.assert_called_with(False, 'linevast')
 
         logger.log = self.log
         plebnet_settings.Init.wallets_testnet = self.testnet
@@ -266,6 +272,9 @@ class TestCore(unittest.TestCase):
         Core.attempt_purchase_vpn = self.vpn
         PlebNetConfig.set = self.set
         PlebNetConfig.save = self.save
+        PlebNetConfig.increment_child_index = self.new
+        cloudomate_controller.get_vps_providers = self.provider
+        fake_generator.generate_child_account = self.fg
 
     def test_install_vps(self):
         self.ias = server_installer.install_available_servers
@@ -346,7 +355,6 @@ class TestCore(unittest.TestCase):
         self.isf = os.path.isfile
         self.civ = Core.install_vpn
         self.cpr = plebnet_settings.Init.vpn_child_prefix
-        self.orn = os.rename
         self.usr = os.path.expanduser
 
         plebnet_settings.Init.vpn_installed = MagicMock(return_value=True)
@@ -361,10 +369,11 @@ class TestCore(unittest.TestCase):
         os.path.isfile = MagicMock(return_value=False)
         os.path.expanduser = MagicMock()
 
-        self.assertFalse(Core.check_vpn_install())
+        assert Core.check_vpn_install()
 
         os.path.isfile = MagicMock(return_value=True)
         Core.install_vpn = MagicMock(return_value=False)
+        plebnet_settings.Init.vpn_installed = MagicMock(return_value=False)
 
         self.assertFalse(Core.check_vpn_install())
 
@@ -374,9 +383,8 @@ class TestCore(unittest.TestCase):
 
         os.listdir = MagicMock(return_value=['child_pre0config_name', 'child_pre0cred_name'])
         plebnet_settings.Init.vpn_child_prefix = MagicMock(return_value='child_pre')
-        os.rename = MagicMock()
-        Core.check_vpn_install()
-        os.rename.assert_called()
+        os.path.isfile = MagicMock(return_value=False)
+        self.assertFalse(Core.check_vpn_install())
 
         plebnet_settings.Init.vpn_installed = self.vpn_installed
         logger.log = self.log
@@ -389,7 +397,6 @@ class TestCore(unittest.TestCase):
         os.path.isfile = self.isf
         Core.install_vpn = self.civ
         plebnet_settings.Init.vpn_child_prefix = self.cpr
-        os.rename = self.orn
         os.path.expanduser = self.usr
 
 

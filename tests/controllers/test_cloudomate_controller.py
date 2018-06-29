@@ -328,12 +328,14 @@ class TestCloudomateController(unittest.TestCase):
         self.settings = plebnet_settings.Init.wallets_testnet_created
         self.purchase = azirevpn.AzireVpn.purchase
         self.logger = Logger.warning
+        self.host = plebnet_settings.Init.vpn_host
 
         PlebNetConfig.get = MagicMock(side_effect=self.side_effect)
         plebnet_settings.Init.wallets_testnet_created = MagicMock(return_value=None)
         TriblerWallet.__init__ = MagicMock(return_value=None)
         azirevpn.AzireVpn.purchase = MagicMock(return_value=('Hash', 0))
         Logger.warning = MagicMock()
+        plebnet_settings.Init.vpn_host = MagicMock(return_value='AzireVPN')
 
         self.assertEquals(cloudomate.purchase_choice_vpn(PlebNetConfig()), plebnet_settings.SUCCESS)
 
@@ -342,6 +344,7 @@ class TestCloudomateController(unittest.TestCase):
         plebnet_settings.Init.wallets_testnet_created = self.settings
         azirevpn.AzireVpn.purchase = self.purchase
         Logger.warning = self.logger
+        plebnet_settings.Init.vpn_host = self.host
 
     # def test_save_info_vpn(self):
     #     self.config = PlebNetConfig.get
