@@ -17,6 +17,13 @@ BRANCH=$1
 EXITNODE=$2
 TESTNET=$3
 
+ARGS=""
+[[ $EXITNODE -eq 1 ]] && ARGS="--exitnode";
+[[ $TESTNET -eq 1 ]] && ARGS="${ARGS} --testnet";
+echo $ARG && exit;
+
+exit
+
 CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
 
 [ -z $BRANCH ] && BRANCH = "master"
