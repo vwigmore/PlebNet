@@ -33,18 +33,17 @@ def start():
     """
     env = os.environ.copy()
     env['PYTHONPATH'] = setup.tribler_home()
+
+    command = ['twistd', '--pidfile='+setup.tribler_pid(), 'plebnet', '-p', '8085']
+
+    if setup.wallets_testnet():
+        command.append('--testnet')
+
     if setup.tribler_exitnode():
-        exit_node = ', --exitnode'
-    else:
-        exit_node = ''
+        command.append('--exitnode')
 
     try:
-        if setup.wallets_testnet():
-            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(), 'plebnet', '-p', '8085', '--testnet' + exit_node],
-                                       cwd=setup.tribler_home(), env=env)
-        else:
-            exitcode = subprocess.call(['twistd', '--pidfile='+setup.tribler_pid(), 'plebnet', '-p', '8085' + exit_node],
-                                       cwd=setup.tribler_home(), env=env)
+        exitcode = subprocess.call(command, cwd=setup.tribler_home(), env=env)
 
         if exitcode != 0:
             logger.error('Failed to start Tribler', "tribler_controller")
