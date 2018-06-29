@@ -67,13 +67,14 @@ class TestServerInstaller(unittest.TestCase):
     @mock.patch('plebnet.controllers.cloudomate_controller.get_ip', return_value='120.21.0.12')
     @mock.patch('plebnet.controllers.cloudomate_controller.child_account', return_value=test_account)
     @mock.patch('cloudomate.hoster.vps.linevast.LineVast.enable_tun_tap', return_value=False)
+    @mock.patch('cloudomate.hoster.vps.linevast.LineVast.change_root_password', return_value=True)
     @mock.patch('plebnet.controllers.cloudomate_controller.save_info_vpn', return_value=True)
     @mock.patch('plebnet.clone.server_installer.check_access', return_value=True)
     @mock.patch('cloudomate.util.settings.Settings.get', return_value='Henri')
     @mock.patch('plebnet.settings.plebnet_settings.Init.active_logger', return_value=False)
     @mock.patch('plebnet.settings.plebnet_settings.Init.active_verbose', return_value=False)
     @mock.patch('cloudomate.hoster.vps.linevast.LineVast.change_root_password',return_value=True)
-    def test_install_available_servers(self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8, mock9, mock10):
+    def test_install_available_servers(self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8, mock9, mock10, mock11):
         config = PlebNetConfig()
         config.get('bought').append(test_bought)
         config.save()
