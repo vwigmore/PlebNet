@@ -13,6 +13,7 @@ from cloudomate.util.settings import Settings
 from plebnet.settings import plebnet_settings as setup
 from mock.mock import MagicMock
 from plebnet.utilities import logger as Logger
+from cloudomate.hoster.vps.linevast import LineVast
 
 test_log_path = os.path.join(user_config_dir(), 'tests_logs')
 test_log_file = os.path.join(user_config_dir(), 'tests_logs/plebnet.logs')
@@ -73,14 +74,19 @@ class TestServerInstaller(unittest.TestCase):
     @mock.patch('plebnet.settings.plebnet_settings.Init.active_logger', return_value=False)
     @mock.patch('plebnet.settings.plebnet_settings.Init.active_verbose', return_value=False)
     def test_install_available_servers(self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8, mock9):
+        self.crp = LineVast.change_root_password
+
         config = PlebNetConfig()
         config.get('bought').append(test_bought)
         config.save()
+        LineVast.change_root_password = self.crp
 
         server_installer.install_available_servers(config, self.test_dna)
 
         self.assertEqual(config.get('installed'), [{'linevast': False}])
         self.assertEqual(config.get('bought'), [])
+
+        LineVast.change_root_password = self.crp
 
     def test_install_server(self):
         self.logger = Logger.log
