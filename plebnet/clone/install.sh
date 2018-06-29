@@ -15,6 +15,7 @@
 BRANCH=$1
 # expects -testnet, can be extended for more arguments
 ARG=$2
+EXITNODE=$3
 
 CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
 

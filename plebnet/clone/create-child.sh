@@ -8,6 +8,7 @@
 #    -i --ip 		 Ip address of the server to run install on
 #    -p --password 		 Root password of the server
 #    -t --testnet 		 Install agent in testnet mode (default 0)
+#    -e --exitnode       Run as exitnode for Tribler
 #    -conf --config 		 (optional) VPN configuration file (.ovpn)
 #    -cred --credentials 	 (optional) VPN credentials file (.conf)
 #
@@ -42,6 +43,7 @@ DEST_VPN_CONFIG=""
 DEST_VPN_CREDENTIALS=""
 BRANCH="master"
 TESTNET=0
+EXITNODE=0
 
 ############################### PARSING ########################################
 function usage()
@@ -52,6 +54,7 @@ Usage: ./create-child.sh <parameter> <value>
 -i --ip \t\t Ip address of the server to run install on
 -p --password \t\t Root password of the server
 -t --testnet \t\t Install agent in testnet mode (default 0)
+-e --exitnode \t\t Run as exitnode for tribler
 -conf --config \t\t (optional) VPN configuration file (.ovpn)
 Requires the destination config name.
 Example: -conf source_config.ovpn dest_config.ovpn
@@ -107,6 +110,10 @@ while [ "$1" != "" ]; do
 			TESTNET=1
 			shift
 			;;
+		-e | --exitnode)
+			EXITNODE=1
+			shift
+			;;
 		-b | --branch)
 		    BRANCH=$VALUE
 		    [ -z $VALUE ] && echo "ERROR: provide branch" && usage && exit;
@@ -134,6 +141,12 @@ if [[ $TESTNET -eq 1 ]]; then
 else
 	echo "(testnet is OFF)";
 	INSTALL_ARG="";
+fi
+
+# if exitnode (-e) is set, install.sh is called with additional "--exitnode" argument
+if [[ $EXITNODE -eq 1 ]]; then
+	echo "(exitnode is ON)";
+	INSTALL_ARG = "${INSTALL_ARG} --exitnode";
 fi
 
 ############################### INSTALL REQUIREMENTS ########################################
