@@ -8,6 +8,7 @@
 #    -i --ip 		 Ip address of the server to run install on
 #    -p --password 		 Root password of the server
 #    -t --testnet 		 Install agent in testnet mode (default 0)
+#    -e --exitnode       Run as exitnode for Tribler
 #    -conf --config 		 (optional) VPN configuration file (.ovpn)
 #    -cred --credentials 	 (optional) VPN credentials file (.conf)
 #
@@ -42,6 +43,7 @@ DEST_VPN_CONFIG=""
 DEST_VPN_CREDENTIALS=""
 BRANCH="vision"
 TESTNET=0
+EXITNODE=0
 
 ############################### PARSING ########################################
 function usage()
@@ -52,6 +54,7 @@ Usage: ./create-child.sh <parameter> <value>
 -i --ip \t\t Ip address of the server to run install on
 -p --password \t\t Root password of the server
 -t --testnet \t\t Install agent in testnet mode (default 0)
+-e --exitnode \t\t Run as exitnode for tribler
 -conf --config \t\t (optional) VPN configuration file (.ovpn)
 Requires the destination config name.
 Example: -conf source_config.ovpn dest_config.ovpn
@@ -107,6 +110,10 @@ while [ "$1" != "" ]; do
 			TESTNET=1
 			shift
 			;;
+		-e | --exitnode)
+			EXITNODE=1
+			shift
+			;;
 		-b | --branch)
 		    BRANCH=$VALUE
 		    [ -z $VALUE ] && echo "ERROR: provide branch" && usage && exit;
@@ -130,10 +137,15 @@ done
 # if testnet (-t) is set, install.sh is called with additional "-test" argument
 if [[ $TESTNET -eq 1 ]]; then
 	echo "(testnet is ON)";
-	INSTALL_ARG="-testnet";
 else
 	echo "(testnet is OFF)";
-	INSTALL_ARG="";
+fi
+
+# if exitnode (-e) is set, install.sh is called with additional "--exitnode" argument
+if [[ $EXITNODE -eq 1 ]]; then
+	echo "(exitnode is ON)";
+else
+    echo "(exitnode is OFF)";
 fi
 
 ############################### INSTALL REQUIREMENTS ########################################
@@ -178,4 +190,4 @@ echo "Installing PlebNet"
 echo "Installing from branch: $BRANCH";
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "wget https://raw.githubusercontent.com/vwigmore/plebnet/$BRANCH/plebnet/clone/install.sh && \
     chmod +x install.sh && \
-    ./install.sh $BRANCH $INSTALL_ARG | tee plebnet_installation.log"
+    ./install.sh $BRANCH $EXITNODE $TESTNET | tee plebnet_installation.log"

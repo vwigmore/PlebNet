@@ -48,7 +48,7 @@ class TestCMDLine(unittest.TestCase):
         cmdline.execute()
         # test
         core.setup.assert_called()
-        core.setup.assert_called_once_with(Namespace(test_net=False))
+        core.setup.assert_called_once_with(Namespace(test_net=False, exit_node=False))
         # restore
         core.setup = self.setup
 
@@ -57,11 +57,11 @@ class TestCMDLine(unittest.TestCase):
         self.setup = core.setup
         # modify
         core.setup = Mock()
-        sys.argv = ['plebnet', 'setup', '-testnet']
+        sys.argv = ['plebnet', 'setup', '--testnet']
         # run
         cmdline.execute()
         # test
-        core.setup.assert_called_once_with(Namespace(test_net=True))
+        core.setup.assert_called_once_with(Namespace(test_net=True, exit_node=False))
         # restore
         core.setup = self.setup
 

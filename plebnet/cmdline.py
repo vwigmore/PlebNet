@@ -37,10 +37,6 @@ def execute(cmd=None):
         parser_list = subparsers.add_parser("irc", help="Provides access to the IRC client")
         parser_list.set_defaults(func=execute_irc)
 
-        # create the conf subcommand
-        parser_list = subparsers.add_parser("testnet", help="allows testing certain functionalities")
-        parser_list.set_defaults(func=execute_test)
-
         args = parser.parse_args(cmd)
         args.func()
     except:
@@ -56,28 +52,18 @@ def execute_setup(cmd=None):
         cmd = sys.argv[2:4]
 
     parser = ArgumentParser(description="setup thingies")
+    parser.add_argument('--testnet', action='store_true', default=False,
+                        dest='test_net', help='Use TBTC instead of BTC')
 
-    parser.add_argument('-testnet', action='store_true', default=False,
-                  dest='test_net',
-                  help='Use TBTC instead of BTC')
+    parser.add_argument('--exitnode', action='store_true', default=False,
+                        dest='exit_node', help='Run as exitnode for Tribler')
 
     args = parser.parse_args(cmd)
-
     agent.setup(args)
 
 
 def execute_check(cmd=None):
     agent.check()
-
-
-def execute_test(cmd=None):
-    if not cmd: cmd = sys.argv[2:3]
-
-    parser = ArgumentParser(description="allows testing certain functionalities")
-    subparsers = parser.add_subparsers(dest="command", title="functionality")
-
-    args = parser.parse_args(cmd)
-    args.func()
 
 
 def execute_conf(cmd=None):

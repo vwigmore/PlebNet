@@ -126,7 +126,7 @@ class Init(object):
 
     def active_logger(self, value=None): return self.settings.handle("active", "logger", value) == "1"
 
-    """The ATTRIBUTE METHODS FOR VPN SECTON"""
+    """THE ATTRIBUTE METHODS FOR THE VPN SECTION"""
 
     def vpn_installed(self, value=None): return self.settings.handle("vpn", "installed", value) == "1"
 
@@ -145,6 +145,9 @@ class Init(object):
     def vpn_config_name(self, value=None): return self.settings.handle("vpn", "config_name", value)
 
     def vpn_credentials_name(self, value=None): return self.settings.handle("vpn", "credentials_name", value)
+
+    """THE ATTRIBUTE METHODS FOR THE TRIBLER SECTION"""
+    def tribler_exitnode(self, value=None): return self.settings.handle("tribler", "exitnode", value)  == '1'
 
 
 def write():

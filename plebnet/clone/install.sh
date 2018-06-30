@@ -15,7 +15,8 @@
 BRANCH=$1
 
 # expects -testnet, can be extended for more arguments
-ARG=$2
+EXITNODE=$2
+TESTNET=$3
 
 CREATECHILD="~/PlebNet/plebnet/clone/create-child.sh"
 
@@ -128,11 +129,15 @@ pip install ./tribler/electrum
 
 cd /root
 
-if [[ $ARG == "-testnet" ]]; then
-    plebnet setup -testnet >> plebnet.log 2>&1
+ARGS=""
+[[ $EXITNODE -eq 1 ]] && ARGS="--exitnode";
+[[ $TESTNET -eq 1 ]] && ARGS="${ARGS} --testnet";
+
+if [[ $TESTNET -eq 1 ]]; then
+    plebnet setup ${ARGS} >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else
-    plebnet setup >> plebnet.log 2>&1
+    plebnet setup ${ARGS} >> plebnet.log 2>&1
     cron plebnet check
     echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
     echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"
