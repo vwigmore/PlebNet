@@ -41,7 +41,11 @@ VPN_CONFIG=""
 VPN_CREDENTIALS=""
 DEST_VPN_CONFIG=""
 DEST_VPN_CREDENTIALS=""
+<<<<<<< HEAD
 BRANCH="vision"
+=======
+BRANCH="param_exit"
+>>>>>>> master
 TESTNET=0
 EXITNODE=0
 
@@ -188,6 +192,7 @@ fi
 ############################### INSTALL PLEBNET AND SUBMODULES ########################################
 echo "Installing PlebNet"
 echo "Installing from branch: $BRANCH";
+
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} "wget https://raw.githubusercontent.com/vwigmore/plebnet/$BRANCH/plebnet/clone/install.sh && \
     chmod +x install.sh && \
     ./install.sh $BRANCH $EXITNODE $TESTNET | tee plebnet_installation.log"

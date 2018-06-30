@@ -133,11 +133,13 @@ ARGS=""
 [[ $EXITNODE -eq 1 ]] && ARGS="--exitnode";
 [[ $TESTNET -eq 1 ]] && ARGS="${ARGS} --testnet";
 
+echo "arguments: $ARGS"
+
 if [[ $TESTNET -eq 1 ]]; then
-    plebnet setup ${ARGS} >> plebnet.log 2>&1
+    plebnet setup $ARGS >> plebnet.log 2>&1
     echo "Installed in testnet mode: TBTC bitcoin wallet used, no cron job checking - run \"plebnet check\" manually."
 else
-    plebnet setup ${ARGS} >> plebnet.log 2>&1
+    plebnet setup $ARGS >> plebnet.log 2>&1
     cron plebnet check
     echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
     echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"
