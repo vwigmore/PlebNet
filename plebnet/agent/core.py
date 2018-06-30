@@ -69,7 +69,8 @@ def setup(args):
     irc_handler.start_irc_client()
 
     if config.get('tree') == '':
-        config.set('tree', settings.irc_nick)
+        logger.log("tree set to: " % settings.irc_nick())
+        config.set('tree', settings.irc_nick())
 
     logger.success("PlebNet is ready to roll!")
 
