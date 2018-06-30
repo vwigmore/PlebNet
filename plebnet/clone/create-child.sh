@@ -41,11 +41,7 @@ VPN_CONFIG=""
 VPN_CREDENTIALS=""
 DEST_VPN_CONFIG=""
 DEST_VPN_CREDENTIALS=""
-<<<<<<< HEAD
 BRANCH="vision"
-=======
-BRANCH="param_exit"
->>>>>>> master
 TESTNET=0
 EXITNODE=0
 
