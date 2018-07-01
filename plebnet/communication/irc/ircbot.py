@@ -201,9 +201,9 @@ class Create(object):
         self.send_msg("Let me create an error ...")
         raise Exception('This is an error for testing purposes')
 
-    def msg_host(self):         self.send_msg("My host is : %s" % dna.get_host())
+    def msg_host(self):         self.send_msg("My host is: %s" % dna.get_host())
 
-    def msg_init(self):         self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
+    def msg_init(self):         self.send_msg("My init date is: %s" % plebnet_settings.get_instance().vps_life())
 
     def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: He ate the pizza before it was cool.")
 
@@ -227,7 +227,7 @@ class Create(object):
 
     def msg_helped(self):       self.send_msg("I currently have helped: %s peers" % tribler_controller.get_helped())
 
-    def msg_helped_by(self):    self.send_msg("I am currently helped by : %s peers" % tribler_controller.get_helped_by())
+    def msg_helped_by(self):    self.send_msg("I am currently helped by: %s peers" % tribler_controller.get_helped_by())
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 

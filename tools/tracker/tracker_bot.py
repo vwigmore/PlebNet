@@ -26,7 +26,16 @@ server = "irc.undernet.org"
 port = 6669
 ask = True
 
-commands = ["!MB_balance", "!BTC_balance", "!TBTC_balance", "!matchmakers", "!uploaded", "!downloaded"]
+commands = ["!tree",
+            "!vpn",
+            "!host",
+            "!exitnode",
+            "!MB_balance",
+            "!BTC_balance",
+            "!TBTC_balance",
+            "!matchmakers",
+            "!uploaded",
+            "!downloaded"]
 
 log_file_name = "tracker.log"
 log_data_name = "tracker.data"
@@ -191,6 +200,9 @@ class TrackerBot(object):
         elif "I currently have uploaded:" in msg:   logger.info("%s;uploaded;%s"     % (words[0], words[7]))
         elif "I currently have downloaded:" in msg: logger.info("%s;downloaded;%s"   % (words[0], words[7]))
         elif "I currently have:" in msg:            logger.info("%s;matchmakers;%s"  % (words[0], words[6]))
+        elif "VPN running"       in msg:            logger.info("%s;vpn;%s"          % (words[0], words[5]))
+        elif "My tree is"        in msg:            logger.info("%s;tree;%s"         % (words[0], words[6]))
+        elif "Exitnode running"  in msg:            logger.info("%s;exitnode;%s"     % (words[0], words[5]))
         elif "!trackers" in msg:                    self.send_msg("I am an online tracker!")
         else:                                       self.log("unable to parse: ORIGINAL:%s" % text)
 
