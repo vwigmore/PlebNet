@@ -224,7 +224,7 @@ def attempt_purchase():
         if success == plebnet_settings.SUCCESS:
             # Evolve yourself positively if you are successful
             dna.evolve(True)
-
+            logger.log("Purchasing vps for child %s successful"%dna.get_own_tree()+'.'+str(config.get('child_index')))
             # purchase VPN with same config if server allows for it
             if cloudomate_controller.get_vps_providers()[provider].TUN_TAP_SETTINGS:
                 attempt_purchase_vpn()
