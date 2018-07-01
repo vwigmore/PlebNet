@@ -91,9 +91,8 @@ def check():
     dna.read_dictionary()
 
     # check if own vpn is installed before continuing
-    if not vpn_is_running():
-        if not check_vpn_install():
-            logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
+    if not check_vpn_install():
+        logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
     # Requires time to setup, continue in the next iteration.
     if not check_tribler():
@@ -153,8 +152,8 @@ def check_vpn_install():
     :return: True if installing succeeds, False if installing fails or configs are not found
     """
     # chech whether vpn is installed
-    if settings.vpn_installed():
-        logger.log("VPN is already installed")
+    if vpn_is_running():
+        logger.log("VPN is already installed and running.")
         return True
 
     # check OWN configuration files.
@@ -286,8 +285,9 @@ def vpn_is_running():
     """
     :return: True if vpn is running, else false
     """
+    # pid is currently not used as the pid changes when openvpn has started.
     pid = settings.vpn_pid()
-    check = subprocess.call(['ps', '-p', str(pid)])
+    check = subprocess.call(['ps', '-C', 'openvpn'])
     if check == 0:
         settings.vpn_running("1")
         return True
