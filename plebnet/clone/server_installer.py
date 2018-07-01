@@ -58,15 +58,12 @@ def install_available_servers(config, dna):
             provider_class(cloudomate_controller.child_account(child_index)).change_root_password(rootpw)
             time.sleep(5)
 
-            parentname = '{0}-{1}'.format(account_settings.get('user', 'firstname'),
-                                          account_settings.get('user', 'lastname'))
-            dna.create_child_dna(provider, parentname, transaction_hash)
+            child_tree = dna.get_own_tree() + '.' + str(child_index)
+
+            dna.create_child_dna(provider, child_tree, transaction_hash)
 
             # Save config before entering possibly long lasting process
             config.save()
-
-            # add child index to tree to config for monitoring
-            config.set('tree', config.get('tree')+'.'+child_index)
 
             success = _install_server(ip, rootpw, child_index, setup.get_instance().wallets_testnet())
 

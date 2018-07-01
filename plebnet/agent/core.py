@@ -62,15 +62,15 @@ def setup(args):
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
 
-    config.save()
-
     # Prepare the IRC Client
     irc_handler.init_irc_client()
     irc_handler.start_irc_client()
 
-    if config.get('tree') == '':
-        logger.log("tree set to: %" % settings.irc_nick())
-        config.set('tree', settings.irc_nick())
+    if dna.get_own_tree() == '':
+        logger.log("tree set to %s" % settings.irc_nick())
+        dna.set_own_tree(settings.irc_nick())
+
+    config.save()
 
     logger.success("PlebNet is ready to roll!")
 

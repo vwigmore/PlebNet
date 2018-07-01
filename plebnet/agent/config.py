@@ -29,7 +29,6 @@ class PlebNetConfig(object):
                        "chosen_provider": None,
                        "bought": [],
                        "installed": [],
-                       "tree": "",
                        "transactions": []}
         self.load()
 
