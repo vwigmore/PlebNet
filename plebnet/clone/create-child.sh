@@ -20,8 +20,6 @@
 
 OWN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/create-child.sh"
 
-IP=$1
-PASSWORD=$2
 CHILD_DNA_FILE=~/.config/Child_DNA.json
 DNA_FILE=~/.config/DNA.json
 # WALLET_FILE="~/.electrum/wallets/default_wallet"
