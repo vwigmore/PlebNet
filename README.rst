@@ -24,7 +24,7 @@ The first instance can be installed by downloading the file create-child.sh in P
 
 .. code-block:: console
 
-./create-child.sh <parameter> <value>
+   ./create-child.sh <parameter> <value>
 
 ::
 
