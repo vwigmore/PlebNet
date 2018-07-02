@@ -234,7 +234,7 @@ class Create(object):
             'tree': dna.get_tree(),
             'exitnode': plebnet_settings.get_instance().tribler_exitnode()
         }
-        self.send_msg(data)
+        self.send_msg("general: %s" % data)
 
 if __name__ == '__main__':
     Create()

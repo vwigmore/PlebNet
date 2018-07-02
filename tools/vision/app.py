@@ -9,20 +9,6 @@ from flask import Flask, render_template
 import json
 import logging
 from datetime import datetime
-from anytree import NodeMixin, RenderTree, AsciiStyle
-
-class BotNode(NodeMixin):
-    name = None
-    nick = None
-    host = None
-    vpn = None
-    exitnode = None
-
-    def __init__(self, nick, parent=None):
-        self.nick = nick
-        self.parent = parent
-
-logging.basicConfig(format="%(threadName)s:%(message)s", level='NOTSET')
 
 app = Flask(__name__)
 
@@ -45,10 +31,6 @@ data = pd.read_csv(data_file,
 data = data.dropna(subset=['value'])
 data = data[pd.to_numeric(data['value'], errors='coerce').notnull()]
 data.value = data.value.astype(float)
-# set index col properly
-# data = data.set_index('timestamp')
-# restore faults
-data.type[data.type == 'BM_balance'] = 'MB_balance'
 
 units = {
     'MB_balance' : 'MBs',
@@ -80,6 +62,11 @@ _data_network = {'nodes':nodes, 'edges': edges}
 # Dynamic data parsing
 # new data is stored in memory as tree
 # ==============================================================================
+
+class BotNode(object):
+    def __init__(self, nickname):
+        self.nick = nickname
+
 bot_info_keys = ['host', 'exitnode', 'tree', 'vpn']
 bot_info_buffer = []
 bot_nodes = []
@@ -109,9 +96,7 @@ def handle_data(bot_nick, key, value):
         
         u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
 
-    for pre, _, node in RenderTree(bot):
-        treestr = u"%s%s" % (pre, node.nick)
-        logging.info(treestr.ljust(8))
+
 
 tracker = tbot.TrackerBot('watcher', handle_data)
 
