@@ -46,9 +46,6 @@ For running PlebNet locally, the following steps are necessary:
 .. code-block:: console
     pip install .
 
-Usage
------
-
 ::
 
    usage: plebnet [-h]
