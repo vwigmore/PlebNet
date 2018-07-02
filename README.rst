@@ -22,6 +22,10 @@ Initialisation
 ==============
 The first instance can be installed by downloading the file create-child.sh in Plebnet/plebnet/clone and call:
 
+.. code-block:: console
+
+./create-child.sh <parameter> <value>
+
 ::
 
    Usage: ./create-child.sh <parameter> <value>
