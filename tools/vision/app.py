@@ -92,39 +92,54 @@ class BotNode(object):
         if '.' in id:
             ch = id.split('.')
             ch_id = ch.pop(0)
-            if self.index == '': # root
+            if len(ch) > 1: # root
                 ch_id = ch.pop(0) # child id                
             return self.children[ch_id].get_child('.'.join(ch))
         else:
-            if len(id) == 1:
-                ch_id = ch[0]
-                return self.children[ch_id]
-            else:
-                raise ValueError("get_child: invalid id")
+            try:
+                child = self.children[id]
+                return child
+            except KeyError:
+                return None
 
     def add_child(self, tree, id=''):
         if '.' in tree:
             ch = tree.split('.')
             ch_id = ch.pop(0)
             ident = id + '.' + ch_id
-            if self.index == '': # root
+            if len(ch) > 1: # root
                 ch_id = ch.pop(0) # child id    
                 ident = ident + '.' + ch_id
                 if ch_id not in self.children:
                     self.children[ch_id] = BotNode(ident, ch_id)
             return self.children[ch_id].add_child('.'.join(ch), ident)
         else:
-            if len(tree) == 1:
-                ch_id = ch[0]
-                ident = id + '.' + ch_id
-                if ch_id not in self.children:
-                    self.children[ch_id] = BotNode(ident, ch_id)
-                return True
-            else:
-                raise ValueError("add_child: invalid id")        
+            ident = id + '.' + tree
+            if tree not in self.children:
+                bot = BotNode(ident, tree)
+                self.children[tree] = bot
+            return self.children[tree]
+   
 
     def create_edges(self):
         return
+
+    def __str__(self): 
+        return "id: %s \
+        \n index: %s \
+        \n children: %s \
+        \n dead: %s \
+        \n nick %s \
+        \n host %s \
+        \n exitnode %s \
+        \n vpn %s" % (self.id,
+        self.index,
+        self.children,
+        self.dead,
+        self.nick,
+        self.host,
+        self.exitnode,
+        self.vpn)
 
 
 bot_info_keys = ['host', 'exitnode', 'tree', 'vpn']
@@ -139,14 +154,22 @@ def handle_data(bot_nick, key, value):
         jd = value.replace("u\'", "\'").replace("True", "\'True\'").replace("False", "\'False\'").replace("\'", "\"")
         d = json.loads(jd)
         tree = d['tree']
+        root = tree.split('.')[0]
         if '.' not in tree:
             if bot_nick not in bot_nodes:
                 bot = BotNode(bot_nick)
                 bot_nodes[bot_nick] = bot      
             else:
                 bot_nodes[bot_nick].set_status(bot_nick, d['host'], d['exitnode'], d['vpn'])
-        else:        
-            bot_nodes[current].add_child(ch)
+        else:       
+            current = tree.split('.')[0]
+            if current not in bot_nodes:
+                bot = BotNode(current)
+                bot_nodes[current] = bot         
+            logging.info(">>>>>>>>>>>>adding child: " +tree)        
+            bot_nodes[current].add_child(tree)
+        
+        bot_nodes[current].get_child(tree).set_status(bot_nick, d['host'], d['exitnode'], d['vpn'])
     else:
         if bot_nick not in u_nicks_data.keys():
             u_nicks_data[bot_nick] = {}
@@ -176,13 +199,8 @@ def node(id, type):
 def show_nodes():
     nodes = []
     for bot in bot_nodes.values():
-        nodes.append({
-            'nick': bot.nick,
-            'id': bot.id,
-            'index': bot.index,
-            'children': bot.children
-        })    
-    return json.dumps(nodes)    
+        nodes.append(str(bot))
+    return str(nodes)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5500)

@@ -189,7 +189,7 @@ class TrackerBot(object):
 
     def log(self, msg):
         logger = self.get_logger(log_file_name)
-        # logger.info(msg)
+        logger.info(msg)
 
     def store(self, msg):
         text = msg
