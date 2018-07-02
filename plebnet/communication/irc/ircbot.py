@@ -13,6 +13,8 @@ import sys
 # as the file is loaded separately, the imports have to be adjusted.
 sys.path.append('./PlebNet')
 from plebnet.agent import dna
+from plebnet.agent.core import vpn_is_running
+from plebnet.agent.config import PlebNetConfig
 from plebnet.communication import git_issuer
 from plebnet.controllers import wallet_controller, market_controller, tribler_controller
 from plebnet.utilities import logger
@@ -35,7 +37,7 @@ class Create(object):
 
         self.nick = settings.irc_nick()
         self.ident = "plebber"
-        self.gecos = "Plebbot version 2.14"
+        self.gecos = "Plebbot version 2.15"
 
         self.irc = None
         self.init_time = time.time()
@@ -45,7 +47,6 @@ class Create(object):
         self.responses = {}
         self.add_response("alive",        self.msg_alive)
         self.add_response("error",        self.msg_error)
-        self.add_response("host",         self.msg_host)
         self.add_response("init",         self.msg_init)
         self.add_response("joke",         self.msg_joke)
         self.add_response("MB_wallet",    self.msg_MB_wallet)
@@ -58,6 +59,7 @@ class Create(object):
         self.add_response("uploaded",     self.msg_uploaded)
         self.add_response("downloaded",   self.msg_downloaded)
         self.add_response("dna",          self.msg_dna)
+        self.add_response("general",      self.msg_general)
         self.add_response("helped",       self.msg_helped)
         self.add_response("helped_by",    self.msg_helped_by)
 
@@ -196,9 +198,8 @@ class Create(object):
         self.send_msg("Let me create an error ...")
         raise Exception('This is an error for testing purposes')
 
-    def msg_host(self):         self.send_msg("My host is : %s" % dna.get_host())
-
-    def msg_init(self):         self.send_msg("My init date is : %s" % plebnet_settings.get_instance().vps_life())
+ 
+    def msg_init(self):         self.send_msg("My init date is: %s" % plebnet_settings.get_instance().vps_life())
 
     def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: He ate the pizza before it was cool.")
 
@@ -222,10 +223,18 @@ class Create(object):
 
     def msg_helped(self):       self.send_msg("I currently have helped: %s peers" % tribler_controller.get_helped())
 
-    def msg_helped_by(self):    self.send_msg("I am currently helped by : %s peers" % tribler_controller.get_helped_by())
+    def msg_helped_by(self):    self.send_msg("I am currently helped by: %s peers" % tribler_controller.get_helped_by())
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
+    def msg_general(self):
+        data = {
+            'host': dna.get_host(),
+            'vpn': vpn_is_running(),
+            'tree': dna.get_tree(),
+            'exitnode': plebnet_settings.get_instance().tribler_exitnode()
+        }
+        self.send_msg(data)
 
 if __name__ == '__main__':
     Create()

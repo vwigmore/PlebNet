@@ -13,6 +13,7 @@
 
 # branch to install from
 BRANCH=$1
+
 # expects -testnet, can be extended for more arguments
 EXITNODE=$2
 TESTNET=$3
@@ -118,7 +119,7 @@ cd $HOME
 
 # when branch is given, this create-child.sh's default branch value will be updated
 #   this is because the child's cloned repo also needs these values updated
-sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in this file ($CREATECHILD)";
+sed -i -E "s/(BRANCH\s*=\s*\")(.+)(\")/\1${BRANCH}\3/" $CREATECHILD && echo "Updated branch to $BRANCH in file ($CREATECHILD)";
 
 python -m pip install --upgrade ./PlebNet
 cd PlebNet

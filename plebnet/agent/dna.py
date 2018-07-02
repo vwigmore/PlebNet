@@ -12,7 +12,6 @@ import random
 
 from appdirs import user_config_dir
 
-
 class DNA:
     """
     Class for the DNA of the agent
@@ -50,8 +49,9 @@ class DNA:
         :param providers: dictionary of providers to use in DNA.
         :return: the created DNA configuration.
         """
+
         initial_dict = {'Self': 'unknown',
-                        'parent': 'unknown',
+                        'tree': '',
                         'transaction_hash': '',
                         'VPS': {provider_class.get_metadata()[0]: 0.5 for
                                 provider_class in providers.values()}}
@@ -66,17 +66,17 @@ class DNA:
         with open(filename, 'w') as json_file:
             json.dump(self.dictionary, json_file)
 
-    def create_child_dna(self, provider, parent_name, transaction_hash):
+    def create_child_dna(self, provider, tree, transaction_hash):
         """
         Creates the DNA configuration for the child agent. This is done by copying the own DNA configuration
         and including the new host provider, the parent name and the transaction hash.
-        :param provider: the provider the child will be installed on.
-        :param parent_name: the name of the parent agent.
+        :param provider: the name the child tree name.
+        :param tree: tree of inheritance
         :param transaction_hash: the transaction hash the child is bought with.
         """
         dictionary = copy.deepcopy(self.dictionary)
         dictionary['Self'] = provider
-        dictionary['parent'] = parent_name
+        dictionary['tree'] = tree
         dictionary['transaction_hash'] = transaction_hash
         filename = os.path.join(user_config_dir(), 'Child_DNA.json')
         with open(filename, 'w') as json_file:
@@ -149,6 +149,13 @@ class DNA:
     def get_own_provider(self):
         return self.dictionary['Self']
 
+    def set_own_tree(self, tree):
+        self.dictionary['tree'] = tree
+        self.write_dictionary()
+
+    def get_own_tree(self):
+        return self.dictionary['tree']
+
     def evolve(self, success, provider=None):
         """
         Evolves the DNA of the agent. If successful, increase value of own provider, if not successful
@@ -167,6 +174,10 @@ def get_dna():
     dna.read_dictionary()
     return dna.vps
 
+def get_tree():
+    dna = DNA()
+    dna.read_dictionary()
+    return dna.get_own_tree()
 
 def get_host():
     dna = DNA()

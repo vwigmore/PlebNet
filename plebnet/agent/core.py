@@ -61,11 +61,16 @@ def setup(args):
     settings.irc_nick(settings.irc_nick_def() + str(random.randint(1000, 10000)))
     config = PlebNetConfig()
     config.set('expiration_date', time.time() + 30 * plebnet_settings.TIME_IN_DAY)
-    config.save()
 
     # Prepare the IRC Client
     irc_handler.init_irc_client()
     irc_handler.start_irc_client()
+
+    if dna.get_own_tree() == '':
+        logger.log("tree set to %s" % settings.irc_nick())
+        dna.set_own_tree(settings.irc_nick())
+
+    config.save()
 
     logger.success("PlebNet is ready to roll!")
 
@@ -86,9 +91,8 @@ def check():
     dna.read_dictionary()
 
     # check if own vpn is installed before continuing
-    if not vpn_is_running():
-        if not check_vpn_install():
-            logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
+    if not check_vpn_install():
+        logger.error("!!! VPN is not installed, child may get banned !!!", "Plebnet Check")
 
     # Requires time to setup, continue in the next iteration.
     if not check_tribler():
@@ -148,8 +152,8 @@ def check_vpn_install():
     :return: True if installing succeeds, False if installing fails or configs are not found
     """
     # chech whether vpn is installed
-    if settings.vpn_installed():
-        logger.log("VPN is already installed")
+    if vpn_is_running():
+        logger.log("VPN is already installed and running.")
         return True
 
     # check OWN configuration files.
@@ -163,6 +167,8 @@ def check_vpn_install():
         if install_vpn():
             settings.vpn_installed("1")
             logger.log("Installing VPN succesful with configurations.")
+            if irc_handler.restart_irc_client():
+                logger.log("Restarted IRC because VPN was installed.")
             return True
         else:
             settings.vpn_installed("0")
@@ -218,7 +224,7 @@ def attempt_purchase():
         if success == plebnet_settings.SUCCESS:
             # Evolve yourself positively if you are successful
             dna.evolve(True)
-
+            logger.log("Purchasing vps for child %s successful"%(dna.get_own_tree()+'.'+str(config.get('child_index'))))
             # purchase VPN with same config if server allows for it
             if cloudomate_controller.get_vps_providers()[provider].TUN_TAP_SETTINGS:
                 attempt_purchase_vpn()
@@ -279,8 +285,9 @@ def vpn_is_running():
     """
     :return: True if vpn is running, else false
     """
+    # pid is currently not used as the pid changes when openvpn has started.
     pid = settings.vpn_pid()
-    check = subprocess.call(['ps', '-p', str(pid)])
+    check = subprocess.call(['ps', '-C', 'openvpn'])
     if check == 0:
         settings.vpn_running("1")
         return True
