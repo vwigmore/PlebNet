@@ -47,8 +47,6 @@ class Create(object):
         self.responses = {}
         self.add_response("alive",        self.msg_alive)
         self.add_response("error",        self.msg_error)
-        self.add_response("exitnode",     self.msg_exitnode)
-        self.add_response("host",         self.msg_host)
         self.add_response("init",         self.msg_init)
         self.add_response("joke",         self.msg_joke)
         self.add_response("MB_wallet",    self.msg_MB_wallet)
@@ -61,8 +59,7 @@ class Create(object):
         self.add_response("uploaded",     self.msg_uploaded)
         self.add_response("downloaded",   self.msg_downloaded)
         self.add_response("dna",          self.msg_dna)
-        self.add_response("vpn",          self.msg_vpn)
-        self.add_response("tree",         self.msg_tree)
+        self.add_response("general",      self.msg_general)
         self.add_response("helped",       self.msg_helped)
         self.add_response("helped_by",    self.msg_helped_by)
 
@@ -201,8 +198,7 @@ class Create(object):
         self.send_msg("Let me create an error ...")
         raise Exception('This is an error for testing purposes')
 
-    def msg_host(self):         self.send_msg("My host is: %s" % dna.get_host())
-
+ 
     def msg_init(self):         self.send_msg("My init date is: %s" % plebnet_settings.get_instance().vps_life())
 
     def msg_joke(self):         self.send_msg("Q: Why did the hipster burn his tongue? A: He ate the pizza before it was cool.")
@@ -231,11 +227,14 @@ class Create(object):
 
     def msg_dna(self):          self.send_msg("My DNA is: %s" % dna.get_dna())
 
-    def msg_vpn(self):          self.send_msg("VPN running: %s" % str(vpn_is_running()))
-
-    def msg_tree(self):         self.send_msg("My tree is: %s" % dna.get_tree())
-
-    def msg_exitnode(self):     self.send_msg("Exitnode running: %s" % str(plebnet_settings.get_instance().tribler_exitnode()))
+    def msg_general(self):
+        data = {
+            'host': dna.get_host(),
+            'vpn': vpn_is_running(),
+            'tree': dna.get_tree(),
+            'exitnode': plebnet_settings.get_instance().tribler_exitnode())
+        }
+        self.send_msg(data)
 
 if __name__ == '__main__':
     Create()

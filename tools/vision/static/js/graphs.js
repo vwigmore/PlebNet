@@ -7,7 +7,7 @@
         'MB_balance' : 'MBs',
         'downloaded' : 'MBs',
         'uploaded' : 'MBs',
-        'matchmakers' : 'matchmakers'
+        'matchmakers' : 'peers'
     };
     grapher.defaultSelection = 'uploaded';
     grapher.selected = grapher.defaultSelection;

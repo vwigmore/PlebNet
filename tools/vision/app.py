@@ -7,15 +7,28 @@ import pandas as pd
 from flask import Flask, render_template
 
 import json
+import logging
+from datetime import datetime
+from anytree import NodeMixin, RenderTree, AsciiStyle
 
-print tbot.log_file_path + '/' +tbot.log_data_name
+class BotNode(NodeMixin):
+    name = None
+    nick = None
+    host = None
+    vpn = None
+    exitnode = None
+
+    def __init__(self, nick, parent=None):
+        self.nick = nick
+        self.parent = parent
+
+logging.basicConfig(format="%(threadName)s:%(message)s", level='NOTSET')
 
 app = Flask(__name__)
 
-#########################################
-## Initialize the data                 ##
-#########################################
-
+# ==============================================================================
+# Initial static data parsing from file
+# ==============================================================================
 data_path = "~/.config/"
 data_name = "tracker.data"
 data_file = os.path.join(data_path, data_name)
@@ -41,29 +54,66 @@ units = {
     'MB_balance' : 'MBs',
     'downloaded' : 'MBs',
     'uploaded' : 'MBs',
-    'matchmakers' : 'matchmakers'
+    'matchmakers' : 'peers',
 }
 
-#########################################
-## more prepping                       ##
-#########################################
 u_nicks = data.nick.unique().tolist()
 
+# main data storage for graph
 u_nicks_data = {}
 for n in u_nicks:
     u_nicks_data[n] = {}
     for k in units.keys():
-        print(n + "\t" + k)
         dt = data.loc[(data['nick']==n) & (data['type']==k)]
         df = dt.filter(items=['timestamp', 'value'])
         df.columns=['x', 'y']
         df.x = df.x.astype(str)
         u_nicks_data[n][k] = df.to_dict('records')
 
+
 nodes = [{'id': n, 'label': n, 'group':u_nicks.index(n)} for n in u_nicks]
 edges = []
 
 _data_network = {'nodes':nodes, 'edges': edges}
+
+# ==============================================================================
+# Dynamic data parsing
+# new data is stored in memory as tree
+# ==============================================================================
+bot_info_keys = ['host', 'exitnode', 'tree', 'vpn']
+bot_info_buffer = []
+bot_nodes = []
+
+def handle_data(bot_nick, key, value):
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+   
+    bot = BotNode(bot_nick)
+
+    if bot not in bot_nodes:
+        bot_nodes.append(bot)
+
+    if key == 'host':
+        bot.host = value
+    elif key == 'exitnode':
+        bot.exitnode = value
+    elif key == 'tree':
+        bot.tree = value
+    elif key == 'vpn':
+        bot.vpn = value
+    else:
+        if bot_nick not in u_nicks_data.keys():
+            u_nicks_data[bot_nick] = {}
+
+        if key not in u_nicks_data[bot_nick].keys():
+            u_nicks_data[bot_nick][key] = []
+        
+        u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
+
+    for pre, _, node in RenderTree(bot):
+        treestr = u"%s%s" % (pre, node.nick)
+        logging.info(treestr.ljust(8))
+
+tracker = tbot.TrackerBot('watcher', handle_data)
 
 @app.route('/')
 def root():

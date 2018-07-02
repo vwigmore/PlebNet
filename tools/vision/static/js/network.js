@@ -18,8 +18,8 @@
                 }
             };	
 
-            data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6525'});
-            data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6197'});            
+            // data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6525'});
+            // data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6197'});            
 
             dataNodes = new vis.DataSet(data.nodes)
             dataEdges = new vis.DataSet(data.edges)
@@ -33,16 +33,16 @@
 
             network = new vis.Network(container, vData, options);
 
-            document.addEventListener('keyup', (event) => {
-                const keyName = event.key;
+            // document.addEventListener('keyup', (event) => {
+            //     const keyName = event.key;
               
-                // As the user releases the Ctrl key, the key is no longer active,
-                // so event.ctrlKey is false.
-                if (keyName === 'Enter') {
-                    dataNodes.update({id:'plebbot5542', label:'plebbot5542', group:4});
-                    dataEdges.update({from:'plebbot6197', to:'plebbot5542'});
-                }
-              }, false);      
+            //     // As the user releases the Ctrl key, the key is no longer active,
+            //     // so event.ctrlKey is false.
+            //     if (keyName === 'Enter') {
+            //         dataNodes.update({id:'plebbot5542', label:'plebbot5542', group:4});
+            //         dataEdges.update({from:'plebbot6197', to:'plebbot5542'});
+            //     }
+            //   }, false);      
 
             network.on('click', (params) => {
                 window.grapher.graphData(params.nodes[0]);

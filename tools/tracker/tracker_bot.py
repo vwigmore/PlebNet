@@ -26,10 +26,7 @@ server = "irc.undernet.org"
 port = 6669
 ask = True
 
-commands = ["!tree",
-            "!vpn",
-            "!host",
-            "!exitnode",
+commands = ["!general",
             "!MB_balance",
             "!BTC_balance",
             "!TBTC_balance",
@@ -44,16 +41,18 @@ log_file_path = user_config_dir()
 
 class TrackerBot(object):
 
-    def __init__(self):
+    def __init__(self, nickname=None, callback=None):
         self.channel = channel
         self.server = server
         self.timeout = timeout
         self.channel = channel
         self.port = port
 
-        self.nick = nick
-        self.ident = nick
-        self.gecos = "%s version %s" % (nick, version)
+        self.nick = nickname or nick
+        self.ident = self.nick
+        self.gecos = "%s version %s" % (self.nick, version)
+
+        self.on_received_data = callback  
 
         self.irc = None
 
@@ -79,7 +78,6 @@ class TrackerBot(object):
         except Exception, e:
             self.log("failed to start running an tracker bot  on " + self.server + " " + self.channel)
             self.log(e)
-
 
     def init_irc(self):
         self.log("start running an tracker bot  on " + self.server + " " + self.channel)
@@ -189,22 +187,26 @@ class TrackerBot(object):
         logger.info(msg)
 
     def store(self, msg):
-        logger = self.get_logger(log_data_name)
-
         text = msg
         words = msg.split(" ")
         words[0] = words[0].split("!")[0][1:]
-        if   "My MB balance"     in msg:            logger.info("%s;MB_balance;%s"   % (words[0], words[7]))
-        elif "My BTC balance"    in msg:            logger.info("%s;BTC_balance;%s"  % (words[0], words[8]))
-        elif "My TBTC balance"   in msg:            logger.info("%s;TBTC_balance;%s" % (words[0], words[7]))
-        elif "I currently have uploaded:" in msg:   logger.info("%s;uploaded;%s"     % (words[0], words[7]))
-        elif "I currently have downloaded:" in msg: logger.info("%s;downloaded;%s"   % (words[0], words[7]))
-        elif "I currently have:" in msg:            logger.info("%s;matchmakers;%s"  % (words[0], words[6]))
-        elif "VPN running"       in msg:            logger.info("%s;vpn;%s"          % (words[0], words[5]))
-        elif "My tree is"        in msg:            logger.info("%s;tree;%s"         % (words[0], words[6]))
-        elif "Exitnode running"  in msg:            logger.info("%s;exitnode;%s"     % (words[0], words[5]))
+
+        if   "My MB balance"     in msg:            self.log_data(words[0], 'MB_balance', words[7])
+        elif "My BTC balance"    in msg:            self.log_data(words[0], 'BTC_balance', words[8])
+        elif "My TBTC balance"   in msg:            self.log_data(words[0], 'TBTC_balance', words[7])
+        elif "I currently have uploaded:" in msg:   self.log_data(words[0], 'uploaded', words[7])
+        elif "I currently have downloaded:" in msg: self.log_data(words[0], 'downloaded', words[7])
+        elif "matchmakers:"      in msg:            self.log_data(words[0], 'matchmakers', words[6])
         elif "!trackers" in msg:                    self.send_msg("I am an online tracker!")
         else:                                       self.log("unable to parse: ORIGINAL:%s" % text)
+
+
+    def log_data(self, bot_nick, key, value):
+        logger = self.get_logger(log_data_name)
+        logger.info("%s;%s;%s" % (bot_nick, key, value))
+
+        if self.on_received_data:
+            self.on_received_data(bot_nick, key, value)
 
 
 # init the bot when this file is run
