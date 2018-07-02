@@ -4,11 +4,11 @@ Plebnet
 
 |jenkins_build|
 
-*A self-replicating autonomous Tribler exit-node*
+*A self-replicating autonomous Tribler exit-node.*
 
 Documentation
 =============
- - The full report regarding this project can be found `here <https://github.com/Tribler/tribler/files/2025931/Bachelor_Project_2018_BotNet.pdf>`_
+ - The full report regarding this project can be found `here <https://github.com/Tribler/tribler/files/2133729/Bachelor_Project_BotNet.pdf>`_
  - The main issue regarding this project can be found `here <https://github.com/Tribler/tribler/issues/2925>`_
 
 Description
@@ -51,7 +51,7 @@ child instance. If this is the case, the PlebNet agent will execute the previous
 the community has welcomed a newborn.
 
 
-Running the code once
+Running PlebNet locally
 =====================
 For running PlebNet locally, the following steps are necessary:
 
