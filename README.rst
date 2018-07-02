@@ -18,14 +18,27 @@ which will be used to acquire new VPS instances for the next generation PlebNet 
 community of exit-nodes for Tribler, thus creating a reliable and sufficiently large capacity for anonymous data
 transfer through the Tribler network
 
-Initialization
+Initialisation
 ==============
 The first instance can be installed by downloading the file create-child.sh in Plebnet/plebnet/clone and call:
 
-.. code-block:: console
+::
 
-    PATH/TO/FILE/create-child.sh VPS_IP_ADDRESS ROOT_PASSWORD
+Usage: ./create-child.sh <parameter> <value>
+   -h --help 		           Shows this help message
+   -i --ip 		             Ip address of the server to run install on
+   -p --password 	   	    Root password of the server
+   -t --testnet 		        Install agent in testnet mode (default 0)
+   -e --exitnode 	   	    Run as exitnode for tribler
+   -conf --config    		   (optional) VPN configuration file (.ovpn)
+                          Requires the destination config name.
+                          Example: -conf source_config.ovpn dest_config.ovpn
+   -cred --credentials 	  (optional) VPN credentials file (.conf)
+                          Requires the destination credentials name.
+                          Example -cred source_credentials.conf dest_credentials.conf
+   -b --branch 		         (optional) Branch of code to install from (default master)
 
+    
 This installs all dependencies (Tribler, Electrum, Cloudomate and ofcourse PlebNet).
 After installation the "plebnet setup" is called and a cron job is set up to regularly call "plebnet check".
 
