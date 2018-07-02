@@ -55,85 +55,126 @@ for n in u_nicks:
         u_nicks_data[n][k] = df.to_dict('records')
 
 
-nodes = [{'id': n, 'label': n, 'group':u_nicks.index(n)} for n in u_nicks]
-edges = []
+# nodes = [{'id': n, 'label': n, 'group':u_nicks.index(n)} for n in u_nicks]
+# edges = []
 
-_data_network = {'nodes':nodes, 'edges': edges}
+# _data_network = {'nodes':nodes, 'edges': edges}
 
 # ==============================================================================
 # Dynamic data parsing
 # new data is stored in memory as tree
 # ==============================================================================
 
-class BotNode(object):
-    children = {}
+class BotNode:
 
-    def __init__(self, id, index=''):
+    info_type = ['dead', 'nick', 'exitnode', 'host', 'vpn', 'children']
+
+    def __init__(self, id):
         self.id = id
-        self.index = index
         self.dead = True
+        self.nick = 'unknown'
+        self.exitnode = 'unknown'
+        self.host = 'unknown'
+        self.vpn = 'unknown'
+        self.children = {}
 
-        self.nick = None
-        self.host = None 
-        self.exitnode = None
-        self.vpn = None
-
-    def set_status(self, nickname, host, exitnode, vpn):
+    def set_status(self, nickname='unknown', exitnode='unknown', host='unknown', vpn='unknown', dead=True):
         self.nick = nickname
-        self.host = host 
-        self.exitnode = (exitnode == 'True')
-        self.vpn = (vpn == 'True')
-        self.dead = False
+        self.dead = dead
+        self.exitnode = exitnode
+        self.host = host
+        self.vpn = vpn
 
-    def alive(self):
-        return not self.dead
+    def add_child(self, tree):
+        root = tree.pop(0)
+        child_id = root 
+        cur_child = self
+        while tree:
+            child_id += '.'+tree.pop(0)
+            if child_id not in cur_child.children.keys():
+                child = BotNode(child_id)
+                cur_child.children[child_id] = child 
+            else:
+                child = cur_child.children[child_id]
 
-    def get_child(self, id):
-        if '.' in id:
-            ch = id.split('.')
-            ch_id = ch.pop(0)
-            if len(ch) > 1: # root
-                ch_id = ch.pop(0) # child id                
-            return self.children[ch_id].get_child('.'.join(ch))
+            cur_child = child
+        return cur_child
+                
+    def get_children(self):
+        visited = []
+        child_queue = list(self.children.values())
+        while child_queue:
+            child = child_queue.pop(0)
+            if child not in visited:
+                visited.append(child)
+            for gchild in child.children.values():
+                if gchild not in visited:
+                    child_queue.append(gchild)
+                    visited.append(gchild)
+        return visited
+
+    def get_nodes(self):
+        all_children = self.get_children()
+        nodes = []
+        nodes.append({"id": self.nick, "label": "%s (%s)"%(self.id, self.get_group()), "group": self.get_group()})
+        for c in all_children:
+            nodes.append({"id": c.nick, "label": "%s (%s)"%(c.id, c.get_group()), "group": c.get_group()})
+        return nodes
+
+    def get_edges(self):
+        visited = []
+        edges = []
+        child_queue = list(self.children.values())
+        cur = self
+        while child_queue:
+            child = child_queue.pop(0)
+            if child not in visited:
+                visited.append(child)
+                edges.append({"from":cur.nick, "to": child.nick})
+                cur = child
+            for gchild in child.children.values():
+                if gchild not in visited:
+                    child_queue.append(gchild)
+        return edges
+
+    def get_group(self):
+        if self.dead:
+            group = 'dead'
+        elif self.host.lower() == 'linevast':
+            group = 'linevast'
+        elif self.host.lower() == 'blueangelhost':
+            group = 'blueangelhost'
+        elif self.host.lower() == 'twosync':
+            group = 'twosync'
+        elif self.host.lower() == 'proxhost':
+            group = 'proxhost'
+        elif self.host.lower() == 'unknown':
+            group = 'unknown'
+        elif self.host.lower() == 'undergroundprivate':
+            group = 'undergroundprivate'
         else:
-            try:
-                child = self.children[id]
-                return child
-            except KeyError:
-                return None
+            group = 'unknown'
+        return group
 
-    def add_child(self, tree, id=''):
-        if '.' in tree:
-            ch = tree.split('.')
-            ch_id = ch.pop(0)
-            ident = id + '.' + ch_id
-            if len(ch) > 1: # root
-                ch_id = ch.pop(0) # child id    
-                ident = ident + '.' + ch_id
-                if ch_id not in self.children:
-                    self.children[ch_id] = BotNode(ident, ch_id)
-            return self.children[ch_id].add_child('.'.join(ch), ident)
-        else:
-            ident = id + '.' + tree
-            if tree not in self.children:
-                bot = BotNode(ident, tree)
-                self.children[tree] = bot
-            return self.children[tree]
-   
-
-    def create_edges(self):
-        return
+    def get_info(self):
+        return {
+            "id": self.id,
+            "children": len(self.children.values()),
+            "nick": self.nick,
+            "dead": self.dead,
+            "host": self.host,
+            "exitnode": self.exitnode,
+            "vpn": self.vpn
+        }
 
     def __str__(self): 
         return "id: %s \
-        \n index: %s \
         \n children: %s \
         \n dead: %s \
         \n nick %s \
         \n host %s \
         \n exitnode %s \
         \n vpn %s" % (self.id,
-        self.index,
         self.children,
         self.dead,
         self.nick,
@@ -142,9 +183,8 @@ class BotNode(object):
         self.vpn)
 
 
-bot_info_keys = ['host', 'exitnode', 'tree', 'vpn']
-bot_info_buffer = []
-bot_nodes = {} #id=tree, bot
+root_bot_nodes = {} #id=tree, bot
+bot_node_by_nicks = {}
 
 def handle_data(bot_nick, key, value):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
@@ -153,23 +193,29 @@ def handle_data(bot_nick, key, value):
         value = ' '.join(value)
         jd = value.replace("u\'", "\'").replace("True", "\'True\'").replace("False", "\'False\'").replace("\'", "\"")
         d = json.loads(jd)
-        tree = d['tree']
-        root = tree.split('.')[0]
-        if '.' not in tree:
-            if bot_nick not in bot_nodes:
-                bot = BotNode(bot_nick)
-                bot_nodes[bot_nick] = bot      
-            else:
-                bot_nodes[bot_nick].set_status(bot_nick, d['host'], d['exitnode'], d['vpn'])
-        else:       
-            current = tree.split('.')[0]
-            if current not in bot_nodes:
-                bot = BotNode(current)
-                bot_nodes[current] = bot         
-            logging.info(">>>>>>>>>>>>adding child: " +tree)        
-            bot_nodes[current].add_child(tree)
-        
-        bot_nodes[current].get_child(tree).set_status(bot_nick, d['host'], d['exitnode'], d['vpn'])
+
+        tree = d['tree'].split('.')
+        root = tree[0]
+        if root not in root_bot_nodes.keys():
+            root_bot = BotNode(root)
+            root_bot_nodes[root] = root_bot
+
+            # nice little mapping from irc nick to BotNode
+            # it's a chaos driven design pattern
+            # the real way to do all of this is to use the tree received from IRC as id everywhere.
+            bot_node_by_nicks[root] = root_bot                    
+
+        root_bot = root_bot_nodes[root]
+        root_bot.set_status(root)
+    
+        if len(tree) == 1:
+            root_bot.set_status(root, d['exitnode'], d['host'], d['vpn'], False)
+        else:
+            print "add %s to: %s" %(root, '.'.join(tree))
+            child = root_bot.add_child(tree)
+            child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
+            bot_node_by_nicks[bot_nick] = child
+
     else:
         if bot_nick not in u_nicks_data.keys():
             u_nicks_data[bot_nick] = {}
@@ -188,17 +234,23 @@ def root():
 
 @app.route('/network')
 def network():
+    _data_network = {"nodes":[], "edges":[]}
+    for bot in root_bot_nodes.values():
+        _data_network["nodes"] += bot.get_nodes()
+        _data_network["edges"] += bot.get_edges()
     return json.dumps(_data_network)
 
 @app.route('/node/<id>/<type>')
 def node(id, type):
     if type in units.keys():
         return json.dumps(u_nicks_data[id][type])
+    elif type == 'info':
+        return json.dumps(bot_node_by_nicks[id].get_info())
 
 @app.route('/shownodes')
 def show_nodes():
     nodes = []
-    for bot in bot_nodes.values():
+    for bot in root_bot_nodes.values():
         nodes.append(str(bot))
     return str(nodes)
 
