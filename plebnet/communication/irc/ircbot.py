@@ -232,7 +232,7 @@ class Create(object):
             'host': dna.get_host(),
             'vpn': vpn_is_running(),
             'tree': dna.get_tree(),
-            'exitnode': plebnet_settings.get_instance().tribler_exitnode())
+            'exitnode': plebnet_settings.get_instance().tribler_exitnode()
         }
         self.send_msg(data)
 
