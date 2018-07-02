@@ -40,10 +40,15 @@ For running PlebNet locally, the following steps are necessary:
 
 - All dependencies installed via the create-child.sh script, must be installed manually.
 - Download PlebNet and all submodules by running the following command:
+
 .. code-block:: console
+
     git clone --recurse-submodules git://github.com/Tribler/PlebNet.git
+    
 - Go to the main folder and execute the following command:
+
 .. code-block:: console
+
     pip install .
 
 ::
