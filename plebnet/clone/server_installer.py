@@ -143,10 +143,10 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
         command += ["-conf", ovpn, dest_config, "-cred", credentials, dest_credentials]
 
     if testnet:
-        command += "-t"
+        command.append("-t")
 
     if settings.tribler_exitnode():
-        command += "-e"
+        command.append("-e")
 
     logger.log("Running %s" % ' '.join(command), '_install_server')
     exitcode = subprocess.call(command, cwd=home)
