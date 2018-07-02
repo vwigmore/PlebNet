@@ -51,6 +51,9 @@ For running PlebNet locally, the following steps are necessary:
 
     pip install .
 
+Usage
+-----
+
 ::
 
    usage: plebnet [-h]
