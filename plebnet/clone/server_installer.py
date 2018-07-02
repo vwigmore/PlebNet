@@ -37,7 +37,7 @@ def install_available_servers(config, dna):
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
             ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
-        except BaseException as e:
+        except Exception as e:
             logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
 
