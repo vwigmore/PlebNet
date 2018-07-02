@@ -24,7 +24,7 @@ The first instance can be installed by downloading the file create-child.sh in P
 
 ::
 
-Usage: ./create-child.sh <parameter> <value>
+   Usage: ./create-child.sh <parameter> <value>
    -h --help 		           Shows this help message
    -i --ip 		             Ip address of the server to run install on
    -p --password 	   	    Root password of the server
