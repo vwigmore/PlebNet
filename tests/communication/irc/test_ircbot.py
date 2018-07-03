@@ -87,11 +87,11 @@ class TestIRCbot(unittest.TestCase):
 
         self.assertIn(reply_join, msgs[0])
         self.assertIn(reply_ping, msgs[1])
-        self.assertIn(reply_error_created, msgs[3])
-        self.assertIn(reply_error, msgs[4])
+        self.assertIn(reply_error_created, msgs[2])
+        self.assertIn(reply_error, msgs[3])
         msg = "%s\r\n" % (line_alive)
         self.instance.keep_running(str(msg))
-        self.assertIn(reply_alive, msgs[5])
+        self.assertIn(reply_alive, msgs[4])
 
 
 
