@@ -113,9 +113,9 @@ class BotNode:
     def get_nodes(self):
         all_children = self.get_children()
         nodes = []
-        nodes.append({"id": self.nick, "label": "%s (%s)"%(self.id, self.get_group()), "group": self.get_group()})
+        nodes.append({"id": self.nick, "label": "%s (%s)"%(self.nick, self.get_group()), "group": self.get_group()})
         for c in all_children:
-            nodes.append({"id": c.nick, "label": "%s (%s)"%(c.id, c.get_group()), "group": c.get_group()})
+            nodes.append({"id": c.nick, "label": "%s (%s)"%(c.nick, c.get_group()), "group": c.get_group()})
         return nodes
 
     def get_edges(self):
