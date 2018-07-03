@@ -4,7 +4,7 @@
 # and uninstalling PlebNet and cloudomate
 
 echo "killing tribler, plebnet"
-for pid in $(ps aux | grep -E 'twistd|plebnet' | awk '{print $2}'); do kill -9 $pid; done
+for pid in $(ps aux | grep -E 'twistd|plebnet|openvpn' | awk '{print $2}'); do kill -9 $pid; done
 
 declare -a files=(~/.Tribler
                     ~/.config
@@ -23,3 +23,5 @@ done
 
 echo "uninstalling plebnet" && pip uninstall -y plebnet 
 echo "uninstalling cloudomate" && pip uninstall -y cloudomate 
+
+mkdir -p ~/.config/
