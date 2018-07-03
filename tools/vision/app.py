@@ -222,7 +222,7 @@ def handle_data(bot_nick, key, value):
             u_nicks_data[bot_nick][key] = []
 
         if bot_nick not in root_bot_nodes.keys():
-            root_bot = BotNode(root_bot)
+            root_bot = BotNode(bot_nick)
             root_bot.set_status(nickname=bot_nick, dead=False)
         
         u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
