@@ -26,6 +26,12 @@
         });        
     };
 
+    grapher.clear = function() {
+        if (grapher.lastGraph) {
+            grapher.lastGraph.destroy();
+        }        
+    }
+
     grapher.graph = function(key, data) {
         var graph_container = document.getElementById('plebgraphs');
         var dataset = new vis.DataSet(data);
@@ -53,10 +59,7 @@
             graphHeight: '395px',
         }
 
-        if (grapher.lastGraph) {
-            grapher.lastGraph.destroy();
-        }
-
+        grapher.clear()
 
         var groups = new vis.DataSet();
         groups.add({

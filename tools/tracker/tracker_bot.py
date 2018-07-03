@@ -56,6 +56,11 @@ class TrackerBot(object):
 
         self.irc = None
 
+        thread_listen = Thread(target=self.run)
+        thread_listen.setDaemon(True)
+        thread_listen.start()        
+
+    def run(self):
         # start running the IRC server
         try:
             self.init_irc()
@@ -196,7 +201,8 @@ class TrackerBot(object):
         elif "My TBTC balance"   in msg:            self.log_data(words[0], 'TBTC_balance', words[7])
         elif "I currently have uploaded:" in msg:   self.log_data(words[0], 'uploaded', words[7])
         elif "I currently have downloaded:" in msg: self.log_data(words[0], 'downloaded', words[7])
-        elif "matchmakers:"      in msg:            self.log_data(words[0], 'matchmakers', words[6])
+        elif "matchmakers"      in msg:            self.log_data(words[0], 'matchmakers', words[6])
+        elif "general:"          in msg:            self.log_data(words[0], 'general', words[4:])
         elif "!trackers" in msg:                    self.send_msg("I am an online tracker!")
         else:                                       self.log("unable to parse: ORIGINAL:%s" % text)
 

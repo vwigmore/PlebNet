@@ -11,16 +11,82 @@
                         size: 22,
                         color: '#fffffff'
                     },
-                    borderWidth: 2
+                    borderWidth: 1,
+                    borderWidthSelected: 0,
+                    color: {
+                        highlight: {
+                            border: 'orange',
+                            background: 'white'
+                        }
+                    }
                 },
                 edges: {
-                    width: 2
-                }
+                    width: 1,
+                    length: 250,
+                    arrows: {
+                        to: {
+                            enabled: true
+                        }
+                    },
+                    color: 'white'
+                },
+                groups: {
+                    dead: {color:{background:'gray'}, borderWidth:3},
+                    linevast: {color:{background:'green'}, borderWidth:3},
+                    blueangelhost: {color:{background:'blue'}, borderWidth:3},
+                    twosync: {color:{background:'purple'}, borderWidth:3},
+                    proxhost: {color:{background:'orange'}, borderWidth:3},
+                    unknown: {color:{background:'brown'}, borderWidth:3},
+                    undergroundprivate: {color:{background:'yellow'}, borderWidth:3},
+                },
+                physics:{
+                    enabled: true,
+                    barnesHut: {
+                      gravitationalConstant: -5000,
+                      centralGravity: 0.03,
+                      springLength: 300,
+                      springConstant: 0.15,
+                      damping: 0.09,
+                      avoidOverlap: 1
+                    },
+                    forceAtlas2Based: {
+                      gravitationalConstant: -50,
+                      centralGravity: 0.01,
+                      springConstant: 0.08,
+                      springLength: 300,
+                      damping: 0.4,
+                      avoidOverlap: 0
+                    },
+                    repulsion: {
+                      centralGravity: 0.2,
+                      springLength: 350,
+                      springConstant: 0.15,
+                      nodeDistance: 20,
+                      damping: 0.09
+                    },
+                    hierarchicalRepulsion: {
+                      centralGravity: 0.0,
+                      springLength: 300,
+                      springConstant: 0.01,
+                      nodeDistance: 120,
+                      damping: 0.09
+                    },
+                    maxVelocity: 50,
+                    minVelocity: 0.1,
+                    solver: 'barnesHut',
+                    stabilization: {
+                      enabled: true,
+                      iterations: 1000,
+                      updateInterval: 100,
+                      onlyDynamicEdges: false,
+                      fit: true
+                    },
+                    timestep: 0.5,
+                    adaptiveTimestep: true
+                  }
+                
             };	
-
-            // data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6525'});
-            // data.edges.push({'from': 'plebbot3465', 'to': 'plebbot6197'});            
-
+      
             dataNodes = new vis.DataSet(data.nodes)
             dataEdges = new vis.DataSet(data.edges)
                         
@@ -33,17 +99,6 @@
 
             network = new vis.Network(container, vData, options);
 
-            // document.addEventListener('keyup', (event) => {
-            //     const keyName = event.key;
-              
-            //     // As the user releases the Ctrl key, the key is no longer active,
-            //     // so event.ctrlKey is false.
-            //     if (keyName === 'Enter') {
-            //         dataNodes.update({id:'plebbot5542', label:'plebbot5542', group:4});
-            //         dataEdges.update({from:'plebbot6197', to:'plebbot5542'});
-            //     }
-            //   }, false);      
-
             network.on('click', (params) => {
                 window.grapher.graphData(params.nodes[0]);
             });
@@ -53,7 +108,16 @@
             document.body.addEventListener("click", function (e) {
                 if (e.target.className.split(" ")[0] === "mbtn") {
                     var key = e.target.getAttribute("data-monitor-key");
-                    window.grapher.graphData(network.getSelectedNodes()[0], key);
+                    if (key !== "info") {
+                        var graph_container = document.getElementById('plebgraphs');
+                        fetch('/node/'+network.getSelectedNodes()[0]+'/info').then((infoRes) => {
+                            infoRes.json().then((data) => {
+                                alert(JSON.parse(data))
+                            });
+                        });                             
+                    } else {
+                        window.grapher.graphData(network.getSelectedNodes()[0], key);
+                    }
                 }
             });            
         });
