@@ -165,6 +165,7 @@ def check_vpn_install():
     if os.path.isfile(credentials) and os.path.isfile(vpnconfig):
         # try to install
         if install_vpn():
+            time.sleep(30)
             settings.vpn_installed("1")
             logger.log("Installing VPN succesful with configurations.")
             if irc_handler.restart_irc_client():
@@ -268,6 +269,8 @@ def install_vpn():
 
     result, error = try_install.communicate()
     exitcode = try_install.wait()
+
+    time.sleep(30)
 
     if exitcode != 0:
         if error.decode('ascii') == "":

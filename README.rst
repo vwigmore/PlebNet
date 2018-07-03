@@ -73,6 +73,7 @@ Usage
 
 ::
 
+
    usage: plebnet [-h]
                   {setup,check,conf,irc}
                   ...
@@ -107,6 +108,7 @@ Usage
 
    optional arguments:
      -h, --help            show this help message and exit
+
 
 
 .. |jenkins_build| image:: https://jenkins.tribler.org/job/GH_PlebNet/badge/icon

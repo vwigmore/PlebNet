@@ -37,24 +37,25 @@ def install_available_servers(config, dna):
         try:
             provider_class = cloudomate_controller.get_vps_providers()[provider]
             ip = cloudomate_controller.get_ip(provider_class, cloudomate_controller.child_account(child_index))
-        except BaseException as e:
+        except Exception as e:
             logger.log(str(e) + "%s not ready yet" % str(provider), "install_available_servers")
             return
-
-        # VPN configuration, enable tun/tap settings
-        if provider_class.TUN_TAP_SETTINGS:
-            tun_success = provider_class(cloudomate_controller.child_account(child_index)).enable_tun_tap()
-            logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
-            if not cloudomate_controller.save_info_vpn(child_index):
-                logger.log("VPN not ready yet, can't save ovpn config")
-                return
-
-        logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
-
-        account_settings = cloudomate_controller.child_account(child_index)
-        rootpw = account_settings.get('server', 'root_password')
-
+            
         if is_valid_ip(ip):
+
+            # VPN configuration, enable tun/tap settings
+            if provider_class.TUN_TAP_SETTINGS:
+                tun_success = provider_class(cloudomate_controller.child_account(child_index)).enable_tun_tap()
+                logger.log("Enabling %s tun/tap: %s"%(provider, tun_success))
+                if not cloudomate_controller.save_info_vpn(child_index):
+                    logger.log("VPN not ready yet, can't save ovpn config")
+                    return
+
+            logger.log("Installing child on %s with ip %s" % (provider, str(ip)))
+
+            account_settings = cloudomate_controller.child_account(child_index)
+            rootpw = account_settings.get('server', 'root_password')
+
             provider_class(cloudomate_controller.child_account(child_index)).change_root_password(rootpw)
             time.sleep(5)
 
@@ -143,10 +144,10 @@ def _install_server(ip, rootpw, vpn_child_index=None, testnet=False):
         command += ["-conf", ovpn, dest_config, "-cred", credentials, dest_credentials]
 
     if testnet:
-        command += "-t"
+        command.append("-t")
 
     if settings.tribler_exitnode():
-        command += "-e"
+        command.append("-e")
 
     logger.log("Running %s" % ' '.join(command), '_install_server')
     exitcode = subprocess.call(command, cwd=home)
