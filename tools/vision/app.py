@@ -210,9 +210,9 @@ def handle_data(bot_nick, key, value):
         root_bot = root_bot_nodes[root]
         root_bot.set_status(root)
      
-        if tree[0] == bot_nick:
+        if len(tree) == 1:
             print "bot %s is root" % bot_nick
-            root_bot.set_status(root, d['exitnode'], d['host'], d['vpn'], False)
+            root_bot.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
         else:
             print "add %s to: %s" %('.'.join(tree), root)
             child = root_bot.add_child(tree)
