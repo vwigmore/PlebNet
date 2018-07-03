@@ -189,7 +189,7 @@ def handle_data(bot_nick, key, value):
     if key == 'general':
 
         # reset dead state to DEAD until message is received
-        for stored_bot in root_bot_nodes:
+        for stored_bot in root_bot_nodes.values():
             stored_bot.set_status(dead=True)
 
         value = ' '.join(value)
