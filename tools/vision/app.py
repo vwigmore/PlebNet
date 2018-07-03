@@ -75,12 +75,12 @@ class BotNode:
         self.vpn = 'unknown'
         self.children = {}
 
-    def set_status(self, nickname='unknown', exitnode='unknown', host='unknown', vpn='unknown', dead=True):
-        self.nick = nickname
+    def set_status(self, nickname=None, exitnode=None, host=None, vpn=None, dead=True):
+        self.nick = nickname or self.nick
         self.dead = dead
-        self.exitnode = exitnode
-        self.host = host
-        self.vpn = vpn
+        self.exitnode = exitnode or self.exitnode
+        self.host = host or self.host
+        self.vpn = vpn or self.vpn
 
     def add_child(self, tree):
         root = tree.pop(0)
@@ -205,10 +205,11 @@ def handle_data(bot_nick, key, value):
         root_bot = root_bot_nodes[root]
         root_bot.set_status(root)
     
-        if len(tree) == 1:
+        if tree[0] == bot_nick:
+            print "bot %s is root" % bot_nick
             root_bot.set_status(root, d['exitnode'], d['host'], d['vpn'], False)
         else:
-            print "add %s to: %s" %(root, '.'.join(tree))
+            print "add %s to: %s" %('.'.join(tree), root)
             child = root_bot.add_child(tree)
             child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
             bot_node_by_nicks[bot_nick] = child
@@ -219,6 +220,10 @@ def handle_data(bot_nick, key, value):
 
         if key not in u_nicks_data[bot_nick].keys():
             u_nicks_data[bot_nick][key] = []
+
+        if bot_nick not in root_bot_nodes.keys():
+            root_bot = BotNode(root_bot)
+            root_bot.set_status(nickname=bot_nick, dead=False)
         
         u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
 
