@@ -53,6 +53,8 @@ echo "fixing paths"
 (echo "PATH=$PATH:/usr/local/bin:/usr/bin:/root/.local/bin" | tee -a ~/.bashrc)
 (echo "export PATH" | tee -a ~/.bashrc) && source ~/.bashrc
 
+apt-get install -y sshpass
+
 # install openvpn
 apt-get install -y openvpn
 ln -s "$(which openvpn)" /usr/bin/openvpn

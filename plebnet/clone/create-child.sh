@@ -147,10 +147,10 @@ else
 fi
 
 ############################### INSTALL REQUIREMENTS ########################################
-if ! hash sshpass 2> /dev/null; then
-    echo "Installing sshpass"
-    apt-get install -y sshpass
-fi
+
+echo "Installing sshpass"
+apt-get install -y sshpass
+
 
 echo "install openssl"
 sshpass -p${PASSWORD} ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${IP} 'apt-get update && \
