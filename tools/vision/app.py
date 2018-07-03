@@ -74,13 +74,13 @@ class BotNode:
         self.exitnode = 'unknown'
         self.host = 'unknown'
         self.vpn = 'unknown'
-        self.last_seen = None
+        self.last_seen = time.time()
         self.children = {}
 
     def set_status(self, nickname=None, exitnode=None, host=None, vpn=None, last_seen=None, dead=True):
         self.nick = nickname or self.nick
         self.dead = dead
-        self.last_seen = last_seen
+        self.last_seen = last_seen or self.last_seen
         self.exitnode = exitnode or self.exitnode
         self.host = host or self.host
         self.vpn = vpn or self.vpn
