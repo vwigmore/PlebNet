@@ -7,6 +7,7 @@ import pandas as pd
 from flask import Flask, render_template
 
 import json
+import time
 from datetime import datetime
 
 app = Flask(__name__)
@@ -73,14 +74,16 @@ class BotNode:
         self.exitnode = 'unknown'
         self.host = 'unknown'
         self.vpn = 'unknown'
+        self.last_seen = time.time()
         self.children = {}
 
-    def set_status(self, nickname='unknown', exitnode='unknown', host='unknown', vpn='unknown', dead=True):
-        self.nick = nickname
+    def set_status(self, nickname=None, exitnode=None, host=None, vpn=None, last_seen=None, dead=True):
+        self.nick = nickname or self.nick
         self.dead = dead
-        self.exitnode = exitnode
-        self.host = host
-        self.vpn = vpn
+        self.last_seen = last_seen or self.last_seen
+        self.exitnode = exitnode or self.exitnode
+        self.host = host or self.host
+        self.vpn = vpn or self.vpn
 
     def add_child(self, tree):
         root = tree.pop(0)
@@ -113,9 +116,9 @@ class BotNode:
     def get_nodes(self):
         all_children = self.get_children()
         nodes = []
-        nodes.append({"id": self.nick, "label": "%s (%s)"%(self.id, self.get_group()), "group": self.get_group()})
+        nodes.append({"id": self.nick, "label": "%s (%s)"%(self.nick, self.get_group()), "group": self.get_group()})
         for c in all_children:
-            nodes.append({"id": c.nick, "label": "%s (%s)"%(c.id, c.get_group()), "group": c.get_group()})
+            nodes.append({"id": c.nick, "label": "%s (%s)"%(c.nick, c.get_group()), "group": c.get_group()})
         return nodes
 
     def get_edges(self):
@@ -187,6 +190,12 @@ def handle_data(bot_nick, key, value):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
    
     if key == 'general':
+
+        # reset dead state to DEAD until message is received
+        for stored_bot in root_bot_nodes.values():
+            if (time.time() - stored_bot.last_seen) > 1800.0:
+                stored_bot.set_status(dead=True)
+
         value = ' '.join(value)
         jd = value.replace("u\'", "\'").replace("True", "\'True\'").replace("False", "\'False\'").replace("\'", "\"")
         d = json.loads(jd)
@@ -203,14 +212,14 @@ def handle_data(bot_nick, key, value):
             bot_node_by_nicks[root] = root_bot                    
 
         root_bot = root_bot_nodes[root]
-        root_bot.set_status(root)
-    
+     
         if len(tree) == 1:
-            root_bot.set_status(root, d['exitnode'], d['host'], d['vpn'], False)
+            print "bot %s is root" % bot_nick
+            root_bot.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], last_seen=time.time(), dead=False)
         else:
-            print "add %s to: %s" %(root, '.'.join(tree))
+            print "add %s to: %s" %('.'.join(tree), root)
             child = root_bot.add_child(tree)
-            child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
+            child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], last_seen=time.time(), dead=False)
             bot_node_by_nicks[bot_nick] = child
 
     else:
@@ -219,6 +228,10 @@ def handle_data(bot_nick, key, value):
 
         if key not in u_nicks_data[bot_nick].keys():
             u_nicks_data[bot_nick][key] = []
+
+        if bot_nick not in root_bot_nodes.keys():
+            root_bot = BotNode(bot_nick)
+            root_bot.set_status(nickname=bot_nick, last_seen=time.time(), dead=False)
         
         u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
 

@@ -26,14 +26,24 @@
             grapher.refreshInt = 0;
         }
 
-        grapher.refreshInt = setInterval(() => {
-            fetch('/node/'+node+'/'+key).then((nodeRes) => {
-                nodeRes.json().then((nodeData) => {
-                    window.grapher.graph(key, nodeData)
-                });
-            }, 300000);     
-        });   
+        grapher.getDataAndGraph(node, key);
+
+        grapher.refreshInt = setInterval(() => {            
+            grapher.getDataAndGraph(node, key);
+        }, 300000);   
     };
+
+    grapher.getDataAndGraph = function(node, key) {
+        fetch('/node/'+node+'/'+key).then((nodeRes) => {
+            nodeRes.json().then((nodeData) => {
+                try {
+                    window.grapher.graph(key, nodeData)
+                } catch (err) {
+                    grapher.clear();
+                }
+            });
+        });
+    }
 
     grapher.clear = function() {
         if (grapher.lastGraph) {
