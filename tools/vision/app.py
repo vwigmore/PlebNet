@@ -187,6 +187,11 @@ def handle_data(bot_nick, key, value):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
    
     if key == 'general':
+
+        # reset dead state to DEAD until message is received
+        for stored_bot in root_bot_nodes:
+            stored_bot.set_status(dead=True)
+
         value = ' '.join(value)
         jd = value.replace("u\'", "\'").replace("True", "\'True\'").replace("False", "\'False\'").replace("\'", "\"")
         d = json.loads(jd)
@@ -204,7 +209,7 @@ def handle_data(bot_nick, key, value):
 
         root_bot = root_bot_nodes[root]
         root_bot.set_status(root)
-    
+     
         if tree[0] == bot_nick:
             print "bot %s is root" % bot_nick
             root_bot.set_status(root, d['exitnode'], d['host'], d['vpn'], False)
