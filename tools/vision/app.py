@@ -7,6 +7,7 @@ import pandas as pd
 from flask import Flask, render_template
 
 import json
+import time
 from datetime import datetime
 
 app = Flask(__name__)
@@ -73,11 +74,13 @@ class BotNode:
         self.exitnode = 'unknown'
         self.host = 'unknown'
         self.vpn = 'unknown'
+        self.last_seen = None
         self.children = {}
 
-    def set_status(self, nickname=None, exitnode=None, host=None, vpn=None, dead=True):
+    def set_status(self, nickname=None, exitnode=None, host=None, vpn=None, last_seen=None, dead=True):
         self.nick = nickname or self.nick
         self.dead = dead
+        self.last_seen = last_seen
         self.exitnode = exitnode or self.exitnode
         self.host = host or self.host
         self.vpn = vpn or self.vpn
@@ -190,7 +193,8 @@ def handle_data(bot_nick, key, value):
 
         # reset dead state to DEAD until message is received
         for stored_bot in root_bot_nodes.values():
-            stored_bot.set_status(dead=True)
+            if (time.time() - stored_bot.last_seen) > 1800.0:
+                stored_bot.set_status(dead=True)
 
         value = ' '.join(value)
         jd = value.replace("u\'", "\'").replace("True", "\'True\'").replace("False", "\'False\'").replace("\'", "\"")
@@ -208,15 +212,14 @@ def handle_data(bot_nick, key, value):
             bot_node_by_nicks[root] = root_bot                    
 
         root_bot = root_bot_nodes[root]
-        root_bot.set_status(root)
      
         if len(tree) == 1:
             print "bot %s is root" % bot_nick
-            root_bot.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
+            root_bot.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], last_seen=time.time(), dead=False)
         else:
             print "add %s to: %s" %('.'.join(tree), root)
             child = root_bot.add_child(tree)
-            child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], False)
+            child.set_status(bot_nick, d['exitnode'], d['host'], d['vpn'], last_seen=time.time(), dead=False)
             bot_node_by_nicks[bot_nick] = child
 
     else:
@@ -228,7 +231,7 @@ def handle_data(bot_nick, key, value):
 
         if bot_nick not in root_bot_nodes.keys():
             root_bot = BotNode(bot_nick)
-            root_bot.set_status(nickname=bot_nick, dead=False)
+            root_bot.set_status(nickname=bot_nick, last_seen=time.time(), dead=False)
         
         u_nicks_data[bot_nick][key].append({'x': current_time, 'y': value})
 
