@@ -12,6 +12,8 @@
     grapher.defaultSelection = 'uploaded';
     grapher.selected = grapher.defaultSelection;
 
+    grapher.refreshInt = 0;
+
     grapher.graphData = function(node, key) {
         if (typeof key === 'undefined') {
             key = grapher.selected;
@@ -19,11 +21,18 @@
             grapher.selected = key;
         }
 
-        fetch('/node/'+node+'/'+key).then((nodeRes) => {
-            nodeRes.json().then((nodeData) => {
-                window.grapher.graph(key, nodeData)
-            });
-        });        
+        if (grapher.refreshInt !== 0) {
+            clearInterval(grapher.refreshInt);
+            grapher.refreshInt = 0;
+        }
+
+        grapher.refreshInt = setInterval(() => {
+            fetch('/node/'+node+'/'+key).then((nodeRes) => {
+                nodeRes.json().then((nodeData) => {
+                    window.grapher.graph(key, nodeData)
+                });
+            }, 300000);     
+        });   
     };
 
     grapher.clear = function() {

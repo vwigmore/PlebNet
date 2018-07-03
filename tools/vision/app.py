@@ -7,10 +7,7 @@ import pandas as pd
 from flask import Flask, render_template
 
 import json
-import logging
 from datetime import datetime
-
-logging.basicConfig(format="%(threadName)s:%(message)s", level='NOTSET')
 
 app = Flask(__name__)
 
