@@ -269,7 +269,9 @@ def install_vpn():
 
     result, error = try_install.communicate()
     exitcode = try_install.wait()
+
     time.sleep(30)
+
     if exitcode != 0:
         if error.decode('ascii') == "":
             error = result
