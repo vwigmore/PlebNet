@@ -57,7 +57,7 @@ def _generate_user(cp, fake):
     lastname = fake.last_name()
     username = firstname+lastname
     company = fake.company()
-    email = _generate_email(firstname, fake.city(), company, fake).replace(' ', '')
+    email = _generate_email(firstname, lastname, fake).replace(' ', '')
     cp.set('user', 'email', email)
     cp.set('user', 'firstname', firstname)
     cp.set('user', 'lastname', lastname)
@@ -83,25 +83,11 @@ def _generate_server(cp, fake):
     cp.set('server', 'ns2', 'ns2')
     cp.set('server', 'hostname', fake.word())
 
-def _generate_email(firstname, city, company, fake):
+def _generate_email(firstname, lastname, fake):
     email = _choose_email()
     parts = email.split('@')
     
-    rval = random.random()
-
-    middle_word = ''
-
-    if 0 < rval < 0.2:
-        middle_word = fake.word()
-    elif 0.2 < rval < 0.4:
-        middle_word = firstname
-    elif 0.4 < rval < 0.6:
-        middle_word = city
-    elif 0.6 < rval < 0.8:
-        middle_word = firstname + city
-    else:
-        middle_word = company
-
+    middle_word = firstname + '_' + lastname
     middle_word = middle_word.replace(' ', '')
 
     return parts[0] + '+' + middle_word + '@' + parts[1]
