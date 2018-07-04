@@ -102,7 +102,7 @@ def _generate_email(firstname, city, company, fake):
     else:
         middle_word = company
 
-    middle_word.replace(' ', '')
+    middle_word = middle_word.replace(' ', '')
 
     return parts[0] + '+' + middle_word + '@' + parts[1]
 
