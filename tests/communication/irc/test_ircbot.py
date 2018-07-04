@@ -78,14 +78,6 @@ class TestIRCbot(unittest.TestCase):
         self.instance.handle_line(line_ping)
         self.assertIn(reply_ping, msgs[0])
 
-    def test_handle_lines_host(self):
-        self.true_dna = dna.get_host
-        dna.get_host = MagicMock(return_value="Linevast")
-
-        self.instance.handle_line(line_host)
-        self.assertIn(reply_host, msgs[0])
-        dna.get_host = self.true_dna
-
     def test_keep_running(self):
         msg = "%s\r\n%s\r\n%s\r\n%s\r\n" % (line_join, line_ping, line_host, line_error)
         self.true_dna = dna.get_host
@@ -95,12 +87,11 @@ class TestIRCbot(unittest.TestCase):
 
         self.assertIn(reply_join, msgs[0])
         self.assertIn(reply_ping, msgs[1])
-        self.assertIn(reply_host, msgs[2])
-        self.assertIn(reply_error_created, msgs[3])
-        self.assertIn(reply_error, msgs[4])
+        self.assertIn(reply_error_created, msgs[2])
+        self.assertIn(reply_error, msgs[3])
         msg = "%s\r\n" % (line_alive)
         self.instance.keep_running(str(msg))
-        self.assertIn(reply_alive, msgs[5])
+        self.assertIn(reply_alive, msgs[4])
 
 
 
