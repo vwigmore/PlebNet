@@ -115,6 +115,21 @@ apt-get install -y libsodium-dev;
 #echo "done upgrading pip"
 
 cd $HOME
+
+KRDIR=~/.local/share/python_keyring/
+KRCFG=${KRDIR}keyringrc.cfg
+if [ ! -d $KRDIR ]
+then    
+    mkdir -p $KRDIR
+fi
+
+if [ ! -e $KRCFG ]
+then 
+    touch $KRCFG
+    echo "[backend]" >> $KRCFG
+    echo "default-keyring=keyrings.alt.file.PlaintextKeyring" >> $KRCFG
+fi
+
 [ ! -d "PlebNet" ] && git clone -b $BRANCH --recurse-submodules https://github.com/vwigmore/PlebNet
 
 # when branch is given, this create-child.sh's default branch value will be updated
