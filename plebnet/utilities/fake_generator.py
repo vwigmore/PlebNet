@@ -57,7 +57,7 @@ def _generate_user(cp, fake):
     lastname = fake.last_name()
     username = firstname+lastname
     company = fake.company()
-    email = _generate_email(firstname, fake.city(), company, fake)
+    email = _generate_email(firstname, fake.city(), company, fake).replace(' ', '')
     cp.set('user', 'email', email)
     cp.set('user', 'firstname', firstname)
     cp.set('user', 'lastname', lastname)
