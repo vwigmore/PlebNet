@@ -141,6 +141,6 @@ if [[ $TESTNET -eq 1 ]]; then
 else
     plebnet setup $ARGS >> plebnet.log 2>&1
     cron plebnet check
-    echo "* * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
+    echo "*/5 * * * * root /usr/local/bin/plebnet check >> plebnet.log 2>&1" > /etc/cron.d/plebnet
     echo "Installed in normal mode: BTC bitcoin wallet used, cron job created, exit node is on"
 fi
