@@ -107,6 +107,9 @@ class TestCore(unittest.TestCase):
         self.success = logger.success
         self.dna_remove = DNA.remove_provider
         self.load = PlebNetConfig.load
+        self.exit = plebnet_settings.Init.tribler_exitnode
+        self.tree = DNA.get_own_tree
+        self.stree = DNA.set_own_tree
 
         args = MagicMock()
         DNA.remove_provider = MagicMock()
@@ -123,6 +126,9 @@ class TestCore(unittest.TestCase):
         irc_handler.init_irc_client = MagicMock()
         irc_handler.start_irc_client = MagicMock()
         logger.success = MagicMock()
+        plebnet_settings.Init.tribler_exitnode = MagicMock()
+        DNA.get_own_tree = MagicMock(return_value='')
+        DNA.set_own_tree = MagicMock()
 
         Core.setup(args)
         logger.success.assert_called_once()
@@ -140,6 +146,9 @@ class TestCore(unittest.TestCase):
         irc_handler.init_irc_client = self.init_client
         irc_handler.start_irc_client = self.start_client
         logger.success = self.success
+        plebnet_settings.Init.tribler_exitnode = self.exit
+        DNA.get_own_tree = self.tree
+        DNA.set_own_tree = self.stree
 
     def test_check(self):
         self.logger = logger.log
@@ -233,11 +242,13 @@ class TestCore(unittest.TestCase):
         self.new = PlebNetConfig.increment_child_index
         self.provider = cloudomate_controller.get_vps_providers
         self.fg = fake_generator.generate_child_account
+        self.tree = DNA.get_own_tree
 
         logger.log = MagicMock()
         plebnet_settings.Init.wallets_testnet = MagicMock(return_value=True)
         PlebNetConfig.get = MagicMock(return_value=['linevast', 'test', 0])
         market_controller.get_balance = MagicMock(return_value=300)
+        DNA.get_own_tree = MagicMock()
 
         Core.attempt_purchase_vpn = MagicMock(return_value=False)
         cloudomate_controller.calculate_price = MagicMock(return_value=500)
@@ -275,6 +286,7 @@ class TestCore(unittest.TestCase):
         PlebNetConfig.increment_child_index = self.new
         cloudomate_controller.get_vps_providers = self.provider
         fake_generator.generate_child_account = self.fg
+        DNA.get_own_tree = self.tree
 
     def test_install_vps(self):
         self.ias = server_installer.install_available_servers
@@ -356,11 +368,13 @@ class TestCore(unittest.TestCase):
         self.civ = Core.install_vpn
         self.cpr = plebnet_settings.Init.vpn_child_prefix
         self.usr = os.path.expanduser
+        self.vpn_running = Core.vpn_is_running
 
         plebnet_settings.Init.vpn_installed = MagicMock(return_value=True)
         logger.log = MagicMock()
         os.path.join = MagicMock(return_value='String')
 
+        Core.vpn_is_running = MagicMock(return_value=True)
         plebnet_settings.Init.vpn_config_path = MagicMock()
         plebnet_settings.Init.vpn_own_prefix = MagicMock()
         plebnet_settings.Init.vpn_credentials_name = MagicMock(return_value='cred_name')
@@ -371,6 +385,7 @@ class TestCore(unittest.TestCase):
 
         assert Core.check_vpn_install()
 
+        Core.vpn_is_running = MagicMock(return_value=False)
         os.path.isfile = MagicMock(return_value=True)
         Core.install_vpn = MagicMock(return_value=False)
         plebnet_settings.Init.vpn_installed = MagicMock(return_value=False)
@@ -398,7 +413,7 @@ class TestCore(unittest.TestCase):
         Core.install_vpn = self.civ
         plebnet_settings.Init.vpn_child_prefix = self.cpr
         os.path.expanduser = self.usr
-
+        Core.vpn_is_running = self.vpn_running
 
 
 

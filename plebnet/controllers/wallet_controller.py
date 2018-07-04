@@ -82,7 +82,7 @@ class TriblerWallet(object):
             return False
 
         try:
-            data = {'amount': amount, 'destination': address}
+            data = {'amount': amount*1.1, 'destination': address}
             r = requests.post('http://localhost:8085/wallets/' + self.coin + '/transfer', data=data)
             transaction_hash = r.json()['txid']
 
