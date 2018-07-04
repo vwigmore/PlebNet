@@ -13,6 +13,7 @@ declare -a files=(~/.Tribler
                     ~/plebnet*
                     ~/get-pip.py
                     ~/install.sh
+                    ~/.local/share/python_keyring/keyring_pass.cfg
                     )
 
 for item in "${files[@]}"
@@ -25,3 +26,4 @@ echo "uninstalling plebnet" && pip uninstall -y plebnet
 echo "uninstalling cloudomate" && pip uninstall -y cloudomate 
 
 mkdir -p ~/.config/
+
