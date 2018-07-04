@@ -56,13 +56,13 @@ def _generate_user(cp, fake):
     firstname = fake.first_name()
     lastname = fake.last_name()
     username = firstname+lastname
-    full_name = firstname + '_' + lastname
-    full_name = full_name.replace(' ', '_')
-    cp.set('user', 'email', 'authentic8989+' + full_name + '@gmail.com')
+    company = fake.company()
+    email = _generate_email(firstname, fake.city(), company, fake)
+    cp.set('user', 'email', email)
     cp.set('user', 'firstname', firstname)
     cp.set('user', 'lastname', lastname)
     cp.set('user', 'username', username)
-    cp.set('user', 'companyname', fake.company())
+    cp.set('user', 'companyname', company)
     cp.set('user', 'phonenumber', fake.numerify('##########'))
     cp.set('user', 'password', fake.password(length=10, special_chars=False))
 
@@ -82,3 +82,68 @@ def _generate_server(cp, fake):
     cp.set('server', 'ns1', 'ns1')
     cp.set('server', 'ns2', 'ns2')
     cp.set('server', 'hostname', fake.word())
+
+def _generate_email(firstname, city, company, fake):
+    email = _choose_email()
+    parts = email.split('@')
+    
+    rval = random.random()
+
+    middle_word = ''
+
+    if 0 < rval < 0.2:
+        middle_word = fake.word()
+    elif 0.2 < rval < 0.4:
+        middle_word = firstname
+    elif 0.4 < rval < 0.6:
+        middle_word = city
+    elif 0.6 < rval < 0.8:
+        middle_word = firstname + city
+    else:
+        middle_word = company
+
+    middle_word.replace(' ', '')
+
+    return parts[0] + '+' + middle_word + '@' + parts[1]
+
+
+def _choose_email():
+    emails = [
+        "verminexterminators@outlook.com", # below are aliases of this one
+        "adamsmithswoodworks@outlook.com",
+        "ilovelynefast@outlook.com",
+        "indigofront@outlook.com",
+        "redbluestudios@outlook.com",
+        "thecronjobs@outlook.com",
+        "thevideoeditors@outlook.com",
+        "shrekunited@outlook.com",
+        "girlsunitednations@outlook.com",
+        "cloudsolutionsvps@outlook.com",
+        "plussizedmodels@outlook.com",  
+
+        "videosolutionsvp@outlook.com", # below are aliases of this one
+        "rangerones@outlook.com",
+        "manlywebsites@outlook.com",
+        "bachelorep@outlook.com",
+        "dearjones@outlook.com",
+        "clodomo@outlook.com",
+        "plebnetnow@outlook.com",
+        "threeamclub@outlook.com",
+        "actionstudiou@outlook.com",
+        "vapeclubbers@outlook.com",
+        "travoltasfans@outlook.com",
+
+        "pythoniclearners@outlook.com", # below are aliases of this one
+        "breakfastclups@outlook.com",
+        "zionforums@outlook.com",
+        "dronesubscriptions@outlook.com",
+        "springforums@outlook.com",
+        "creativengineers@outlook.com",
+        "schtoyleblockers@outlook.com",
+        "johntravoltalovers@outlook.com",
+        "moondarksiders@outlook.com",
+        "purplefloydians@outlook.com",
+        "hendrixvideos@outlook.com",
+    ]
+
+    return random.choice(emails)
