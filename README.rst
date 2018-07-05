@@ -29,18 +29,18 @@ The first instance can be installed by downloading the file create-child.sh in P
 ::
 
    Usage: ./create-child.sh <parameter> <value>
-   -h --help 		           Shows this help message
-   -i --ip 		             Ip address of the server to run install on
-   -p --password 	   	    Root password of the server
-   -t --testnet 		        Install agent in testnet mode (default 0)
-   -e --exitnode 	   	    Run as exitnode for tribler
-   -conf --config    		   (optional) VPN configuration file (.ovpn)
-                          Requires the destination config name.
-                          Example: -conf source_config.ovpn dest_config.ovpn
-   -cred --credentials 	  (optional) VPN credentials file (.conf)
-                          Requires the destination credentials name.
-                          Example -cred source_credentials.conf dest_credentials.conf
-   -b --branch 		         (optional) Branch of code to install from (default master)
+      -h --help              Shows this help message
+      -i --ip                Ip address of the server to run install on
+      -p --password          Root password of the server
+      -t --testnet           Install agent in testnet mode (default 0)
+      -e --exitnode          Run as exitnode for tribler
+      -conf --config         (optional) VPN configuration file (.ovpn)
+                             Requires the destination config name.
+                             Example: -conf source_config.ovpn dest_config.ovpn
+      -cred --credentials    (optional) VPN credentials file (.conf)
+                             Requires the destination credentials name.
+                             Example -cred source_credentials.conf dest_credentials.conf
+      -b --branch            (optional) Branch of code to install from (default master)
 
     
 This installs all dependencies (Tribler, Electrum, Cloudomate and ofcourse PlebNet).
