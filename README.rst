@@ -60,7 +60,7 @@ For running PlebNet locally, the following steps are necessary:
 
 .. code-block:: console
 
-    git clone --recurse-submodules git://github.com/Tribler/PlebNet.git
+    git clone --recurse-submodules https://github.com/Tribler/PlebNet.git
     
 - Go to the main folder and execute the following command:
 
