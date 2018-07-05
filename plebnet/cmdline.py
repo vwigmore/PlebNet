@@ -30,7 +30,7 @@ def execute(cmd=None):
         parser_list.set_defaults(func=execute_check)
 
         # create the conf subcommand
-        parser_list = subparsers.add_parser("conf", help="allows changing the configuration files")
+        parser_list = subparsers.add_parser("conf", help="Allows changing the configuration files")
         parser_list.set_defaults(func=execute_conf)
 
         # create the irc subcommand

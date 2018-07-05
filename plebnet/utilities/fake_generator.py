@@ -57,7 +57,7 @@ def _generate_user(cp, fake):
     lastname = fake.last_name()
     username = firstname+lastname
     company = fake.company()
-    email = _generate_email(firstname, lastname, fake).replace(' ', '')
+    email = _generate_email(firstname, lastname).replace(' ', '')
     cp.set('user', 'email', email)
     cp.set('user', 'firstname', firstname)
     cp.set('user', 'lastname', lastname)
@@ -83,7 +83,8 @@ def _generate_server(cp, fake):
     cp.set('server', 'ns2', 'ns2')
     cp.set('server', 'hostname', fake.word())
 
-def _generate_email(firstname, lastname, fake):
+
+def _generate_email(firstname, lastname):
     email = _choose_email()
     parts = email.split('@')
     
